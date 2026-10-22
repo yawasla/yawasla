@@ -1,0 +1,23 @@
+{
+    "name": "yawasla/newsroom",
+    "description": "Online newsroom for mosques and Muslim associations.",
+    "version": "1.0.0",
+    "type": "project",
+    "license": "Apache-2.0",
+    "require": {
+        "php": "^8.1",
+        "phpmailer/phpmailer": "^7.0",
+        "twig/twig": "^3",
+        "catfan/medoo": "^2.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Yawasla\\": "src/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.1.0"
+        }
+    }
+}

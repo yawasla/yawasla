@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Composer\InstalledVersions;
+use Yawasla\Command\CacheClearCommand;
+use Yawasla\Command\Command;
+use Yawasla\Command\ServeCommand;
+
+if (PHP_SAPI !== 'cli') {
+    exit(1);
+}
+
+$root = dirname(__DIR__);
+require $root . '/vendor/autoload.php';
+
+/** @var array<string, Command> $commands */
+$commands = [
+    'serve' => new ServeCommand($root),
+    'cache:clear' => new CacheClearCommand($root),
+];
+
+$name = $argv[1] ?? null;
+
+if ($name === null || !isset($commands[$name])) {
+    if ($name !== null) {
+        fwrite(STDERR, "Unknown command: {$name}\n\n");
+    }
+
+    echo 'Yawasla CLI v' . InstalledVersions::getRootPackage()['pretty_version'] . "\n\nUsage: php bin/console <command> [arguments]\n\nCommands:\n";
+    foreach ($commands as $key => $command) {
+        printf("  %-14s %s\n", $key, $command->description());
+    }
+
+    exit($name === null ? 0 : 1);
+}
+
+exit($commands[$name]->run(array_slice($argv, 2)));

@@ -1,0 +1,4 @@
+# Aucun script ne s'exécute ni n'est servi depuis ce dossier, y compris en double extension (fichier.php.jpg)
+<FilesMatch "\.(php\d?|phtml|pht|phar|phps|cgi|pl|py|sh|asp|aspx|jsp|shtml)(\.|$)">
+  Require all denied
+</FilesMatch>
