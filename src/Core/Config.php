@@ -12,7 +12,7 @@ final class Config
     }
 
     /**
-     * Lit le .env (format INI, valeurs brutes : rien n'est converti). Absent → prod.
+     * Lit le .env (format INI, valeurs brutes : rien n'est converti).
      */
     public static function load(string $file): self
     {
@@ -28,10 +28,5 @@ final class Config
     public function get(string $key, string $default = ''): string
     {
         return $this->values[$key] ?? $default;
-    }
-
-    public function isDev(): bool
-    {
-        return $this->get('APP_ENV', 'prod') === 'dev';
     }
 }

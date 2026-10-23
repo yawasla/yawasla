@@ -20,4 +20,9 @@ abstract class AdminController extends Controller
         header('Cache-Control: no-store');
         header('X-Robots-Tag: noindex');
     }
+
+    protected function locale(): string
+    {
+        return $this->router->locale();
+    }
 }

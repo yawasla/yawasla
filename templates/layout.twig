@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" dir="ltr">
+<html lang="{{ locale }}" dir="{{ dir }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,7 +7,7 @@
 </head>
 <body>
 {% if dev %}
-<div style="background:#b45309;color:#fff;padding:.25rem 1rem;text-align:center">Mode dev : ne jamais laisser en production</div>
+<div style="background:#b45309;color:#fff;padding:.25rem 1rem;text-align:center">Erreurs affichées (public/index.php) : ne jamais laisser en production</div>
 {% endif %}
 {% block content %}{% endblock %}
 </body>

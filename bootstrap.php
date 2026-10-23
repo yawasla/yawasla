@@ -12,15 +12,13 @@ require __DIR__ . '/vendor/autoload.php';
 $config = Config::load(__DIR__ . '/.env');
 $router = null;
 
-error_reporting(E_ALL);
 ini_set('log_errors', '1');
 ini_set('error_log', __DIR__ . '/data/logs/php.log');
-ini_set('display_errors', $config->isDev() ? '1' : '0');
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 
-if (!$config->isDev()) {
+if (!filter_var(ini_get('display_errors'), FILTER_VALIDATE_BOOL)) {
     set_exception_handler(function (Throwable $e) use ($config, &$router): void {
         error_log((string) $e);
-
         try {
             echo (new ErrorController($config, $router ?? throw $e))->serverError();
         } catch (Throwable) {
@@ -31,7 +29,6 @@ if (!$config->isDev()) {
     });
 }
 
-// Déduit du chemin du script, fixé par le serveur : jamais de l'en-tête Host ni de l'URL
 $basePath = substr($_SERVER['SCRIPT_NAME'], 0, (int) strrpos($_SERVER['SCRIPT_NAME'], '/'));
 $router = new Router(__DIR__ . '/src/Controller', __DIR__ . '/data/cache/routes.php', $basePath);
 

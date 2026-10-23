@@ -34,7 +34,7 @@ Yawasla is an online newsroom for mosques and Muslim associations: publish Janaz
 
 #### Run locally
 
-From the project root, install the dependencies and create your `.env` from the example, with `APP_ENV=dev`:
+From the project root, install the dependencies and create your `.env` from the example:
 
 ```
 composer install
@@ -50,6 +50,7 @@ php -S localhost:8000 -t public public/index.php
 Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 
 - `public/index.php` at the end routes every URL through the app router.
+- To display errors, set `display_errors` to `'1'` at the top of `public/index.php`. Never in production.
 - The built-in server ignores `.htaccess` files: headers, caching and the `uploads/` protection can only be tested on Apache.
 - Routes are cached: after adding or changing a route, delete `data/cache/routes.php`.
 

@@ -14,9 +14,8 @@ Newsroom en ligne pour les mosquées et associations musulmanes (annonces Janaza
 ## Principes
 
 - **Pas de framework** : PHP rendu côté serveur, CSS simple, JS vanilla uniquement là où c'est indispensable (push)
-- **Outillage au fur et à mesure** : Composer et Node ajoutés seulement quand un besoin réel le justifie. Le débutant ne lance jamais ni l'un ni l'autre : `vendor/` et les assets compilés sont livrés dans l'archive
 - **Pas d'abstraction maison** (conteneur, ORM, cache…) : des classes simples. Base de données via Medoo (un fichier, aucune dépendance), appelé uniquement dans `Model/`, jamais dans les contrôleurs
-- **Une fonctionnalité complète avant la suivante** : publier une annonce visible en public avant tout le reste
+- **Le cœur n'est jamais modifié par l'utilisateur** : personnalisation via un système dédié (à venir)
 
 ## Contraintes
 
@@ -27,11 +26,13 @@ Newsroom en ligne pour les mosquées et associations musulmanes (annonces Janaza
 ## Structure
 
 ```
-org/            cœur, jamais exposé au web
+./
 ├── bootstrap.php
-├── .env        config (APP_ENV dev/prod, APP_HOST, BDD, SMTP), non versionné ; modèle : .env.example
+├── bin/console CLI : serve [port], cache:clear
+├── .env        config (APP_HOST, BDD, SMTP), non versionné ; modèle : .env.example
 ├── src/        classes (namespace Yawasla\)
 │   ├── Controller/   Controller.php (base) + Front/, Fil/, Admin/
+│   ├── Command/      Commandes de bin/console
 │   ├── Core/         Config, Database, Migrator, erreurs
 │   ├── Http/         Router, Route (attribut), Session, Csrf
 │   ├── Auth/         Auth, LoginThrottle, TokenStore
@@ -50,14 +51,16 @@ org/            cœur, jamais exposé au web
 ```
 
 - `public/index.php` retrouve le cœur via `__DIR__ . '/../'`, jamais par le nom du dossier
+- Installation possible en sous-dossier : préfixe déduit de `SCRIPT_NAME` (jamais de l'en-tête `Host` ni de l'URL), ajouté par `path()`
 - Dossiers de `src/` créés à l'arrivée de leur première classe
 - Routes en attributs `#[Route]` sur les contrôleurs (sur la classe : préfixe), compilées dans `data/cache/routes.php`, régénéré seulement s'il n'existe pas. **`data/cache/` est supprimé à chaque mise à jour**
-- Dev : `php -S localhost:8000 -t public public/index.php`
+- Dev : `php bin/console serve [port]` (port 8000 par défaut)
 
 ## Conventions
 
 - Jamais d'URL absolue enregistrée en base (contenu, réglages) : liens relatifs via `path()`, URL absolues des pages calculées à la requête
 - Vues en Twig (échappement automatique) : `|raw` uniquement sur du HTML de confiance
+- Protection de `/admin/` uniquement dans le constructeur d'`AdminController`, jamais action par action ; le `Router` refuse un contrôleur de `Admin/` qui n'en hérite pas
 - Clés des tableaux Medoo (colonnes, opérateurs) toujours écrites dans le code, jamais issues de la requête HTTP
 - Commentaires uniquement sur les points critiques (sécurité, piège non évident) : une ligne, le pourquoi, jamais ce que le code dit déjà
 
@@ -83,7 +86,7 @@ org/            cœur, jamais exposé au web
 
 **Mail** : deux voies. Sécurité (connexion, reset) via PHPMailer (SMTP ou `mail()`), indépendante du fournisseur de diffusion. Diffusion des annonces via Brevo, interchangeable.
 
-**i18n** : fr au lancement, arabe prévu dès maintenant. RTL : propriétés CSS logiques uniquement. Langue d'interface ≠ langue du contenu.
+**i18n** : interface du système (back-office, installateur, front) en fr, en, ar ; multilingue du contenu utilisateur mis de côté pour l'instant. RTL : propriétés CSS logiques uniquement. Langue d'interface ≠ langue du contenu.
 
 ## Notes
 

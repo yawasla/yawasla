@@ -8,6 +8,8 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
 use ReflectionMethod;
+use Yawasla\Controller\Admin\AdminController;
+use Yawasla\I18n\Translator;
 
 /**
  * Cache des routes régénéré seulement s'il n'existe pas : il est supprimé à chaque mise à jour.
@@ -21,6 +23,8 @@ final class Router
     private array $names;
 
     private string $current = '';
+
+    private string $locale = 'en';
 
     /** @param string $basePath préfixe d'une installation en sous-dossier ("/yawasla"), vide à la racine */
     public function __construct(private string $controllerDir, private string $cacheFile, private string $basePath = '')
@@ -41,6 +45,12 @@ final class Router
 
         $path = rtrim($path, '/') ?: '/';
 
+        // Langue de l'admin dans l'URL (/admin/fr/…), anglais sans segment ; une langue inconnue tombe en 404
+        if (preg_match('#^/admin/(' . implode('|', Translator::LOCALES) . ')(?=/|$)#', $path, $m)) {
+            $this->locale = $m[1];
+            $path = '/admin' . substr($path, strlen($m[0]));
+        }
+
         foreach ($this->routes as $route) {
             if (in_array($method, $route['methods'], true) && preg_match($route['regex'], $path, $matches)) {
                 $this->current = $route['name'];
@@ -57,6 +67,11 @@ final class Router
         return $this->current;
     }
 
+    public function locale(): string
+    {
+        return $this->locale;
+    }
+
     /**
      * URL d'une route nommée, paramètres encodés.
      *
@@ -68,10 +83,16 @@ final class Router
             throw new \InvalidArgumentException('Route inconnue : ' . $name);
         }
 
+        $path = $this->names[$name];
+
+        if ($this->locale !== 'en' && ($path === '/admin' || str_starts_with($path, '/admin/'))) {
+            $path = '/admin/' . $this->locale . substr($path, strlen('/admin'));
+        }
+
         return $this->basePath . preg_replace_callback(
             '#\{(\w+)\}#',
             fn (array $m): string => rawurlencode((string) ($params[$m[1]] ?? throw new \InvalidArgumentException("Paramètre manquant : {$m[1]}"))),
-            $this->names[$name],
+            $path,
         );
     }
 
@@ -92,6 +113,11 @@ final class Router
 
             if ($class->isAbstract()) {
                 continue;
+            }
+
+            // Sans cet héritage, la page admin serait publique
+            if (str_starts_with($relative, 'Admin/') && !$class->isSubclassOf(AdminController::class)) {
+                throw new \LogicException($class->getName() . ' doit hériter de ' . AdminController::class);
             }
 
             $prefix = ($class->getAttributes(Route::class)[0] ?? null)?->newInstance()->path ?? '';

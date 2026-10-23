@@ -6,11 +6,11 @@ namespace Yawasla\Controller\Fil;
 
 use Yawasla\Http\Route;
 
-final class HomeController extends FilController
+final class FeedController extends FilController
 {
     #[Route('/fil', name: 'fil')]
     public function index(): string
     {
-        return $this->render('fil/home.twig');
+        return $this->render('fil/feed.twig');
     }
 }
