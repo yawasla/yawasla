@@ -9,26 +9,36 @@ use RecursiveIteratorIterator;
 use ReflectionClass;
 use ReflectionMethod;
 use Yawasla\Controller\Admin\AdminController;
+use Yawasla\Core\Config;
 use Yawasla\I18n\Translator;
+use Yawasla\Trait\Singleton;
 
-/**
- * Cache des routes régénéré seulement s'il n'existe pas : il est supprimé à chaque mise à jour.
- */
 final class Router
 {
+    use Singleton;
+
     /** @var list<array{methods: list<string>, regex: string, class: class-string, action: string, name: string}> */
     private array $routes;
 
-    /** @var array<string, string> nom → chemin */
+    /** @var array<string, string> */
     private array $names;
 
     private string $current = '';
 
-    private string $locale = 'en';
+    private ?string $adminLocale = null;
 
-    /** @param string $basePath préfixe d'une installation en sous-dossier ("/yawasla"), vide à la racine */
-    public function __construct(private string $controllerDir, private string $cacheFile, private string $basePath = '')
+    private string $controllerDir;
+
+    private string $cacheFile;
+
+    private string $basePath;
+
+    private function __construct()
     {
+        $this->controllerDir = dirname(__DIR__) . '/Controller';
+        $this->cacheFile = dirname(__DIR__, 2) . '/data/cache/routes.php';
+        $this->basePath = substr($_SERVER['SCRIPT_NAME'], 0, (int) strrpos($_SERVER['SCRIPT_NAME'], '/'));
+
         if (!is_file($this->cacheFile)) {
             $this->writeCache($this->compile());
         }
@@ -45,17 +55,30 @@ final class Router
 
         $path = rtrim($path, '/') ?: '/';
 
-        // Langue de l'admin dans l'URL (/admin/fr/…), anglais sans segment ; une langue inconnue tombe en 404
         if (preg_match('#^/admin/(' . implode('|', Translator::LOCALES) . ')(?=/|$)#', $path, $m)) {
-            $this->locale = $m[1];
+            $this->adminLocale = $m[1];
             $path = '/admin' . substr($path, strlen($m[0]));
+        } elseif ($path === '/admin' || str_starts_with($path, '/admin/')) {
+            $this->adminLocale = 'en';
+        }
+
+        if ($method === 'HEAD') {
+            $method = 'GET';
         }
 
         foreach ($this->routes as $route) {
             if (in_array($method, $route['methods'], true) && preg_match($route['regex'], $path, $matches)) {
+                $params = array_map('rawurldecode', array_slice($matches, 1));
+
+                foreach ($params as $param) {
+                    if (preg_match('#[/\\\\\x00-\x1f\x7f]|\.\.#', $param)) {
+                        throw new NotFoundException();
+                    }
+                }
+
                 $this->current = $route['name'];
 
-                return [$route['class'], $route['action'], array_map('rawurldecode', array_slice($matches, 1))];
+                return [$route['class'], $route['action'], $params];
             }
         }
 
@@ -67,16 +90,17 @@ final class Router
         return $this->current;
     }
 
-    public function locale(): string
+    public function basePath(): string
     {
-        return $this->locale;
+        return $this->basePath;
     }
 
-    /**
-     * URL d'une route nommée, paramètres encodés.
-     *
-     * @param array<string, string|int> $params
-     */
+    public function locale(): string
+    {
+        return $this->adminLocale ?? Config::getInstance()->get('APP_LANG', 'en');
+    }
+
+    /** @param array<string, string|int> $params */
     public function path(string $name, array $params = []): string
     {
         if (!isset($this->names[$name])) {
@@ -85,8 +109,10 @@ final class Router
 
         $path = $this->names[$name];
 
-        if ($this->locale !== 'en' && ($path === '/admin' || str_starts_with($path, '/admin/'))) {
-            $path = '/admin/' . $this->locale . substr($path, strlen('/admin'));
+        $locale = $this->adminLocale ?? 'en';
+
+        if ($locale !== 'en' && ($path === '/admin' || str_starts_with($path, '/admin/'))) {
+            $path = '/admin/' . $locale . substr($path, strlen('/admin'));
         }
 
         return $this->basePath . preg_replace_callback(
@@ -115,7 +141,6 @@ final class Router
                 continue;
             }
 
-            // Sans cet héritage, la page admin serait publique
             if (str_starts_with($relative, 'Admin/') && !$class->isSubclassOf(AdminController::class)) {
                 throw new \LogicException($class->getName() . ' doit hériter de ' . AdminController::class);
             }
@@ -153,7 +178,6 @@ final class Router
             mkdir($dir, 0700, true);
         }
 
-        // Écriture atomique : une requête concurrente ne lit jamais un fichier à moitié écrit
         $tmp = $this->cacheFile . '.' . bin2hex(random_bytes(4));
         file_put_contents($tmp, '<?php return ' . var_export($data, true) . ';' . PHP_EOL);
         rename($tmp, $this->cacheFile);

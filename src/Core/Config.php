@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 namespace Yawasla\Core;
 
+use Yawasla\Trait\Singleton;
+
 final class Config
 {
-    /** @param array<string, string> $values */
-    private function __construct(private array $values)
-    {
-    }
+    use Singleton;
 
-    /**
-     * Lit le .env (format INI, valeurs brutes : rien n'est converti).
-     */
-    public static function load(string $file): self
+    /** @var array<string, string> */
+    private array $values;
+
+    private function __construct()
     {
+        $file = dirname(__DIR__, 2) . '/.env';
         $values = is_file($file) ? parse_ini_file($file, false, INI_SCANNER_RAW) : [];
 
         if ($values === false) {
             throw new \RuntimeException('Fichier .env illisible : ' . $file);
         }
 
-        return new self($values);
+        $this->values = $values;
     }
 
     public function get(string $key, string $default = ''): string

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Yawasla\Controller\Front;
 
-/**
- * Pages d'erreur, appelées par le bootstrap (aucune route).
- */
 final class ErrorController extends FrontController
 {
     public function notFound(): string

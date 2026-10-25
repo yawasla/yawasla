@@ -1,0 +1,15 @@
+<p>
+    {{ sql.queries|length }} queries, {{ sql.time }} ms
+    {% if sql.duplicates %}<span class="badge text-bg-warning">{{ sql.duplicates }} repeated</span>{% endif %}
+</p>
+{% if sql.queries %}
+    <table class="table table-sm font-monospace">
+        {% for q in sql.queries %}
+            <tr{% if q.count > 1 %} class="table-warning"{% endif %}>
+                <td>{{ loop.index }}</td>
+                <td class="text-break">{{ q.sql }}</td>
+                <td class="text-end text-nowrap">{{ q.time }} ms{% if q.count > 1 %} ×{{ q.count }}{% endif %}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}

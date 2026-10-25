@@ -1,0 +1,25 @@
+{% macro node(node) %}
+    {% import _self as dumper %}
+    {% if node.children is defined %}
+        <details>
+            <summary><code>{{ node.type }}</code></summary>
+            <ul class="list-unstyled mb-0">
+                {% for key, child in node.children %}
+                    <li><span class="text-primary">{{ key }}</span> : {{ dumper.node(child) }}</li>
+                {% endfor %}
+            </ul>
+        </details>
+    {% else %}
+        <code>{{ node.type }}</code> {{ node.value }}
+    {% endif %}
+{% endmacro %}
+{% import _self as dumper %}
+
+{% for dump in dumps %}
+    <div class="border-bottom py-2 font-monospace debug-dump">
+        <div class="text-body-secondary">{{ dump.origin }}</div>
+        {{ dumper.node(dump.value) }}
+    </div>
+{% else %}
+    <p class="text-body-secondary">—</p>
+{% endfor %}

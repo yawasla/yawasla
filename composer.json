@@ -13,7 +13,10 @@
     "autoload": {
         "psr-4": {
             "Yawasla\\": "src/"
-        }
+        },
+        "files": [
+            "src/Debug/functions.php"
+        ]
     },
     "config": {
         "platform": {

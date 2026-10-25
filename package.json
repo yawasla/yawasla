@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "sass --embed-sources public/assets/scss:public/assets/css",
+    "build": "sass --no-source-map --style=compressed public/assets/scss:public/assets/css",
+    "watch": "sass --watch --embed-sources public/assets/scss:public/assets/css"
+  },
+  "devDependencies": {
+    "sass": "1.106.1"
+  }
+}

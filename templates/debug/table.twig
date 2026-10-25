@@ -1,0 +1,9 @@
+{% if rows %}
+    <table class="table table-sm table-striped font-monospace">
+        {% for key, value in rows %}
+            <tr><th class="w-25">{{ key }}</th><td class="text-break">{{ value }}</td></tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p class="text-body-secondary">—</p>
+{% endif %}

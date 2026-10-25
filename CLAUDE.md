@@ -13,56 +13,72 @@ Newsroom en ligne pour les mosquées et associations musulmanes (annonces Janaza
 
 ## Principes
 
-- **Pas de framework** : PHP rendu côté serveur, CSS simple, JS vanilla uniquement là où c'est indispensable (push)
-- **Pas d'abstraction maison** (conteneur, ORM, cache…) : des classes simples. Base de données via Medoo (un fichier, aucune dépendance), appelé uniquement dans `Model/`, jamais dans les contrôleurs
-- **Le cœur n'est jamais modifié par l'utilisateur** : personnalisation via un système dédié (à venir)
+Repères plutôt que règles : ils ne doivent pas freiner le développement, tant que ça reste simple et sûr.
 
-## Contraintes
+- PHP rendu côté serveur, Twig pour les vues
+- Front : Bootstrap (CSS et JS), nos styles en SCSS, nos scripts en modules ES natifs
+- Classes simples ; singletons via le trait `Singleton` pour les services transverses (`Config`, `Router`, `Translator`, `Database`, `Debug`)
+- Base de données via Medoo, appelé dans `Model/`
+- Une dépendance ou un outil de plus seulement s'il simplifie vraiment
+- Le cœur n'est pas modifié par l'utilisateur : personnalisation via un système dédié (à venir)
 
-- **PHP 8.1+** : rien au-delà de 8.1 (pas de `readonly` sur les classes ni de constantes typées, qui sont en 8.2/8.3)
-- SQLite par défaut ; MySQL 8 / MariaDB 10.11 en option
-- **SSL obligatoire** (web push, cookies `Secure`). Hébergement cible : mutualisé (OVH, cPanel) comme VPS
+## Environnement
+
+- PHP 8.1+ ; SQLite par défaut, MySQL / MariaDB en option
+- SSL obligatoire (web push, cookies `Secure`). Hébergement cible : mutualisé (OVH, cPanel) comme VPS
+- Dev uniquement : Node 22+ et sass pour compiler le SCSS. Le CSS compilé est versionné, l'installation n'a pas besoin de Node
 
 ## Structure
 
 ```
 ./
 ├── bootstrap.php
-├── bin/console CLI : serve [port], cache:clear
-├── .env        config (BDD, SMTP), non versionné ; modèle : .env.example
-├── src/        classes (namespace Yawasla\)
+├── bin/console     CLI : serve [port], cache:clear
+├── package.json    npm run dev | build | watch (SCSS → CSS)
+├── .env            config (APP_ENV, BDD, SMTP), non versionné ; modèle : .env.example
+├── src/            classes (namespace Yawasla\)
 │   ├── Controller/   Controller.php (base) + Front/, Fil/, Admin/
-│   ├── Command/      Commandes de bin/console
-│   ├── Core/         Config, Database, Migrator, erreurs
-│   ├── Http/         Router, Route (attribut), Session, Csrf
-│   ├── Auth/         Auth, LoginThrottle, TokenStore
-│   ├── Model/        une classe par table, avec ses requêtes SQL
-│   ├── Mail/         Mailer (mails de sécurité)
-│   ├── Notify/       WebPush, Brevo (diffusion)
+│   ├── Command/      commandes de bin/console
+│   ├── Core/         Config, Database
+│   ├── Debug/        barre de debug, dump()
+│   ├── Http/         Router, Route (attribut)
 │   ├── I18n/         Translator, filtre Twig |trans
-│   ├── Seo/          Sitemap, Schema.org, Open Graph
-│   └── Form/         Validator, Upload
-├── templates/  vues Twig : front/, fil/, admin/ (comme les contrôleurs), errors/
-├── data/       base SQLite, sessions, logs, cache/ (Twig, routes.php)
-├── nbe/        ancien moteur NBE, non versionné : on y pioche du code à réécrire, rien n'en est chargé
-└── public/     racine web, renommable (www/, public_html/…)
+│   ├── Trait/        Singleton
+│   └── …             Model/, Auth/, Mail/, Notify/, Seo/, Form/ à venir
+├── templates/      vues Twig : front/, fil/, admin/, errors/, partials/, debug/
+├── translations/   fr.php, ar.php (l'anglais est écrit dans le code)
+├── data/           base SQLite, sessions, logs, cache/ (Twig, routes.php)
+├── nbe/            ancien moteur NBE, non versionné : on y pioche des idées, rien n'en est chargé
+└── public/         racine web, renommable (www/, public_html/…)
     ├── index.php   seul point d'entrée PHP
-    └── uploads/    médias, nom aléatoire, rangés par dossier
+    ├── assets/     scss/ → css/, js/, vendor/ (Bootstrap copié à la main)
+    └── uploads/    médias
 ```
 
-- `public/index.php` retrouve le cœur via `__DIR__ . '/../'`, jamais par le nom du dossier
-- Installation possible en sous-dossier : préfixe déduit de `SCRIPT_NAME` (jamais de l'en-tête `Host` ni de l'URL), ajouté par `path()`
 - Dossiers de `src/` créés à l'arrivée de leur première classe
-- Routes en attributs `#[Route]` sur les contrôleurs (sur la classe : préfixe), compilées dans `data/cache/routes.php`, régénéré seulement s'il n'existe pas. **`data/cache/` est supprimé à chaque mise à jour**
-- Dev : `php bin/console serve [port]` (port 8000 par défaut)
+- Installation possible en sous-dossier : préfixe déduit de `SCRIPT_NAME`, ajouté par `path()` et `asset()`
+- Routes en attributs `#[Route]`, compilées dans `data/cache/routes.php`. **`data/cache/` est supprimé à chaque mise à jour**
+- Dev : `php bin/console serve [port]`, `npm run watch`, `APP_ENV=dev` dans `.env`
 
-## Conventions
+## Sécurité
 
-- Jamais d'URL absolue enregistrée en base (contenu, réglages) : liens relatifs via `path()`, URL absolues des pages calculées à la requête
-- Vues en Twig (échappement automatique) : `|raw` uniquement sur du HTML de confiance
-- Protection de `/admin/` uniquement dans le constructeur d'`AdminController`, jamais action par action ; le `Router` refuse un contrôleur de `Admin/` qui n'en hérite pas
-- Clés des tableaux Medoo (colonnes, opérateurs) toujours écrites dans le code, jamais issues de la requête HTTP
-- Commentaires uniquement sur les points critiques (sécurité, piège non évident) : une ligne, le pourquoi, jamais ce que le code dit déjà
+**Aucun commentaire dans le code** (projet open source) : le pourquoi des protections est ici, nulle part ailleurs.
+
+Règles :
+- Twig échappe tout : `|raw` uniquement sur du HTML de confiance
+- Rien de la requête HTTP en nom de colonne, clé Medoo, chemin de fichier ou `redirectExternal()`
+- Pas d'URL absolue en base ; liens des mails depuis le domaine en base, jamais l'en-tête `Host`
+- Pas de JS ni de style inline, pas de CDN : la CSP l'interdit, tout ajout externe doit y être déclaré
+- Uploads : liste blanche d'images uniquement (un SVG ou un HTML exécuterait du JS sur le domaine)
+- `AdminController` ne protège encore rien : aucune route dans `Admin/` avant l'authentification
+
+En place :
+- `bootstrap.php` envoie les en-têtes (CSP, HSTS sans `includeSubDomains`…) pour tout serveur ; `public/.htaccess` pour les fichiers statiques
+- Racine du projet exposée par erreur : `.htaccess` bloque tout, `index.php` répond 503 (nginx non couvert)
+- `data/` et scripts dans `uploads/` refusés par leur `.htaccess`
+- Debug seulement si `APP_ENV` vaut exactement `dev` ; erreurs jamais affichées au client
+- Langue filtrée par liste blanche ; paramètres de route en 404 s'ils contiennent `/`, `\`, `..` ou un caractère de contrôle
+- `redirect()` : chemin interne uniquement (`//`, `/\` et caractères de contrôle mènent ailleurs) ; `redirectExternal()` : `http`/`https`. Sinon, accueil
 
 ## Produit
 
@@ -79,14 +95,12 @@ Newsroom en ligne pour les mosquées et associations musulmanes (annonces Janaza
 
 **Authentification** — on part du principe qu'il y aura des attaques
 - Session PHP native, fichiers dans `data/sessions`, cookie `Secure`, `HttpOnly`, `SameSite=Lax`
-- Connexion en deux temps, sans désactivation ni « appareil de confiance » : identifiants, puis lien à usage unique de 5 min par mail. Le lien ouvre une page avec un bouton qui valide (jamais à l'ouverture : scanners de liens)
-- Réponse d'échec uniforme (code, corps et temps) quelle que soit la raison ; limitation par IP qui n'annonce jamais le blocage
-- Liens absolus des mails construits depuis le domaine enregistré en base (`settings`), **jamais** l'en-tête `Host` (à supprimer une fois implémenté)
-- Jamais de stack trace au client ; jamais de sécurité désactivée en dev
+- Connexion en deux temps : identifiants, puis lien à usage unique de 5 min par mail. Le lien ouvre une page avec un bouton qui valide (jamais à l'ouverture : scanners de liens)
+- Réponse d'échec uniforme quelle que soit la raison ; limitation par IP qui n'annonce jamais le blocage
 
 **Mail** : deux voies. Sécurité (connexion, reset) via PHPMailer (SMTP ou `mail()`), indépendante du fournisseur de diffusion. Diffusion des annonces via Brevo, interchangeable.
 
-**i18n** : interface du système (back-office, installateur, front) en fr, en, ar ; multilingue du contenu utilisateur mis de côté pour l'instant. RTL : propriétés CSS logiques uniquement. Langue d'interface ≠ langue du contenu.
+**i18n** : interface du système en fr, en, ar ; langue de l'admin dans l'URL (`/admin/fr/…`), celle du front dans `.env`. RTL : propriétés CSS logiques dans nos styles, `bootstrap.rtl.min.css` pour Bootstrap. Langue d'interface ≠ langue du contenu.
 
 ## Notes
 

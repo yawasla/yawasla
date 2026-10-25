@@ -3,3 +3,5 @@
 /vendor/
 .env
 /nbe/
+/node_modules/
+/public/assets/css/*.map

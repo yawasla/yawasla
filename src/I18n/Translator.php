@@ -4,33 +4,40 @@ declare(strict_types=1);
 
 namespace Yawasla\I18n;
 
-/**
- * Textes de l'interface écrits en anglais dans le code : l'anglais n'a pas de fichier, une chaîne non traduite reste en anglais.
- */
+use Yawasla\Debug\Debug;
+use Yawasla\Http\Router;
+use Yawasla\Trait\Singleton;
+
 final class Translator
 {
+    use Singleton;
+
     public const LOCALES = ['en', 'fr', 'ar'];
 
     private const RTL = ['ar'];
 
     private string $locale;
 
-    /** @var array<string, string> anglais → traduction */
+    /** @var array<string, string> */
     private array $messages = [];
 
-    public function __construct(string $locale, string $dir)
+    private function __construct()
     {
-        // Liste blanche : la langue sert à construire un chemin de fichier
+        $locale = Router::getInstance()->locale();
         $this->locale = in_array($locale, self::LOCALES, true) ? $locale : 'en';
 
         if ($this->locale !== 'en') {
-            $this->messages = require $dir . '/' . $this->locale . '.php';
+            $this->messages = require dirname(__DIR__, 2) . '/translations/' . $this->locale . '.php';
         }
     }
 
-    /** @param array<string, string|int> $params remplacements, ex. ['%name%' => 'Ali'] */
+    /** @param array<string, string|int> $params */
     public function trans(string $text, array $params = []): string
     {
+        if ($this->locale !== 'en' && !isset($this->messages[$text])) {
+            Debug::getInstance()->missingTranslation($text);
+        }
+
         return strtr($this->messages[$text] ?? $text, array_map('strval', $params));
     }
 

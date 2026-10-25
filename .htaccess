@@ -1,0 +1,12 @@
+Options -Indexes
+DirectoryIndex index.php
+
+Require all denied
+
+<Files "index.php">
+  Require all granted
+</Files>
+
+<If "-d %{REQUEST_FILENAME}">
+  Require all granted
+</If>

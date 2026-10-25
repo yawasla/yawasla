@@ -1,0 +1,18 @@
+{% if exception %}
+    <div class="alert alert-danger font-monospace">
+        <strong>{{ exception.class }}</strong> : {{ exception.message }}<br>
+        <span class="text-body-secondary">{{ exception.origin }}</span>
+        <ol class="mt-2 mb-0">
+            {% for frame in exception.trace %}<li>{{ frame }}</li>{% endfor %}
+        </ol>
+    </div>
+{% endif %}
+{% if errors %}
+    <table class="table table-sm font-monospace">
+        {% for e in errors %}
+            <tr><td><span class="badge text-bg-warning">{{ e.level }}</span></td><td class="text-break">{{ e.message }}</td><td>{{ e.origin }}</td></tr>
+        {% endfor %}
+    </table>
+{% elseif not exception %}
+    <p class="text-body-secondary">—</p>
+{% endif %}

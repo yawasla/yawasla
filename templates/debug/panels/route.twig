@@ -1,0 +1,8 @@
+{% include 'debug/table.twig' with {rows: {
+    'Name': route.name,
+    'Controller': route.class ?? '',
+    'Action': route.action ?? '',
+    'Parameters': (route.params ?? [])|join(', '),
+    'Locale': route.locale,
+    'Base path': route.basePath,
+}} only %}

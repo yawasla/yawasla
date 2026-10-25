@@ -1,3 +1,10 @@
-{% extends 'construction.twig' %}
+{% extends 'layout.twig' %}
 
 {% block title %}Fil des annonces{% endblock %}
+
+{% block content %}
+    <main>
+        <h1>{{ block('title') }}</h1>
+        <p>{{ 'Page under construction.'|trans }}</p>
+    </main>
+{% endblock %}

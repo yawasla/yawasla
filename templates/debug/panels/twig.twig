@@ -1,0 +1,8 @@
+<table class="table table-sm font-monospace debug-templates">
+    {% for t in templates %}
+        <tr>
+            <td class="debug-depth-{{ min(t.depth, 8) }}">{{ t.type }} <strong>{{ t.name }}</strong></td>
+            <td class="text-end">{{ t.time }} ms</td>
+        </tr>
+    {% endfor %}
+</table>

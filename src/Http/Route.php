@@ -6,9 +6,6 @@ namespace Yawasla\Http;
 
 use Attribute;
 
-/**
- * Route d'un contrôleur. Sur la classe : préfixe des routes de ses méthodes.
- */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
 final class Route
 {

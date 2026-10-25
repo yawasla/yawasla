@@ -9,12 +9,10 @@ Options -Indexes
     Header set Cache-Control "max-age=31536000, public"
   </FilesMatch>
 
-  # Sans numéro de version dans l'URL : cache court, sinon l'ancien CSS/JS survit à une mise à jour
   <FilesMatch "\.(css|js)$">
     Header set Cache-Control "max-age=7200, public"
   </FilesMatch>
 
-  # Service worker et manifest toujours revalidés : un service worker en cache bloque les mises à jour du push
   <FilesMatch "^(sw\.js|manifest\.webmanifest)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>

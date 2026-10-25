@@ -5,13 +5,22 @@ declare(strict_types=1);
 namespace Yawasla\Core;
 
 use Medoo\Medoo;
+use Yawasla\Debug\Debug;
+use Yawasla\Trait\Singleton;
 
 final class Database
 {
-    public static function connect(Config $config, string $sqliteFile): Medoo
+    use Singleton;
+
+    private Medoo $medoo;
+
+    private function __construct()
     {
+        $config = Config::getInstance();
+        $logging = Debug::getInstance()->enabled();
+
         if ($config->get('DB_DRIVER', 'sqlite') === 'mysql') {
-            return new Medoo([
+            $this->medoo = new Medoo([
                 'type' => 'mysql',
                 'host' => $config->get('DB_HOST'),
                 'port' => (int) $config->get('DB_PORT', '3306'),
@@ -19,13 +28,20 @@ final class Database
                 'username' => $config->get('DB_USER'),
                 'password' => $config->get('DB_PASSWORD'),
                 'charset' => 'utf8mb4',
+                'logging' => $logging,
             ]);
+            Debug::getInstance()->database($this->medoo);
+
+            return;
         }
 
-        $db = new Medoo(['type' => 'sqlite', 'database' => $sqliteFile]);
-        // SQLite ignore les clés étrangères sans ce pragma, à chaque connexion
-        $db->pdo->exec('PRAGMA foreign_keys = ON');
+        $this->medoo = new Medoo(['type' => 'sqlite', 'database' => dirname(__DIR__, 2) . '/data/database.sqlite', 'logging' => $logging]);
+        Debug::getInstance()->database($this->medoo);
+        $this->medoo->pdo->exec('PRAGMA foreign_keys = ON');
+    }
 
-        return $db;
+    public function medoo(): Medoo
+    {
+        return $this->medoo;
     }
 }

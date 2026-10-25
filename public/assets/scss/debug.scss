@@ -1,0 +1,71 @@
+@use "variables" as *;
+
+$max-depth: 8;
+
+.debug-templates {
+    @for $depth from 0 through $max-depth {
+        .debug-depth-#{$depth} {
+            padding-inline-start: #{$depth + 0.25}rem;
+        }
+    }
+}
+
+.debug-dump ul {
+    padding-inline-start: 1.25rem;
+}
+
+.debug-button {
+    --bs-btn-bg: #{$green};
+    --bs-btn-border-color: #{$green};
+    --bs-btn-color: #{$text};
+    --bs-btn-hover-bg: #{$green-deep};
+    --bs-btn-hover-border-color: #{$green-deep};
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: #{$green-deep};
+    --bs-btn-active-border-color: #{$green-deep};
+    --bs-btn-active-color: #fff;
+}
+
+.debug-panels {
+    --bs-offcanvas-height: 75vh;
+}
+
+.debug-resize {
+    flex-shrink: 0;
+    padding-block: 0.5rem;
+    cursor: ns-resize;
+    touch-action: none;
+
+    &::before {
+        content: "";
+        display: block;
+        inline-size: 3rem;
+        block-size: 0.3rem;
+        margin-inline: auto;
+        border-radius: 1rem;
+        background: var(--bs-secondary-color);
+    }
+}
+
+.debug-stats {
+    flex-wrap: wrap;
+}
+
+@media (width < $breakpoint-md) {
+    .debug-tabs,
+    .debug-stats {
+        flex-wrap: nowrap;
+        min-inline-size: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        > * {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+    }
+}

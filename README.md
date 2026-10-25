@@ -31,6 +31,7 @@ Yawasla is an online newsroom for mosques and Muslim associations: publish Janaz
 - PHP 8.1+
 - Composer
 - SQLite (default) or MySQL 8.0+ / MariaDB 10.11+
+- Node.js 22+, only to compile the styles (the compiled CSS is committed)
 
 #### Run locally
 
@@ -41,18 +42,33 @@ composer install
 cp .env.example .env
 ```
 
-Then start PHP's built-in server:
+Then start the dev server (PHP's built-in server, port 8000 by default):
 
 ```
-php -S localhost:8000 -t public public/index.php
+php bin/console serve [port]
 ```
 
 Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 
-- `public/index.php` at the end routes every URL through the app router.
-- To display errors, set `display_errors` to `'1'` at the top of `public/index.php`. Never in production.
+- To show the debug toolbar (errors, dumps, SQL queries…), set `APP_ENV=dev` in `.env`. Never in production.
 - The built-in server ignores `.htaccess` files: headers, caching and the `uploads/` protection can only be tested on Apache.
-- Routes are cached: after adding or changing a route, delete `data/cache/routes.php`.
+- Routes and Twig templates are cached: after adding or changing a route, run `php bin/console cache:clear`.
+
+#### Routes
+
+Routes are declared with the `#[Route]` attribute on controllers. Parameters such as `{slug}` accept any character, Arabic included, except `/`, `\`, `..` and control characters: a URL containing one of them answers 404.
+
+#### Styles
+
+Sources are in `public/assets/scss/`, compiled to `public/assets/css/` with [Sass](https://sass-lang.com). Install it once with `npm install`, then:
+
+| Command | Output |
+|---|---|
+| `npm run dev` | compiles once, readable CSS with source maps |
+| `npm run watch` | same as `dev`, recompiles on every change |
+| `npm run build` | compiles once, minified CSS: run it before committing |
+
+Partials (`_variables.scss`…) are only imported; every other `.scss` file gives a `.css` file of the same name.
 
 ## Deployment
 
@@ -62,11 +78,13 @@ Upload the project and point the site's document root to the `public/` folder.
 
 On shared hosting, rename `public/` to your host's web folder (OVH: `www/`, cPanel: `public_html/`) and upload the rest of the project to its parent folder. Everything outside the web folder (code, database, uploaded media) is never reachable from the web.
 
+If the site answers with an empty **503** page, the document root points to the project root instead of `public/`. On Apache, the `.htaccess` at the project root then blocks every file (`.env`, `vendor/`…) until the document root is fixed. Nginx ignores `.htaccess` files: its `root` must point to `public/`.
+
 ## Tech stack
 
-- **Backend**: plain PHP 8.1+, server-rendered pages, PDO
-- **Frontend**: HTML, CSS and vanilla JavaScript; the subscription page (`/fil/`) is a small PWA for web push
-- **Database**: SQLite by default, MySQL / MariaDB optional
+- **Backend**: PHP 8.1+, server-rendered pages with [Twig](https://twig.symfony.com)
+- **Frontend**: [Bootstrap](https://getbootstrap.com) (CSS and JS, served locally), our styles in SCSS, native ES modules; the subscription page (`/fil/`) is a small PWA for web push
+- **Database**: SQLite by default, MySQL / MariaDB optional, through [Medoo](https://medoo.in)
 - **Notifications**: web push, mail through Brevo (kept interchangeable)
 - **License**: Apache 2.0
 
