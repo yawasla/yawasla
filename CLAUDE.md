@@ -29,7 +29,7 @@ Newsroom en ligne pour les mosquées et associations musulmanes (annonces Janaza
 ./
 ├── bootstrap.php
 ├── bin/console CLI : serve [port], cache:clear
-├── .env        config (APP_HOST, BDD, SMTP), non versionné ; modèle : .env.example
+├── .env        config (BDD, SMTP), non versionné ; modèle : .env.example
 ├── src/        classes (namespace Yawasla\)
 │   ├── Controller/   Controller.php (base) + Front/, Fil/, Admin/
 │   ├── Command/      Commandes de bin/console
@@ -81,7 +81,7 @@ Newsroom en ligne pour les mosquées et associations musulmanes (annonces Janaza
 - Session PHP native, fichiers dans `data/sessions`, cookie `Secure`, `HttpOnly`, `SameSite=Lax`
 - Connexion en deux temps, sans désactivation ni « appareil de confiance » : identifiants, puis lien à usage unique de 5 min par mail. Le lien ouvre une page avec un bouton qui valide (jamais à l'ouverture : scanners de liens)
 - Réponse d'échec uniforme (code, corps et temps) quelle que soit la raison ; limitation par IP qui n'annonce jamais le blocage
-- Liens absolus des mails construits depuis `APP_HOST` (`.env`), **jamais** l'en-tête `Host`. Changer de domaine = copier les fichiers + modifier cette ligne ; l'admin avertit si le domaine courant diffère
+- Liens absolus des mails construits depuis le domaine enregistré en base (`settings`), **jamais** l'en-tête `Host` (à supprimer une fois implémenté)
 - Jamais de stack trace au client ; jamais de sécurité désactivée en dev
 
 **Mail** : deux voies. Sécurité (connexion, reset) via PHPMailer (SMTP ou `mail()`), indépendante du fournisseur de diffusion. Diffusion des annonces via Brevo, interchangeable.
