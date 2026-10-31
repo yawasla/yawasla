@@ -10,18 +10,23 @@ use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
 use Twig\Template;
 use Twig\TwigFunction;
+use Yawasla\Core\Modules;
 use Yawasla\Debug\Debug;
 use Yawasla\Http\Router;
+use Yawasla\Http\Vite;
 use Yawasla\I18n\Translator;
 
 abstract class Controller
 {
     private ?Environment $twig = null;
 
-    /** @param array<string, mixed> $data */
-    protected function render(string $template, array $data = []): string
+    /**
+     * @param string|list<string> $template
+     * @param array<string, mixed> $data
+     */
+    protected function render(string|array $template, array $data = []): string
     {
-        $html = $this->twig()->render($template, $data);
+        $html = $this->twig()->resolveTemplate($template)->render($data);
         $debug = Debug::getInstance();
 
         if (!$debug->enabled()) {
@@ -29,7 +34,7 @@ abstract class Controller
         }
 
         header('Cache-Control: no-store');
-        $toolbar = $this->twig()->render('debug/toolbar.twig', $debug->collect());
+        $toolbar = $this->twig()->render('main/debug/toolbar.twig', $debug->collect());
         $end = strripos($html, '</body>');
 
         return $end === false ? $html . $toolbar : substr_replace($html, $toolbar, $end, 0);
@@ -92,12 +97,29 @@ abstract class Controller
         return '';
     }
 
+    private function module(string $name): string
+    {
+        $module = Modules::getInstance()->get($name);
+
+        if ($module === null) {
+            return '';
+        }
+
+        $block = $module['namespace'] . 'Block';
+        $data = class_exists($block) ? (new $block())() : [];
+
+        return $this->twig()->render($module['id'] . '/block.twig', $data);
+    }
+
     private function twig(): Environment
     {
         if ($this->twig === null) {
             $root = dirname(__DIR__, 2);
 
-            $this->twig = new Environment(new FilesystemLoader($root . '/templates'), [
+            $modules = Modules::getInstance();
+            $paths = array_filter(array_map(fn (array $module): string => $module['dir'] . '/templates', $modules->enabled()), 'is_dir');
+
+            $this->twig = new Environment(new FilesystemLoader([...array_values($paths), $root . '/templates']), [
                 'cache' => $root . '/data/cache/twig',
                 'auto_reload' => true,
             ]);
@@ -110,6 +132,8 @@ abstract class Controller
             $this->twig->addGlobal('dir', $translator->dir());
             $this->twig->addFunction(new TwigFunction('path', [$router, 'path']));
             $this->twig->addFunction(new TwigFunction('asset', fn (string $file): string => $router->basePath() . '/assets/' . $file . '?v=' . filemtime($public . '/assets/' . $file)));
+            $this->twig->addFunction(new TwigFunction('vite', [new Vite($root, $public . '/assets', $router->basePath() . '/assets'), 'tags'], ['is_safe' => ['html']]));
+            $this->twig->addFunction(new TwigFunction('module', $this->module(...), ['is_safe' => ['html']]));
             $this->twig->addFilter(new TwigFilter('trans', [$translator, 'trans']));
             $this->twig->addFunction(new TwigFunction('dump', $this->dump(...), ['needs_context' => true, 'is_variadic' => true]));
 

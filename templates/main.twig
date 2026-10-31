@@ -1,0 +1,12 @@
+{% extends 'index.twig' %}
+
+{% block title %}Yawasla{% endblock %}
+
+{% block main %}
+    <main class="d-flex flex-column align-items-center justify-content-center text-center min-vh-100 p-3">
+        <img src="{{ asset('img/logo_yawasla.webp') }}" alt="" class="home-logo mb-3" width="1024" height="1024">
+        <h1>Yawasla</h1>
+        <p class="text-body-secondary mb-4">{{ 'Site under construction.'|trans }}</p>
+        {% include 'main/partials/theme-toggle.twig' %}
+    </main>
+{% endblock %}

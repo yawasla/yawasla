@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yawasla\I18n;
 
+use Yawasla\Core\Modules;
 use Yawasla\Debug\Debug;
 use Yawasla\Http\Router;
 use Yawasla\Trait\Singleton;
@@ -27,7 +28,13 @@ final class Translator
         $this->locale = in_array($locale, self::LOCALES, true) ? $locale : 'en';
 
         if ($this->locale !== 'en') {
-            $this->messages = require dirname(__DIR__, 2) . '/translations/' . $this->locale . '.php';
+            foreach (Modules::getInstance()->enabled() as $module) {
+                $file = $module['dir'] . '/translations/' . $this->locale . '.php';
+
+                if (is_file($file)) {
+                    $this->messages += require $file;
+                }
+            }
         }
     }
 

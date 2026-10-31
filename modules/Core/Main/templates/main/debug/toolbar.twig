@@ -1,0 +1,47 @@
+{% set error_count = errors|length + (exception ? 1 : 0) %}
+{% set panels = {
+    route: 'Route',
+    request: 'Request',
+    twig: 'Twig',
+    sql: 'SQL',
+    errors: 'Errors',
+    dumps: 'Dumps',
+    translations: 'Translations',
+    perf: 'Perf',
+} %}
+{{ vite('@main/scss/debug.scss') }}
+{{ vite('@main/ts/debug.ts') }}
+<div class="py-3"></div>
+<div class="fixed-bottom bg-dark text-light small d-flex align-items-center gap-3 px-3 py-1" dir="ltr">
+    <button type="button" class="btn btn-sm py-0 flex-shrink-0 debug-button" data-bs-toggle="offcanvas" data-bs-target="#debug-panels">Debug</button>
+    <div class="debug-stats d-flex align-items-center gap-3">
+        <span>{{ route.name ?: '—' }}</span>
+        <span>{{ perf.time }} ms</span>
+        <span>{{ perf.memory }} MB</span>
+        <span>{{ templates|filter(t => t.type == 'template')|length }} templates</span>
+        <span class="badge {{ sql.duplicates ? 'text-bg-warning' : 'text-bg-secondary' }}">{{ sql.queries|length }} queries</span>
+        <span class="badge {{ error_count ? 'text-bg-danger' : 'text-bg-secondary' }}">{{ error_count }} errors</span>
+        <span class="badge {{ dumps ? 'text-bg-info' : 'text-bg-secondary' }}">{{ dumps|length }} dumps</span>
+        <span class="badge {{ translations.missing ? 'text-bg-warning' : 'text-bg-secondary' }}">{{ translations.missing|length }} untranslated</span>
+    </div>
+</div>
+<div class="offcanvas offcanvas-bottom debug-panels" tabindex="-1" id="debug-panels" dir="ltr">
+    <div class="debug-resize" role="separator" aria-orientation="horizontal" aria-label="Resize"></div>
+    <div class="offcanvas-header pt-0 pb-2">
+        <ul class="nav nav-tabs debug-tabs">
+            {% for id, label in panels %}
+                <li class="nav-item">
+                    <button type="button" class="nav-link{{ loop.first ? ' active' }}" data-bs-toggle="tab" data-bs-target="#debug-{{ id }}">{{ label }}</button>
+                </li>
+            {% endfor %}
+        </ul>
+        <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body tab-content small">
+        {% for id in panels|keys %}
+            <div class="tab-pane{{ loop.first ? ' active' }}" id="debug-{{ id }}">
+                {% include 'main/debug/panels/' ~ id ~ '.twig' %}
+            </div>
+        {% endfor %}
+    </div>
+</div>

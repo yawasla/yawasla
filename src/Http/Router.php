@@ -8,8 +8,9 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
 use ReflectionMethod;
-use Yawasla\Controller\Admin\AdminController;
+use Yawasla\Controller\AdminController;
 use Yawasla\Core\Config;
+use Yawasla\Core\Modules;
 use Yawasla\I18n\Translator;
 use Yawasla\Trait\Singleton;
 
@@ -27,15 +28,12 @@ final class Router
 
     private ?string $adminLocale = null;
 
-    private string $controllerDir;
-
     private string $cacheFile;
 
     private string $basePath;
 
     private function __construct()
     {
-        $this->controllerDir = dirname(__DIR__) . '/Controller';
         $this->cacheFile = dirname(__DIR__, 2) . '/data/cache/routes.php';
         $this->basePath = substr($_SERVER['SCRIPT_NAME'], 0, (int) strrpos($_SERVER['SCRIPT_NAME'], '/'));
 
@@ -127,30 +125,22 @@ final class Router
     {
         $routes = [];
         $names = [];
-        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->controllerDir, RecursiveDirectoryIterator::SKIP_DOTS));
 
-        foreach ($files as $file) {
-            if ($file->getExtension() !== 'php') {
-                continue;
-            }
-
-            $relative = substr(str_replace('\\', '/', $file->getPathname()), strlen($this->controllerDir) + 1, -4);
-            $class = new ReflectionClass('Yawasla\\Controller\\' . str_replace('/', '\\', $relative));
-
-            if ($class->isAbstract()) {
-                continue;
-            }
-
-            if (str_starts_with($relative, 'Admin/') && !$class->isSubclassOf(AdminController::class)) {
-                throw new \LogicException($class->getName() . ' doit hériter de ' . AdminController::class);
-            }
-
+        foreach ($this->controllers() as $class) {
             $prefix = ($class->getAttributes(Route::class)[0] ?? null)?->newInstance()->path ?? '';
 
             foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
                 foreach ($method->getAttributes(Route::class) as $attribute) {
                     $route = $attribute->newInstance();
                     $path = rtrim($prefix . $route->path, '/') ?: '/';
+
+                    if (($path === '/admin' || str_starts_with($path, '/admin/')) && !$class->isSubclassOf(AdminController::class)) {
+                        throw new \LogicException($class->getName() . ' doit hériter de ' . AdminController::class);
+                    }
+
+                    if ($route->name !== '' && isset($names[$route->name])) {
+                        throw new \LogicException('Route en double : ' . $route->name);
+                    }
 
                     $routes[] = [
                         'methods' => $route->methods,
@@ -168,6 +158,35 @@ final class Router
         }
 
         return ['routes' => $routes, 'names' => $names];
+    }
+
+    /** @return list<ReflectionClass<object>> */
+    private function controllers(): array
+    {
+        $classes = [];
+
+        foreach (Modules::getInstance()->enabled() as $module) {
+            $dir = $module['dir'] . '/src/Controller';
+
+            if (!is_dir($dir)) {
+                continue;
+            }
+
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS)) as $file) {
+                if ($file->getExtension() !== 'php') {
+                    continue;
+                }
+
+                $relative = substr(str_replace('\\', '/', $file->getPathname()), strlen($dir) + 1, -4);
+                $class = new ReflectionClass($module['namespace'] . 'Controller\\' . str_replace('/', '\\', $relative));
+
+                if (!$class->isAbstract()) {
+                    $classes[] = $class;
+                }
+            }
+        }
+
+        return $classes;
     }
 
     /** @param array<string, mixed> $data */

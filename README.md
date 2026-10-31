@@ -31,14 +31,16 @@ Yawasla is an online newsroom for mosques and Muslim associations: publish Janaz
 - PHP 8.1+
 - Composer
 - SQLite (default) or MySQL 8.0+ / MariaDB 10.11+
-- Node.js 22+, only to compile the styles (the compiled CSS is committed)
+- Node.js 22+, only to compile the assets from the repository (release archives already contain them)
 
 #### Run locally
 
-From the project root, install the dependencies and create your `.env` from the example:
+From the project root, install the dependencies, compile the assets and create your `.env` from the example:
 
 ```
 composer install
+npm install
+npm run build
 cp .env.example .env
 ```
 
@@ -53,28 +55,34 @@ Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 - To show the debug toolbar (errors, dumps, SQL queries…), set `APP_ENV=dev` in `.env`. Never in production.
 - The built-in server ignores `.htaccess` files: headers, caching and the `uploads/` protection can only be tested on Apache.
 - Routes and Twig templates are cached: after adding or changing a route, run `php bin/console cache:clear`.
+- To create or update the database, run `php bin/console migrate`: it applies the pending migrations of every module (`migrations/YYYYMMDD-XX.php`).
 
 #### Routes
 
 Routes are declared with the `#[Route]` attribute on controllers. Parameters such as `{slug}` accept any character, Arabic included, except `/`, `\`, `..` and control characters: a URL containing one of them answers 404.
 
-#### Styles
+#### Assets
 
-Sources are in `public/assets/scss/`, compiled to `public/assets/css/` with [Sass](https://sass-lang.com). Install it once with `npm install`, then:
+Sources are in each module's `assets/ts/` (TypeScript) and `assets/scss/` (SCSS, Bootstrap included in `modules/Core/Main`), compiled with [Vite](https://vite.dev) to `public/assets/js/` and `public/assets/css/`. Compiled files are not committed: build them after cloning and after every change.
 
 | Command | Output |
 |---|---|
-| `npm run dev` | compiles once, readable CSS with source maps |
-| `npm run watch` | same as `dev`, recompiles on every change |
-| `npm run build` | compiles once, minified CSS: run it before committing |
+| `npm run check` | checks the TypeScript types, compiles nothing |
+| `npm run dev` | checks the types, then compiles once, readable files with source maps |
+| `npm run watch` | compiles like `dev` on every change, without checking the types |
+| `npm run build` | checks the types, then compiles once, minified files: run it before packaging a release |
 
-Partials (`_variables.scss`…) are only imported; every other `.scss` file gives a `.css` file of the same name.
+Every file directly in a module's `assets/ts/` or `assets/scss/` is an entry, except partials (`_variables.scss`…). File names contain a hash and change with their content: templates load them with the Twig function `vite('@main/ts/app.ts')`, which reads `public/assets/.vite/manifest.json`. `app.rtl.scss` gives the right-to-left version of the styles, used for Arabic.
+
+#### Modules
+
+The whole site is made of modules: `modules/Core/` for the core, `modules/Extension/` for yours. Never edit a core module: disable it and enable your own instead. To customize the home page, copy `templates/custom.twig.example` to `templates/custom.twig` and place the blocks you want with `{{ module('Name') }}`. Updates never replace `modules/Extension/` nor `templates/custom.twig`.
 
 ## Deployment
 
 SSL is required.
 
-Upload the project and point the site's document root to the `public/` folder.
+Download a release archive (it contains the compiled assets, no Node.js needed) or build the assets with `npm run build`, upload the project without `node_modules/`, and point the site's document root to the `public/` folder.
 
 On shared hosting, rename `public/` to your host's web folder (OVH: `www/`, cPanel: `public_html/`) and upload the rest of the project to its parent folder. Everything outside the web folder (code, database, uploaded media) is never reachable from the web.
 
@@ -83,7 +91,7 @@ If the site answers with an empty **503** page, the document root points to the 
 ## Tech stack
 
 - **Backend**: PHP 8.1+, server-rendered pages with [Twig](https://twig.symfony.com)
-- **Frontend**: [Bootstrap](https://getbootstrap.com) (CSS and JS, served locally), our styles in SCSS, native ES modules; the subscription page (`/fil/`) is a small PWA for web push
+- **Frontend**: [Bootstrap](https://getbootstrap.com) (CSS and JS, served locally), our styles in SCSS, TypeScript, compiled with [Vite](https://vite.dev); the subscription page (`/feed/`) is a small PWA for web push
 - **Database**: SQLite by default, MySQL / MariaDB optional, through [Medoo](https://medoo.in)
 - **Notifications**: web push, mail through Brevo (kept interchangeable)
 - **License**: Apache 2.0

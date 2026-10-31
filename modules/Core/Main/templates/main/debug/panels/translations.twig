@@ -1,0 +1,5 @@
+{% include 'main/debug/table.twig' with {rows: {'Locale': translations.locale, 'Direction': translations.dir}} only %}
+<h6>Untranslated</h6>
+<ul class="font-monospace">
+    {% for text in translations.missing %}<li>{{ text }}</li>{% else %}<li class="text-body-secondary">—</li>{% endfor %}
+</ul>

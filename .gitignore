@@ -4,4 +4,7 @@
 .env
 /nbe/
 /node_modules/
-/public/assets/css/*.map
+/public/assets/css/
+/public/assets/js/
+/public/assets/.vite/
+/templates/custom.twig

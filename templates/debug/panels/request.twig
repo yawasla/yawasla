@@ -1,5 +1,0 @@
-<p class="font-monospace">{{ request.method }} {{ request.uri }}</p>
-{% for title, rows in {'GET': request.get, 'POST': request.post, 'Headers': request.headers, 'Cookies': request.cookies} %}
-    <h6>{{ title }}</h6>
-    {% include 'debug/table.twig' with {rows: rows} only %}
-{% endfor %}

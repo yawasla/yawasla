@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use Yawasla\Controller\Front\ErrorController;
+use Yawasla\Module\Core\Main\Controller\ErrorController;
+use Yawasla\Core\Modules;
 use Yawasla\Debug\Debug;
 use Yawasla\Http\NotFoundException;
 use Yawasla\Http\Router;
@@ -20,7 +21,8 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Strict-Transport-Security: max-age=31536000');
 header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'");
 
-require __DIR__ . '/vendor/autoload.php';
+$loader = require __DIR__ . '/vendor/autoload.php';
+Modules::getInstance()->autoload($loader);
 
 set_exception_handler(function (Throwable $e): void {
     error_log((string) $e);

@@ -1,14 +1,22 @@
 {
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "sass --embed-sources public/assets/scss:public/assets/css",
-    "build": "sass --no-source-map --style=compressed public/assets/scss:public/assets/css",
-    "watch": "sass --watch --embed-sources public/assets/scss:public/assets/css"
+    "check": "tsc",
+    "dev": "tsc && vite build --mode development",
+    "build": "tsc && vite build",
+    "watch": "vite build --watch --mode development"
   },
   "devDependencies": {
-    "sass": "1.106.1"
+    "@popperjs/core": "2.11.8",
+    "@types/bootstrap": "5.2.11",
+    "bootstrap": "5.3.8",
+    "rtlcss": "4.3.0",
+    "sass": "1.106.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.5"
   }
 }

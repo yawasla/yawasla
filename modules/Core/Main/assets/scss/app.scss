@@ -1,0 +1,51 @@
+@use "bootstrap/scss/bootstrap";
+@use "sass:color";
+@use "variables" as *;
+
+@function rgb-list($color) {
+    @return color.channel($color, "red", $space: rgb), color.channel($color, "green", $space: rgb), color.channel($color, "blue", $space: rgb);
+}
+
+@mixin theme($bg, $bg-soft, $card, $border, $text, $ink-soft, $link, $link-hover, $primary) {
+    --bs-body-bg: #{$bg};
+    --bs-body-bg-rgb: #{rgb-list($bg)};
+    --bs-body-color: #{$text};
+    --bs-body-color-rgb: #{rgb-list($text)};
+    --bs-emphasis-color: #{$text};
+    --bs-secondary-color: #{$ink-soft};
+    --bs-secondary-bg: #{$bg-soft};
+    --bs-tertiary-bg: #{$card};
+    --bs-border-color: #{$border};
+    --bs-link-color: #{$link};
+    --bs-link-color-rgb: #{rgb-list($link)};
+    --bs-link-hover-color: #{$link-hover};
+    --bs-link-hover-color-rgb: #{rgb-list($link-hover)};
+    --bs-primary: #{$primary};
+    --bs-primary-rgb: #{rgb-list($primary)};
+}
+
+:root,
+[data-bs-theme="light"] {
+    @include theme($bg, $bg-soft, $card, $border, $text, $ink-soft, $green-deep, $green, $green);
+}
+
+[data-bs-theme="dark"] {
+    @include theme($dark-bg, $dark-bg-soft, $dark-card, $dark-border, $dark-text, $dark-ink-soft, $dark-green, $dark-green-deep, $dark-green);
+}
+
+.theme-toggle-dark,
+.theme-toggle-light {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+[data-bs-theme="light"] .theme-toggle-light,
+[data-bs-theme="dark"] .theme-toggle-dark {
+    display: none;
+}
+
+.home-logo {
+    inline-size: 10rem;
+    block-size: auto;
+}

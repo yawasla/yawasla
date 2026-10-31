@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yawasla\Core;
 
 use Medoo\Medoo;
+use PDO;
 use Yawasla\Debug\Debug;
 use Yawasla\Trait\Singleton;
 
@@ -29,6 +30,7 @@ final class Database
                 'password' => $config->get('DB_PASSWORD'),
                 'charset' => 'utf8mb4',
                 'logging' => $logging,
+                'option' => [PDO::MYSQL_ATTR_MULTI_STATEMENTS => false],
             ]);
             Debug::getInstance()->database($this->medoo);
 

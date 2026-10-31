@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Composer\InstalledVersions;
 use Yawasla\Command\CacheClearCommand;
 use Yawasla\Command\Command;
+use Yawasla\Command\MigrateCommand;
 use Yawasla\Command\ServeCommand;
 
 if (PHP_SAPI !== 'cli') {
@@ -19,6 +20,7 @@ require $root . '/vendor/autoload.php';
 $commands = [
     'serve' => new ServeCommand($root),
     'cache:clear' => new CacheClearCommand($root),
+    'migrate' => new MigrateCommand(),
 ];
 
 $name = $argv[1] ?? null;

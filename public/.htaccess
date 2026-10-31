@@ -23,5 +23,6 @@ Options -Indexes
 </IfModule>
 
 RewriteEngine On
+RewriteRule (^|/)\.vite(/|$) - [R=404,L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [QSA,L]
