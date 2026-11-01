@@ -8,11 +8,11 @@ Ce qui est décidé, dans l'ordre. Une idée de `ideas.md` n'arrive ici qu'une f
 - Assets : Vite, TypeScript, Bootstrap compilé depuis npm, noms hashés
 - Modules : `modules/Core` et `modules/Extension`, routes, templates, traductions, assets et blocs par module, `custom.twig`
 - Schéma de la base : `specs/database.md`, migration `Core/Main/migrations/20261031-01.php`
-- Migrations : `Migrator` (up / down, désinstallation d'une extension), `php bin/console migrate`
+- Migrations : `Migrator` (up / down, désinstallation d'une extension), `php bin/console db:migrate`
 
 ## À faire
 
-1. **Install** : création de la base, de l'organisation et du premier utilisateur ; se ferme une fois l'installation terminée
+1. **Install** (`Migrator` traducteur vers SQLite, `db:migrate`, puis changement de serveur `db:migrate --server` : `specs/migration.md`) : création de la base, de l'organisation et du premier utilisateur ; se ferme une fois l'installation terminée
 2. **Authentification** : connexion en deux temps, jetons, limitation par IP, sessions, CSRF
 3. **Admin** : layout, menu, routes `/admin/{locale}`
 4. **Activation des modules** depuis l'admin : table `module`, modules verrouillés, dépendances, vidage du cache, désinstallation des extensions

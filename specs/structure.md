@@ -5,14 +5,15 @@
 ```
 ./
 ├── bootstrap.php
-├── bin/console     CLI : serve [port], cache:clear, migrate
+├── bin/console     CLI : serve [port], cache:clear, db:migrate
 ├── package.json    npm run check | dev | build | watch
 ├── vite.config.ts  build des assets ; tsconfig.json pour la vérification des types
 ├── .env            config (APP_ENV, BDD, SMTP), non versionné ; modèle : .env.example
 ├── src/            noyau (namespace Yawasla\)
 │   ├── Controller/   Controller.php (base), AdminController.php
 │   ├── Command/      commandes de bin/console
-│   ├── Core/         Config, Database, Modules, Migrator
+│   ├── Core/         Config, Modules
+│   ├── Database/     Database, Migration, Migrator, SQLiteAdapter, Transfer
 │   ├── Debug/        barre de debug, dump()
 │   ├── Http/         Router, Route (attribut), Vite (balises des assets)
 │   ├── I18n/         Translator, filtre Twig |trans

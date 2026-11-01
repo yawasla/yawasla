@@ -17,6 +17,7 @@ Repères plutôt que règles : ils ne doivent pas freiner le développement, tan
 
 - PHP rendu côté serveur, Twig pour les vues
 - Front : Bootstrap (CSS et JS, installé par npm et compilé avec nos sources), nos styles en SCSS, nos scripts en TypeScript, le tout compilé par Vite
+- Noms de classes en anglais
 - Classes simples ; singletons via le trait `Singleton` pour les services transverses (`Config`, `Router`, `Translator`, `Database`, `Debug`)
 - Base de données via Medoo, appelé dans `Model/`
 - Une dépendance ou un outil de plus seulement s'il simplifie vraiment
@@ -36,6 +37,7 @@ Le détail est dans `specs/` : lire le fichier concerné avant de travailler sur
 |---|---|
 | `structure.md` | arborescence, parcours d'une requête, modules, assets |
 | `database.md` | tables, relations, choix et conventions |
+| `migration.md` | écriture des migrations, `Migrator`, traduction vers SQLite, changement de serveur SQL |
 | `roadmap.md` | ce qui est décidé, dans l'ordre, avec son statut |
 | `ideas.md` | pistes non décidées |
 

@@ -41,18 +41,12 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 
 ## Migrations
 
-- Fichiers `migrations/YYYYMMDD-XX.php` dans chaque module (`XX` : numéro sur deux chiffres dans la journée), triés par nom. Un autre nom est refusé
-- Une migration renvoie une classe anonyme avec `up(string $driver)` et `down(string $driver)` ; chacune renvoie la liste des requêtes SQL, une requête par élément. Jamais plusieurs requêtes dans une chaîne : MySQL ne remonterait que l'erreur de la première, et le multi-requêtes est désactivé dans `Database` (il aggrave les injections SQL)
-- `Migrator` joue `Core/Main` d'abord, puis les autres modules actifs (cœur, puis extensions), et enregistre chaque migration jouée dans `migration`. La table `migration` est créée par la première migration de `Core/Main` : tant qu'elle n'existe pas, tout est à jouer
-- Chaque migration tourne dans une transaction, arrêt à la première erreur. SQLite annule tout ; MySQL valide seul les `CREATE` / `ALTER` : une migration à moitié jouée se corrige à la main
-- Lancement : `php bin/console migrate` ; plus tard `Install` et l'activation d'un module
-- **Désactiver** un module garde ses données. **Désinstaller** (depuis le tableau de bord des modules, à venir) joue ses `down` dans l'ordre inverse, supprime ses lignes de `migration` et le désactive : `Migrator::uninstall()`. Réservé aux extensions (les tables du cœur sont dans `Core/Main`, verrouillé), refusé si un autre module en dépend
+Écriture, `Migrator`, traduction vers SQLite et changement de serveur : `specs/migration.md`. Lancement : `php bin/console db:migrate` ; plus tard `Install` et l'activation d'un module.
 
 ## Conventions
 
-- Tables au singulier, colonnes en `snake_case`, dates en `DATETIME`, booléens en `BOOLEAN` (`TINYINT(1)` en MySQL)
-- MySQL : `utf8mb4` / `utf8mb4_unicode_ci` imposé sur chaque table, sinon MariaDB peut créer en `latin1` et perdre l'arabe et les emojis
-- Une clé étrangère a exactement le type de l'id référencé (`INT UNSIGNED` en MySQL), sinon MySQL refuse la table
-- `MEDIUMTEXT` / `LONGTEXT` en MySQL deviennent `TEXT` en SQLite
-- Index sur chaque clé étrangère : MySQL les crée seul, SQLite non
+- Tables au singulier, colonnes en `snake_case`, dates en `DATETIME`, booléens en `BOOLEAN`
+- MySQL : `utf8mb4` / `utf8mb4_unicode_ci` sur chaque table, ajouté par le `Migrator` s'il manque
+- Une clé étrangère a exactement le type de l'id référencé (`INT UNSIGNED`), sinon MySQL refuse la table
+- Index sur chaque clé étrangère : MySQL les crée seul, le `Migrator` les ajoute en SQLite s'ils manquent
 - SQLite : `PRAGMA foreign_keys = ON` à chaque connexion (fait par `Database`)

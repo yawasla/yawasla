@@ -55,7 +55,9 @@ Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 - To show the debug toolbar (errors, dumps, SQL queries…), set `APP_ENV=dev` in `.env`. Never in production.
 - The built-in server ignores `.htaccess` files: headers, caching and the `uploads/` protection can only be tested on Apache.
 - Routes and Twig templates are cached: after adding or changing a route, run `php bin/console cache:clear`.
-- To create or update the database, run `php bin/console migrate`: it applies the pending migrations of every module (`migrations/YYYYMMDD-XX.php`).
+- To create or update the database, run `php bin/console db:migrate`: it applies the pending migrations of every module (`migrations/YYYYMMDD-XX.php`).
+- To create an empty migration file in a module, run `php bin/console db:migrate --create <Module>`.
+- To move the database to another SQL server, fill in its settings in `.env`, run `php bin/console db:migrate --server mysql` (or `sqlite`), then change `DB_DRIVER`.
 
 #### Routes
 

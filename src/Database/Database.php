@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yawasla\Core;
+namespace Yawasla\Database;
 
 use Medoo\Medoo;
 use PDO;
+use Yawasla\Core\Config;
 use Yawasla\Debug\Debug;
 use Yawasla\Trait\Singleton;
 
@@ -17,11 +18,22 @@ final class Database
 
     private function __construct()
     {
+        $this->medoo = self::connect(self::driver());
+        Debug::getInstance()->database($this->medoo);
+    }
+
+    public static function driver(): string
+    {
+        return Config::getInstance()->get('DB_DRIVER', 'sqlite') === 'mysql' ? 'mysql' : 'sqlite';
+    }
+
+    public static function connect(string $driver): Medoo
+    {
         $config = Config::getInstance();
         $logging = Debug::getInstance()->enabled();
 
-        if ($config->get('DB_DRIVER', 'sqlite') === 'mysql') {
-            $this->medoo = new Medoo([
+        if ($driver === 'mysql') {
+            return new Medoo([
                 'type' => 'mysql',
                 'host' => $config->get('DB_HOST'),
                 'port' => (int) $config->get('DB_PORT', '3306'),
@@ -32,14 +44,12 @@ final class Database
                 'logging' => $logging,
                 'option' => [PDO::MYSQL_ATTR_MULTI_STATEMENTS => false],
             ]);
-            Debug::getInstance()->database($this->medoo);
-
-            return;
         }
 
-        $this->medoo = new Medoo(['type' => 'sqlite', 'database' => dirname(__DIR__, 2) . '/data/database.sqlite', 'logging' => $logging]);
-        Debug::getInstance()->database($this->medoo);
-        $this->medoo->pdo->exec('PRAGMA foreign_keys = ON');
+        $medoo = new Medoo(['type' => 'sqlite', 'database' => dirname(__DIR__, 2) . '/data/database.sqlite', 'logging' => $logging]);
+        $medoo->pdo->exec('PRAGMA foreign_keys = ON');
+
+        return $medoo;
     }
 
     public function medoo(): Medoo
