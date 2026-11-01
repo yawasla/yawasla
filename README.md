@@ -30,7 +30,7 @@ Yawasla is an online newsroom for mosques and Muslim associations: publish Janaz
 
 - PHP 8.1+
 - Composer
-- SQLite (default) or MySQL 8.0+ / MariaDB 10.11+
+- SQLite 3.26+ (default) or MySQL 8.0+ / MariaDB 10.11+
 - Node.js 22+, only to compile the assets from the repository (release archives already contain them)
 
 #### Run locally
