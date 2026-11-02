@@ -34,7 +34,7 @@ Conventions :
 - Id déclaré en ligne : `id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY`, jamais `PRIMARY KEY (id)` à part
 - Index nommés `table_colonne` : en SQLite, un nom d'index est unique dans toute la base, en MySQL par table
 - Clés étrangères nommées `CONSTRAINT table_colonne_fk` : MySQL exige le nom pour `DROP FOREIGN KEY`, sinon il en invente un (`table_ibfk_1`)
-- Charset inutile : ajouté par le `Migrator` en MySQL (règle 20)
+- Charset inutile : ajouté par le `MySQLAdapter` (règle 20)
 
 ## Classe `AbstractMigration`
 
@@ -47,6 +47,8 @@ Un objet neuf par migration (`require` du fichier) : aucune requête ne passe d'
 
 ## `Migrator`
 
+Un adaptateur par base, `AbstractAdapter` (repérage commun : chaînes, parenthèses, noms) : `MySQLAdapter` (règle 20), `SQLiteAdapter` (traduction, recréation, PRAGMA, index des clés étrangères). Le `Migrator` ne connaît pas les bases : `begin()`, `execute()` par requête, `finish()`, `end()`.
+
 - Verrou `flock()` non bloquant sur `data/migration.lock` pendant toute l'exécution : deux migrations lancées en même temps, la seconde s'arrête avec un message. Fonctionne sur les deux bases et en mutualisé (`LOCK TABLES` valide la transaction en cours en MySQL et n'existe pas en SQLite)
 - Ordre : `Core/Main`, puis les autres modules actifs du cœur, puis les extensions ; un module passe toujours après ceux qu'il requiert (`requires`). Chaque migration jouée est enregistrée dans `migration` par `(module, name)`. La table `migration` est créée par la première migration de `Core/Main` : tant qu'elle n'existe pas, tout est à jouer
 - Pour chaque migration : `up()` (ou `down()`), traduction des requêtes si SQLite, exécution dans une transaction, enregistrement, arrêt à la première erreur
@@ -57,8 +59,8 @@ Déroulé d'une migration en SQLite :
 1. `PRAGMA foreign_keys = OFF`, **avant** `BEGIN` : dans une transaction, ce PRAGMA est ignoré sans erreur, et le `DROP TABLE` d'une recréation supprime alors les lignes enfants en `ON DELETE CASCADE` (vérifié : Phinx ouvre sa transaction avant le PRAGMA)
 2. `BEGIN`
 3. Requêtes traduites, recréations de table comprises
-4. Index manquants sur les clés étrangères (règle 21)
-5. Enregistrement dans `migration`
+4. Enregistrement dans `migration`
+5. Index manquants sur les clés étrangères (règle 21)
 6. `PRAGMA foreign_key_check` sur les tables touchées par la migration et celles qui les référencent : une violation annule tout. Une ancienne violation ailleurs dans la base ne bloque pas la migration
 7. `COMMIT`, puis `PRAGMA foreign_keys = ON`
 

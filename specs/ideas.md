@@ -18,6 +18,7 @@ Pistes non décidées. Une idée validée passe dans `roadmap.md`.
 
 ## Technique
 
+- **PostgreSQL** : un `PostgreSQLAdapter` à côté des autres. Peu demandé (mutualisé : MySQL / MariaDB), et coûteux au-delà de l'adaptateur : booléens stricts (`1` / `0` refusés dans toutes les requêtes Medoo), `LIKE` sensible à la casse, `GROUP BY` strict, backticks, `MODIFY` en `ALTER COLUMN … TYPE … USING`, `INSERT IGNORE` en `ON CONFLICT DO NOTHING`, séquences à recaler après `Transfer`, clés étrangères désactivables seulement en superutilisateur
 - **Niveau éditeur** pour les extensions, contre les collisions de noms entre devs : `modules/Extension/Acme/Gallery`, id `acme/gallery` (templates, assets `@acme/gallery/…`, `module('Acme/Gallery')`, `requires`, namespace, table `migration`). Le cœur garde ses noms courts. Une activation par module, pas par éditeur ; migrations dans chaque module, pas de `Main` par éditeur. À trancher avant la première release : l'id du module est enregistré en base
 - Désactivation d'un module requis par d'autres : refus, ou cascade avec confirmation listant les modules concernés
 - Extensions distribuées déjà compilées : aujourd'hui un seul build et un seul manifest pour tous les modules

@@ -13,7 +13,7 @@
 │   ├── Controller/   AbstractController.php (base), AbstractAdminController.php
 │   ├── Command/      commandes de bin/console
 │   ├── Core/         Config, Modules
-│   ├── Database/     Connection, AbstractMigration, Migrator, SQLiteAdapter, Transfer
+│   ├── Database/     Connection, AbstractMigration, Migrator, AbstractAdapter, MySQLAdapter, SQLiteAdapter, Transfer
 │   ├── Debug/        barre de debug, dump()
 │   ├── Http/         Router, Route (attribut), Vite (balises des assets)
 │   ├── I18n/         Translator, filtre Twig |trans

@@ -106,26 +106,18 @@ final class Migrator
      */
     private function execute(string $module, string $name, array $queries, string $record, array $params): void
     {
-        $sqlite = $this->driver === 'sqlite' ? new SQLiteAdapter($this->pdo) : null;
-
-        if ($sqlite !== null) {
-            $this->pdo->exec('PRAGMA foreign_keys = OFF');
-        }
+        $adapter = $this->driver === 'mysql' ? new MySQLAdapter($this->pdo) : new SQLiteAdapter($this->pdo);
+        $adapter->begin();
 
         try {
             $this->pdo->beginTransaction();
 
             foreach ($queries as $sql) {
-                if ($sqlite !== null) {
-                    $sqlite->execute($sql);
-                } else {
-                    $this->pdo->exec($this->charset($sql));
-                }
+                $adapter->execute($sql);
             }
 
-            $sqlite?->indexForeignKeys();
             $this->pdo->prepare($record)->execute($params);
-            $sqlite?->checkForeignKeys();
+            $adapter->finish();
 
             if ($this->pdo->inTransaction()) {
                 $this->pdo->commit();
@@ -137,25 +129,8 @@ final class Migrator
 
             throw new RuntimeException('Migration failed: ' . $module . '/' . $name, 0, $e);
         } finally {
-            if ($sqlite !== null) {
-                $this->pdo->exec('PRAGMA foreign_keys = ON');
-            }
+            $adapter->end();
         }
-    }
-
-    private function charset(string $sql): string
-    {
-        $masked = preg_replace('/\'(?:[^\'\\\\]|\\\\.|\'\')*\'|"(?:[^"\\\\]|\\\\.|"")*"/s', "''", $sql);
-
-        if (
-            !preg_match('/^\s*CREATE\s+(?:TEMPORARY\s+)?TABLE\b/i', $masked)
-            || preg_match('/\b(?:CHARSET|CHARACTER\s+SET|COLLATE|SELECT|LIKE)\b/i', $masked)
-            || !preg_match('/\)[^()]*$/', $masked)
-        ) {
-            return $sql;
-        }
-
-        return rtrim($sql, "; \t\n\r") . ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
     }
 
     private function load(string $module, string $name, string $file): AbstractMigration

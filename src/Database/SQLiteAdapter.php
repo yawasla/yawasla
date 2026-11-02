@@ -8,21 +8,12 @@ use LogicException;
 use PDO;
 use RuntimeException;
 
-final class SQLiteAdapter
+final class SQLiteAdapter extends AbstractAdapter
 {
-    private const NAME = '(?:`[^`]+`|\[[^\]]+\]|\x1A\d+\x1A|\w+)';
-
     private const CONSTRAINT = '/^(?:CONSTRAINT|PRIMARY\s+KEY|UNIQUE|CHECK|FOREIGN\s+KEY)\b/i';
 
     /** @var list<string> */
-    private array $strings = [];
-
-    /** @var list<string> */
     private array $tables = [];
-
-    public function __construct(private PDO $pdo)
-    {
-    }
 
     public function execute(string $sql): void
     {
@@ -56,7 +47,23 @@ final class SQLiteAdapter
         }
     }
 
-    public function indexForeignKeys(): void
+    public function begin(): void
+    {
+        $this->pdo->exec('PRAGMA foreign_keys = OFF');
+    }
+
+    public function finish(): void
+    {
+        $this->indexForeignKeys();
+        $this->checkForeignKeys();
+    }
+
+    public function end(): void
+    {
+        $this->pdo->exec('PRAGMA foreign_keys = ON');
+    }
+
+    private function indexForeignKeys(): void
     {
         foreach (array_unique($this->tables) as $table) {
             $quoted = $this->quote($table);
@@ -100,7 +107,7 @@ final class SQLiteAdapter
         }
     }
 
-    public function checkForeignKeys(): void
+    private function checkForeignKeys(): void
     {
         $touched = array_unique($this->tables);
         $tables = array_map(fn (array $row): string => strtolower($row['name']), $this->rows("SELECT name FROM sqlite_master WHERE type = 'table'"));
@@ -549,22 +556,6 @@ final class SQLiteAdapter
         return $m[1];
     }
 
-    private function normalize(string $name): string
-    {
-        $name = $this->unmask($name);
-
-        if (preg_match('/^[`"\[]/', $name)) {
-            $name = substr($name, 1, -1);
-        }
-
-        return strtolower($name);
-    }
-
-    private function quote(string $name): string
-    {
-        return '"' . str_replace('"', '""', $name) . '"';
-    }
-
     private function touch(string $table): void
     {
         $this->tables[] = $this->normalize($table);
@@ -578,97 +569,12 @@ final class SQLiteAdapter
         }
     }
 
-    /** @return list<array<string, mixed>> */
-    private function rows(string $sql): array
-    {
-        return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /** @return list<string> */
-    private function split(string $sql): array
-    {
-        $parts = [];
-        $depth = 0;
-        $start = 0;
-        $quote = null;
-
-        for ($i = 0, $length = strlen($sql); $i < $length; $i++) {
-            $char = $sql[$i];
-
-            if ($quote !== null) {
-                $quote = $char === $quote ? null : $quote;
-            } elseif ($char === '`') {
-                $quote = '`';
-            } elseif ($char === '[') {
-                $quote = ']';
-            } elseif ($char === '(') {
-                $depth++;
-            } elseif ($char === ')') {
-                $depth--;
-            } elseif ($char === ',' && $depth === 0) {
-                $parts[] = trim(substr($sql, $start, $i - $start));
-                $start = $i + 1;
-            }
-        }
-
-        $parts[] = trim(substr($sql, $start));
-
-        return array_values(array_filter($parts, fn (string $part): bool => $part !== ''));
-    }
-
-    private function close(string $sql, int $open): int
-    {
-        $depth = 0;
-        $quote = null;
-
-        for ($i = $open, $length = strlen($sql); $i < $length; $i++) {
-            $char = $sql[$i];
-
-            if ($quote !== null) {
-                $quote = $char === $quote ? null : $quote;
-            } elseif ($char === '`') {
-                $quote = '`';
-            } elseif ($char === '[') {
-                $quote = ']';
-            } elseif ($char === '(') {
-                $depth++;
-            } elseif ($char === ')' && --$depth === 0) {
-                return $i;
-            }
-        }
-
-        throw new LogicException('Unbalanced parentheses: ' . $this->unmask($sql));
-    }
-
-    private function mask(string $sql, bool $mysql): string
-    {
-        $pattern = $mysql
-            ? '/\'(?:[^\'\\\\]|\\\\.|\'\')*\'|"(?:[^"\\\\]|\\\\.|"")*"/s'
-            : '/\'(?:[^\']|\'\')*\'|"(?:[^"]|"")*"/s';
-
-        return preg_replace_callback($pattern, function (array $m) use ($mysql): string {
-            $this->strings[] = $mysql ? $this->literal($m[0]) : $m[0];
-
-            return "\x1A" . (count($this->strings) - 1) . "\x1A";
-        }, $sql);
-    }
-
-    private function unmask(string $sql): string
-    {
-        return preg_replace_callback('/\x1A(\d+)\x1A/', fn (array $m): string => $this->strings[(int) $m[1]], $sql);
-    }
-
-    private function literal(string $quoted): string
+    protected function literal(string $quoted): string
     {
         $quote = $quoted[0];
         $escapes = ['0' => "\0", 'n' => "\n", 'r' => "\r", 't' => "\t", 'b' => "\x08", 'Z' => "\x1A", '%' => '\\%', '_' => '\\_'];
         $value = preg_replace_callback('/\\\\(.)|' . $quote . $quote . '/s', fn (array $m): string => isset($m[1]) ? ($escapes[$m[1]] ?? $m[1]) : $quote, substr($quoted, 1, -1));
 
         return "'" . str_replace("'", "''", $value) . "'";
-    }
-
-    private function re(string $pattern): string
-    {
-        return '/' . str_replace('{name}', self::NAME, $pattern) . '/is';
     }
 }
