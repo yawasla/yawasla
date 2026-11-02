@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yawasla\Database;
 
-abstract class Migration
+abstract class AbstractMigration
 {
     /** @var list<string> */
     private array $queries = [];

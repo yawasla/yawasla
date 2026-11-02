@@ -7,7 +7,7 @@ namespace Yawasla\Command;
 use LogicException;
 use Throwable;
 use Yawasla\Core\Modules;
-use Yawasla\Database\Database;
+use Yawasla\Database\Connection;
 use Yawasla\Database\Migrator;
 use Yawasla\Database\Transfer;
 
@@ -54,7 +54,7 @@ final class DbMigrateCommand implements Command
             return $this->usage();
         }
 
-        $counts = (new Transfer(Database::getInstance()->medoo()->pdo, Database::driver(), Database::connect($driver)->pdo, $driver))->run();
+        $counts = (new Transfer(Connection::getInstance()->medoo()->pdo, Connection::driver(), Connection::connect($driver)->pdo, $driver))->run();
 
         foreach ($counts as $table => $count) {
             printf("  %-20s %d\n", $table, $count);
@@ -102,7 +102,7 @@ final class DbMigrateCommand implements Command
             throw new LogicException('Cannot create ' . $file);
         }
 
-        fwrite($handle, "<?php\n\ndeclare(strict_types=1);\n\nuse Yawasla\\Database\\Migration;\n\nreturn new class extends Migration {\n    public function up(): void\n    {\n    }\n\n    public function down(): void\n    {\n    }\n};\n");
+        fwrite($handle, "<?php\n\ndeclare(strict_types=1);\n\nuse Yawasla\\Database\\AbstractMigration;\n\nreturn new class extends AbstractMigration {\n    public function up(): void\n    {\n    }\n\n    public function down(): void\n    {\n    }\n};\n");
         fclose($handle);
         echo 'Created: ' . substr($file, strlen($this->root) + 1) . "\n";
 

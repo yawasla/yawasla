@@ -10,7 +10,7 @@ namespace Yawasla\Controller;
 // - réponse d'échec uniforme, limitation par IP silencieuse
 // - session PHP native : cookie Secure, HttpOnly, SameSite=Lax, ID régénéré à la connexion
 // - CSRF sur tous les formulaires de l'admin
-abstract class AdminController extends Controller
+abstract class AbstractAdminController extends AbstractController
 {
     public function __construct()
     {

@@ -29,7 +29,7 @@ final class Dumper
         if (is_object($value)) {
             $id = spl_object_id($value);
             if (isset($seen[$id])) {
-                return ['type' => $value::class, 'value' => '*récursion*'];
+                return ['type' => $value::class, 'value' => '*recursion*'];
             }
             $seen[$id] = true;
 
@@ -68,7 +68,7 @@ final class Dumper
         }
 
         if (count($items) > self::MAX_ITEMS) {
-            $children['…'] = ['type' => '', 'value' => (count($items) - self::MAX_ITEMS) . ' de plus'];
+            $children['…'] = ['type' => '', 'value' => (count($items) - self::MAX_ITEMS) . ' more'];
         }
 
         return ['type' => $type, 'children' => $children];

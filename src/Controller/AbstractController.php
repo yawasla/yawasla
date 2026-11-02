@@ -16,7 +16,7 @@ use Yawasla\Http\Router;
 use Yawasla\Http\Vite;
 use Yawasla\I18n\Translator;
 
-abstract class Controller
+abstract class AbstractController
 {
     private ?Environment $twig = null;
 

@@ -49,4 +49,4 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 - MySQL : `utf8mb4` / `utf8mb4_unicode_ci` sur chaque table, ajouté par le `Migrator` s'il manque
 - Une clé étrangère a exactement le type de l'id référencé (`INT UNSIGNED`), sinon MySQL refuse la table
 - Index sur chaque clé étrangère : MySQL les crée seul, le `Migrator` les ajoute en SQLite s'ils manquent
-- SQLite : `PRAGMA foreign_keys = ON` à chaque connexion (fait par `Database`)
+- SQLite : `PRAGMA foreign_keys = ON` à chaque connexion (fait par `Connection`)

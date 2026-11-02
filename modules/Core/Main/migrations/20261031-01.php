@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Yawasla\Database\Migration;
+use Yawasla\Database\AbstractMigration;
 
-return new class extends Migration {
+return new class extends AbstractMigration {
     public function up(): void
     {
         $this->sql('CREATE TABLE config (

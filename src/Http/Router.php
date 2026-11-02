@@ -8,7 +8,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
 use ReflectionMethod;
-use Yawasla\Controller\AdminController;
+use Yawasla\Controller\AbstractAdminController;
 use Yawasla\Core\Config;
 use Yawasla\Core\Modules;
 use Yawasla\I18n\Translator;
@@ -102,7 +102,7 @@ final class Router
     public function path(string $name, array $params = []): string
     {
         if (!isset($this->names[$name])) {
-            throw new \InvalidArgumentException('Route inconnue : ' . $name);
+            throw new \InvalidArgumentException('Unknown route: ' . $name);
         }
 
         $path = $this->names[$name];
@@ -115,7 +115,7 @@ final class Router
 
         return $this->basePath . preg_replace_callback(
             '#\{(\w+)\}#',
-            fn (array $m): string => rawurlencode((string) ($params[$m[1]] ?? throw new \InvalidArgumentException("Paramètre manquant : {$m[1]}"))),
+            fn (array $m): string => rawurlencode((string) ($params[$m[1]] ?? throw new \InvalidArgumentException("Missing route parameter: {$m[1]}"))),
             $path,
         );
     }
@@ -134,12 +134,12 @@ final class Router
                     $route = $attribute->newInstance();
                     $path = rtrim($prefix . $route->path, '/') ?: '/';
 
-                    if (($path === '/admin' || str_starts_with($path, '/admin/')) && !$class->isSubclassOf(AdminController::class)) {
-                        throw new \LogicException($class->getName() . ' doit hériter de ' . AdminController::class);
+                    if (($path === '/admin' || str_starts_with($path, '/admin/')) && !$class->isSubclassOf(AbstractAdminController::class)) {
+                        throw new \LogicException($class->getName() . ' must extend ' . AbstractAdminController::class);
                     }
 
                     if ($route->name !== '' && isset($names[$route->name])) {
-                        throw new \LogicException('Route en double : ' . $route->name);
+                        throw new \LogicException('Duplicate route: ' . $route->name);
                     }
 
                     $routes[] = [

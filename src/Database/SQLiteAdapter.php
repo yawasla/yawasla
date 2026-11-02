@@ -42,7 +42,7 @@ final class SQLiteAdapter
         ];
 
         foreach ($unsupported as $pattern => $label) {
-            if (preg_match('/\b' . $pattern . '/i', $sql)) {
+            if (preg_match('/\b' . $pattern . '(?!\w)/i', $sql)) {
                 throw new LogicException($label . ' is not supported by SQLite: ' . $this->unmask($sql));
             }
         }
@@ -102,16 +102,35 @@ final class SQLiteAdapter
 
     public function checkForeignKeys(): void
     {
-        $row = $this->rows('PRAGMA foreign_key_check')[0] ?? null;
+        $touched = array_unique($this->tables);
+        $tables = array_map(fn (array $row): string => strtolower($row['name']), $this->rows("SELECT name FROM sqlite_master WHERE type = 'table'"));
+        $checked = array_intersect($tables, $touched);
 
-        if ($row !== null) {
-            throw new RuntimeException('Foreign key violation: ' . $row['table'] . ' row ' . ($row['rowid'] ?? '?') . ' references ' . $row['parent']);
+        foreach ($tables as $table) {
+            foreach ($this->rows('PRAGMA foreign_key_list(' . $this->quote($table) . ')') as $foreign) {
+                if (in_array(strtolower($foreign['table']), $touched, true)) {
+                    $checked[] = $table;
+                    break;
+                }
+            }
+        }
+
+        foreach (array_unique($checked) as $table) {
+            $row = $this->rows('PRAGMA foreign_key_check(' . $this->quote($table) . ')')[0] ?? null;
+
+            if ($row !== null) {
+                throw new RuntimeException('Foreign key violation: ' . $row['table'] . ' row ' . ($row['rowid'] ?? '?') . ' references ' . $row['parent']);
+            }
         }
     }
 
     /** @return list<string> */
     private function statement(string $sql): array
     {
+        if (preg_match($this->re('^(?:(?:INSERT|REPLACE)\s+(?:IGNORE\s+)?(?:INTO\s+)?|UPDATE\s+(?:IGNORE\s+)?|DELETE\s+FROM\s+|TRUNCATE\s+(?:TABLE\s+)?|DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?)({name})'), $sql, $m)) {
+            $this->touch($m[1]);
+        }
+
         if (preg_match($this->re('^RENAME\s+TABLE\s+(.+)$'), $sql, $m)) {
             $queries = [];
 
@@ -295,9 +314,7 @@ final class SQLiteAdapter
                         $renamed[$old] = $new;
 
                         foreach ($elements as $j => $element) {
-                            if (!$element['column']) {
-                                $elements[$j]['def'] = $this->renameIn($element['def'], $old, $new);
-                            }
+                            $elements[$j]['def'] = $element['column'] ? $this->renameChecks($element['def'], $old, $new) : $this->renameIn($element['def'], $old, $new);
                         }
                     }
                     break;
@@ -484,10 +501,26 @@ final class SQLiteAdapter
             return $constraint;
         }
 
-        $close = $this->close($constraint, $open);
-        $columns = preg_replace_callback($this->re('{name}'), fn (array $t): string => $this->normalize($t[0]) === $old ? $new : $t[0], substr($constraint, $open, $close - $open + 1));
+        return $this->renameGroup($constraint, $open, $old, $new);
+    }
 
-        return substr($constraint, 0, $open) . $columns . substr($constraint, $close + 1);
+    private function renameChecks(string $definition, string $old, string $new): string
+    {
+        preg_match_all('/\bCHECK\s*\(/i', $definition, $m, PREG_OFFSET_CAPTURE);
+
+        foreach (array_reverse($m[0]) as [$match, $offset]) {
+            $definition = $this->renameGroup($definition, $offset + strlen($match) - 1, $old, $new);
+        }
+
+        return $definition;
+    }
+
+    private function renameGroup(string $sql, int $open, string $old, string $new): string
+    {
+        $close = $this->close($sql, $open);
+        $group = preg_replace_callback($this->re('{name}'), fn (array $t): string => $this->normalize($t[0]) === $old ? $new : $t[0], substr($sql, $open, $close - $open + 1));
+
+        return substr($sql, 0, $open) . $group . substr($sql, $close + 1);
     }
 
     private function mentions(string $constraint, string $name): bool

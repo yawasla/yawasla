@@ -10,7 +10,7 @@ use Yawasla\Core\Config;
 use Yawasla\Debug\Debug;
 use Yawasla\Trait\Singleton;
 
-final class Database
+final class Connection
 {
     use Singleton;
 

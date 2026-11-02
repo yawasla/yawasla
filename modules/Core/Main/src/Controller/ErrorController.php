@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yawasla\Module\Core\Main\Controller;
 
-use Yawasla\Controller\Controller;
+use Yawasla\Controller\AbstractController;
 
-final class ErrorController extends Controller
+final class ErrorController extends AbstractController
 {
     public function notFound(): string
     {

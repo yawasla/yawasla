@@ -17,8 +17,8 @@ Repères plutôt que règles : ils ne doivent pas freiner le développement, tan
 
 - PHP rendu côté serveur, Twig pour les vues
 - Front : Bootstrap (CSS et JS, installé par npm et compilé avec nos sources), nos styles en SCSS, nos scripts en TypeScript, le tout compilé par Vite
-- Noms de classes en anglais
-- Classes simples ; singletons via le trait `Singleton` pour les services transverses (`Config`, `Router`, `Translator`, `Database`, `Debug`)
+- Noms de classes, méthodes et messages d'erreur en anglais ; classes abstraites préfixées par `Abstract`
+- Classes simples ; singletons via le trait `Singleton` pour les services transverses (`Config`, `Router`, `Translator`, `Connection`, `Debug`)
 - Base de données via Medoo, appelé dans `Model/`
 - Une dépendance ou un outil de plus seulement s'il simplifie vraiment
 - Le cœur n'est pas modifié par l'utilisateur : il passe par un module dans `modules/Extension/` et par `templates/custom.twig`
@@ -51,7 +51,7 @@ Règles :
 - Pas d'URL absolue en base ; liens des mails depuis le domaine en base, jamais l'en-tête `Host`
 - Pas de JS ni de style inline, pas de CDN : la CSP l'interdit, tout ajout externe doit y être déclaré
 - Uploads : liste blanche d'images uniquement (un SVG ou un HTML exécuterait du JS sur le domaine)
-- `AdminController` ne protège encore rien : aucune route `/admin` avant l'authentification ; le Router refuse toute route `/admin` dont le contrôleur n'hérite pas d'`AdminController`
+- `AbstractAdminController` ne protège encore rien : aucune route `/admin` avant l'authentification ; le Router refuse toute route `/admin` dont le contrôleur n'hérite pas d'`AbstractAdminController`
 
 En place :
 - `bootstrap.php` envoie les en-têtes (CSP, HSTS sans `includeSubDomains`…) pour tout serveur ; `public/.htaccess` pour les fichiers statiques

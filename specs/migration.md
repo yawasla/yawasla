@@ -6,11 +6,11 @@ Une migration s'écrit une seule fois, en SQL MySQL simple. Le `Migrator` l'exé
 
 - Fichiers `migrations/YYYYMMDD-XX.php` dans chaque module (`XX` : numéro sur deux chiffres dans la journée), triés par nom. Un autre nom est refusé. Création : `php bin/console db:migrate --create <Module>`
 - Le cœur met toutes ses tables dans `Core/Main/migrations` (verrouillé, livré en un bloc). Chaque extension garde les siennes dans son dossier : elle s'installe et se désinstalle seule
-- Une migration renvoie une classe anonyme qui étend `Yawasla\Database\Migration` et définit `up()` et `down()`. Chaque requête passe par `$this->sql()`, une requête par appel
+- Une migration renvoie une classe anonyme qui étend `Yawasla\Database\AbstractMigration` et définit `up()` et `down()`. Chaque requête passe par `$this->sql()`, une requête par appel
 - La migration ne connaît pas la base : pas de `$driver`, pas de condition
 
 ```php
-return new class extends Migration {
+return new class extends AbstractMigration {
     public function up(): void
     {
         $this->sql('CREATE TABLE category (
@@ -36,9 +36,9 @@ Conventions :
 - Clés étrangères nommées `CONSTRAINT table_colonne_fk` : MySQL exige le nom pour `DROP FOREIGN KEY`, sinon il en invente un (`table_ibfk_1`)
 - Charset inutile : ajouté par le `Migrator` en MySQL (règle 20)
 
-## Classe `Migration`
+## Classe `AbstractMigration`
 
-`src/Database/Migration.php`, abstraite :
+`src/Database/AbstractMigration.php` :
 - `up()` et `down()` : à écrire
 - `sql(string $query)` : ajoute une requête à la liste
 - `queries()` : la liste, lue par le `Migrator`
@@ -51,7 +51,7 @@ Un objet neuf par migration (`require` du fichier) : aucune requête ne passe d'
 - Ordre : `Core/Main`, puis les autres modules actifs du cœur, puis les extensions ; un module passe toujours après ceux qu'il requiert (`requires`). Chaque migration jouée est enregistrée dans `migration` par `(module, name)`. La table `migration` est créée par la première migration de `Core/Main` : tant qu'elle n'existe pas, tout est à jouer
 - Pour chaque migration : `up()` (ou `down()`), traduction des requêtes si SQLite, exécution dans une transaction, enregistrement, arrêt à la première erreur
 - MySQL valide seul les `CREATE` / `ALTER` : une migration à moitié jouée se corrige à la main. SQLite annule tout
-- Jamais plusieurs requêtes dans un seul `sql()` : MySQL ne remonterait que l'erreur de la première, et le multi-requêtes est désactivé dans `Database` (il aggrave les injections SQL)
+- Jamais plusieurs requêtes dans un seul `sql()` : MySQL ne remonterait que l'erreur de la première, et le multi-requêtes est désactivé dans `Connection` (il aggrave les injections SQL)
 
 Déroulé d'une migration en SQLite :
 1. `PRAGMA foreign_keys = OFF`, **avant** `BEGIN` : dans une transaction, ce PRAGMA est ignoré sans erreur, et le `DROP TABLE` d'une recréation supprime alors les lignes enfants en `ON DELETE CASCADE` (vérifié : Phinx ouvre sa transaction avant le PRAGMA)
@@ -59,7 +59,7 @@ Déroulé d'une migration en SQLite :
 3. Requêtes traduites, recréations de table comprises
 4. Index manquants sur les clés étrangères (règle 21)
 5. Enregistrement dans `migration`
-6. `PRAGMA foreign_key_check` : une violation annule tout
+6. `PRAGMA foreign_key_check` sur les tables touchées par la migration et celles qui les référencent : une violation annule tout. Une ancienne violation ailleurs dans la base ne bloque pas la migration
 7. `COMMIT`, puis `PRAGMA foreign_keys = ON`
 
 **Désinstaller** une extension (depuis le tableau de bord des modules, à venir) : `Migrator::uninstall()` joue ses `down()` dans l'ordre inverse, supprime ses lignes de `migration` et la désactive. Refusé pour le cœur (ses tables sont dans `Core/Main`, verrouillé) et si un autre module en dépend. **Désactiver** un module garde ses données.
@@ -72,7 +72,7 @@ Avant d'appliquer les règles, les chaînes `'…'` et `"…"` sont mises de cô
 
 | # | Écrit (MySQL) | En SQLite | Pourquoi |
 |---|---|---|---|
-| 1 | `[TINY\|SMALL\|MEDIUM\|BIG]INT[(n)] [UNSIGNED] AUTO_INCREMENT PRIMARY KEY` | `INTEGER PRIMARY KEY AUTOINCREMENT` | **critique** : SQLite accepte la forme MySQL sans erreur, mais les ids insérés valent `NULL`. Seul `INTEGER` exact donne l'id auto ; `AUTOINCREMENT` ne réutilise jamais l'id d'une ligne supprimée, comme MySQL |
+| 1 | `[TINY\|SMALL\|MEDIUM\|BIG]INT[(n)] [UNSIGNED] AUTO_INCREMENT PRIMARY KEY` | `INTEGER PRIMARY KEY AUTOINCREMENT` | **critique** : SQLite accepte la forme MySQL sans erreur, mais les ids insérés valent `NULL`. Seul `INTEGER` exact donne l'id auto. Un id supprimé peut être réutilisé après une recréation de table ou un changement de serveur : sans conséquence, les URL publiques utilisent le slug |
 | 2 | `UNSIGNED` | retiré | `INT(11) UNSIGNED`, `DECIMAL(10,2) UNSIGNED` : erreur de syntaxe |
 | 3 | `JSON` | `TEXT` | sinon SQLite peut transformer `"123"` en nombre |
 | 4 | `col ENUM('a', 'b')` | `col VARCHAR CHECK (col IN ('a', 'b'))` | `ENUM` n'existe pas |
@@ -146,11 +146,13 @@ Message clair plutôt qu'une traduction approximative qui passerait en silence.
 
 `db:migrate --server mysql|sqlite`, logique dans `src/Database/Transfer.php` :
 0. Refus si la base actuelle a des migrations en attente, ou si la cible est le serveur actuel
-1. Base cible depuis le `.env`, jamais en ligne de commande (pas de mot de passe dans l'historique du shell) : vers MySQL, l'utilisateur remplit `DB_HOST`, `DB_NAME`… en gardant `DB_DRIVER=sqlite` ; vers SQLite, `data/database.sqlite`. La cible doit être vide. `Database` ne gère qu'une connexion : la commande ouvre la seconde
+1. Base cible depuis le `.env`, jamais en ligne de commande (pas de mot de passe dans l'historique du shell) : vers MySQL, l'utilisateur remplit `DB_HOST`, `DB_NAME`… en gardant `DB_DRIVER=sqlite` ; vers SQLite, `data/database.sqlite`. La cible doit être vide. `Connection` ne gère qu'une connexion : la commande ouvre la seconde
 2. Schéma : toutes les migrations rejouées sur la cible
 3. Données : copie table par table, clés étrangères désactivées, dans une transaction, ids d'origine conservés. La table `migration` n'est pas copiée (remplie au point 2)
 4. Vérification : nombre de lignes comparé table par table, avant de valider. Le `.env` n'est pas modifié : la commande indique quoi changer
 5. Échec : toutes les tables créées dans la cible sont supprimées (elle était vide au départ), on peut relancer après correction
+
+Site en maintenance pendant la copie, sinon les écritures sont perdues. Pas de transaction de lecture : elle bloquerait SQLite. À venir : `Transfer` refuse sans `in_maintenance`.
 
 Pièges, tous deux en annulation avec un message qui désigne la ligne :
 - SQLite vers MySQL, `UNIQUE` : `utf8mb4_unicode_ci` ignore casse et accents, « Café » et « cafe » deviennent le même slug

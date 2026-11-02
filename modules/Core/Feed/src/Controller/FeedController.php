@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Yawasla\Module\Core\Feed\Controller;
 
-use Yawasla\Controller\Controller;
+use Yawasla\Controller\AbstractController;
 use Yawasla\Http\Route;
 
-final class FeedController extends Controller
+final class FeedController extends AbstractController
 {
     #[Route('/feed', name: 'feed')]
     public function index(): string

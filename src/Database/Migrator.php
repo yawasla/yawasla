@@ -20,8 +20,8 @@ final class Migrator
 
     public function __construct(?PDO $pdo = null, ?string $driver = null)
     {
-        $this->pdo = $pdo ?? Database::getInstance()->medoo()->pdo;
-        $this->driver = $driver ?? Database::driver();
+        $this->pdo = $pdo ?? Connection::getInstance()->medoo()->pdo;
+        $this->driver = $driver ?? Connection::driver();
         $this->root = dirname(__DIR__, 2);
     }
 
@@ -158,12 +158,12 @@ final class Migrator
         return rtrim($sql, "; \t\n\r") . ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
     }
 
-    private function load(string $module, string $name, string $file): Migration
+    private function load(string $module, string $name, string $file): AbstractMigration
     {
         $migration = require $file;
 
-        if (!$migration instanceof Migration) {
-            throw new LogicException('A migration must return an instance of ' . Migration::class . ': ' . $module . '/' . $name);
+        if (!$migration instanceof AbstractMigration) {
+            throw new LogicException('A migration must return an instance of ' . AbstractMigration::class . ': ' . $module . '/' . $name);
         }
 
         return $migration;

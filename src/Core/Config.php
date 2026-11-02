@@ -19,7 +19,7 @@ final class Config
         $values = is_file($file) ? parse_ini_file($file, false, INI_SCANNER_RAW) : [];
 
         if ($values === false) {
-            throw new \RuntimeException('Fichier .env illisible : ' . $file);
+            throw new \RuntimeException('Unreadable .env file: ' . $file);
         }
 
         $this->values = $values;

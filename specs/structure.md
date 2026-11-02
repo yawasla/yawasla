@@ -10,10 +10,10 @@
 ├── vite.config.ts  build des assets ; tsconfig.json pour la vérification des types
 ├── .env            config (APP_ENV, BDD, SMTP), non versionné ; modèle : .env.example
 ├── src/            noyau (namespace Yawasla\)
-│   ├── Controller/   Controller.php (base), AdminController.php
+│   ├── Controller/   AbstractController.php (base), AbstractAdminController.php
 │   ├── Command/      commandes de bin/console
 │   ├── Core/         Config, Modules
-│   ├── Database/     Database, Migration, Migrator, SQLiteAdapter, Transfer
+│   ├── Database/     Connection, AbstractMigration, Migrator, SQLiteAdapter, Transfer
 │   ├── Debug/        barre de debug, dump()
 │   ├── Http/         Router, Route (attribut), Vite (balises des assets)
 │   ├── I18n/         Translator, filtre Twig |trans
