@@ -3,6 +3,7 @@
 <head>
     {% include 'main/partials/head.twig' %}
     <title>{% block title %}Yawasla{% endblock %}</title>
+    {% if canonical %}<link rel="canonical" href="{{ canonical }}">{% endif %}
     {% block head %}{% endblock %}
 </head>
 <body>

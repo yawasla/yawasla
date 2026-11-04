@@ -34,7 +34,9 @@
 
 - Dossiers de `src/` et des modules créés à l'arrivée de leur premier fichier
 - Installation possible en sous-dossier : préfixe déduit de `SCRIPT_NAME`, ajouté par `path()` et `asset()`
-- Routes en attributs `#[Route]`, compilées dans `data/cache/routes.php`. **`data/cache/` est supprimé à chaque mise à jour**
+- Routes en attributs `#[Route]`, compilées dans `data/cache/routes.php`, recompilées à chaque requête en dev. **`data/cache/` est supprimé à chaque mise à jour**
+- Pas de slash final dans les URL (sauf l'accueil) : `/feed/` redirige en 301 vers `/feed`, query string conservée. `<link rel="canonical">` (chemin relatif) sur toute page servie par une route
+- Méthode non acceptée par une route existante : 405 avec l'en-tête `Allow`
 - Dev : `php bin/console serve [port]`, `npm run watch`, `APP_ENV=dev` dans `.env`
 
 ## Requête

@@ -122,12 +122,14 @@ abstract class AbstractController
             $this->twig = new Environment(new FilesystemLoader([...array_values($paths), $root . '/templates']), [
                 'cache' => $root . '/data/cache/twig',
                 'auto_reload' => true,
+                'strict_variables' => Debug::getInstance()->enabled(),
             ]);
             $translator = Translator::getInstance();
             $router = Router::getInstance();
             $public = dirname($_SERVER['SCRIPT_FILENAME']);
 
             $this->twig->addGlobal('route', $router->current());
+            $this->twig->addGlobal('canonical', $router->canonical());
             $this->twig->addGlobal('locale', $translator->locale());
             $this->twig->addGlobal('dir', $translator->dir());
             $this->twig->addFunction(new TwigFunction('path', [$router, 'path']));

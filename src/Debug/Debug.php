@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yawasla\Debug;
 
 use Medoo\Medoo;
+use PDO;
 use Twig\Profiler\Profile;
 use Yawasla\Core\Config;
 use Yawasla\Http\Router;
@@ -122,6 +123,7 @@ final class Debug
                 'time' => round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000),
                 'memory' => round(memory_get_peak_usage() / 1048576, 1),
                 'php' => PHP_VERSION,
+                'database' => $this->databaseVersion(),
             ],
         ];
     }
@@ -144,6 +146,25 @@ final class Debug
             'time' => round(array_sum(array_column($queries, 'time')), 2),
             'duplicates' => count(array_filter($counts, fn (int $count): bool => $count > 1)),
         ];
+    }
+
+    private function databaseVersion(): string
+    {
+        if ($this->medoo === null) {
+            return 'not connected';
+        }
+
+        $version = (string) $this->medoo->pdo->getAttribute(PDO::ATTR_SERVER_VERSION);
+
+        if ($this->medoo->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+            return 'SQLite ' . $version;
+        }
+
+        if (preg_match('/(\d+\.\d+\.\d+)-MariaDB/i', $version, $m)) {
+            return 'MariaDB ' . $m[1];
+        }
+
+        return 'MySQL ' . $version;
     }
 
     private function origin(string $file, int $line): string

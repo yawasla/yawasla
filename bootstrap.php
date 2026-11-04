@@ -5,7 +5,9 @@ declare(strict_types=1);
 use Yawasla\Module\Core\Main\Controller\ErrorController;
 use Yawasla\Core\Modules;
 use Yawasla\Debug\Debug;
+use Yawasla\Http\MethodNotAllowedException;
 use Yawasla\Http\NotFoundException;
+use Yawasla\Http\RedirectException;
 use Yawasla\Http\Router;
 use Yawasla\I18n\Translator;
 
@@ -22,7 +24,6 @@ header('Strict-Transport-Security: max-age=31536000');
 header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'");
 
 $loader = require __DIR__ . '/vendor/autoload.php';
-Modules::getInstance()->autoload($loader);
 
 set_exception_handler(function (Throwable $e): void {
     error_log((string) $e);
@@ -39,6 +40,8 @@ set_exception_handler(function (Throwable $e): void {
     }
 });
 
+Modules::getInstance()->autoload($loader);
+
 if (Debug::getInstance()->enabled()) {
     set_error_handler(function (int $level, string $message, string $file, int $line): bool {
         if (error_reporting() & $level) {
@@ -50,9 +53,14 @@ if (Debug::getInstance()->enabled()) {
 }
 
 try {
-    [$class, $action, $params] = Router::getInstance()->match($_SERVER['REQUEST_METHOD'], parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/');
+    [$class, $action, $params] = Router::getInstance()->match($_SERVER['REQUEST_METHOD'], explode('?', $_SERVER['REQUEST_URI'], 2)[0] ?: '/');
     Debug::getInstance()->route($class, $action, $params);
     echo (new $class())->$action(...$params);
 } catch (NotFoundException) {
     echo (new ErrorController())->notFound();
+} catch (MethodNotAllowedException $e) {
+    echo (new ErrorController())->methodNotAllowed($e->methods);
+} catch (RedirectException $e) {
+    $query = $_SERVER['QUERY_STRING'] ?? '';
+    header('Location: ' . $e->url . ($query !== '' && !preg_match('/[\x00-\x20\x7f]/', $query) ? '?' . $query : ''), true, 301);
 }

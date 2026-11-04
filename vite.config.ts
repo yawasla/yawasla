@@ -7,7 +7,7 @@ const assets = resolve(import.meta.dirname, 'public/assets');
 
 const entries = globSync('modules/*/*/assets/{ts,scss}/*.{ts,scss}').filter((file) => !basename(file).startsWith('_') && !file.endsWith('.d.ts'));
 
-const name = (file: string) => `${file.split('/')[2].toLowerCase()}-${basename(file, extname(file))}`;
+const name = (file: string) => `${file.split(/[\\/]/)[2].toLowerCase()}-${basename(file, extname(file))}`;
 
 const clean = (): Plugin => ({
     name: 'yawasla:clean',

@@ -15,6 +15,15 @@ final class ErrorController extends AbstractController
         return $this->render('main/errors/404.twig');
     }
 
+    /** @param list<string> $methods */
+    public function methodNotAllowed(array $methods): string
+    {
+        http_response_code(405);
+        header('Allow: ' . implode(', ', $methods));
+
+        return $this->render('main/errors/405.twig');
+    }
+
     public function serverError(): string
     {
         http_response_code(500);

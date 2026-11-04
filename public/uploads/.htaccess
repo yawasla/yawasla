@@ -1,3 +1,7 @@
 <FilesMatch "\.(php\d?|phtml|pht|phar|phps|cgi|pl|py|sh|asp|aspx|jsp|shtml)(\.|$)">
   Require all denied
 </FilesMatch>
+
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'none'; sandbox"
+</IfModule>

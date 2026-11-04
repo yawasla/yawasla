@@ -1,0 +1,10 @@
+{% extends 'main/layout.twig' %}
+
+{% block title %}{{ 'Method not allowed'|trans }}{% endblock %}
+
+{% block content %}
+<main>
+    <h1>{{ 'Method not allowed'|trans }}</h1>
+    <p><a href="{{ path('home') }}">{{ 'Back to home'|trans }}</a></p>
+</main>
+{% endblock %}

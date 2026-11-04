@@ -56,10 +56,11 @@ Règles :
 En place :
 - `bootstrap.php` envoie les en-têtes (CSP, HSTS sans `includeSubDomains`…) pour tout serveur ; `public/.htaccess` pour les fichiers statiques
 - Racine du projet exposée par erreur : `.htaccess` bloque tout, `index.php` répond 503 (nginx non couvert)
-- `data/` et scripts dans `uploads/` refusés par leur `.htaccess` ; `assets/.vite/` refusé par `public/.htaccess`
+- `data/` et scripts dans `uploads/` refusés par leur `.htaccess`, CSP `sandbox` sur `uploads/` ; `assets/.vite/` refusé par `public/.htaccess`
 - Debug seulement si `APP_ENV` vaut exactement `dev` ; erreurs jamais affichées au client
 - Langue filtrée par liste blanche ; paramètres de route en 404 s'ils contiennent `/`, `\`, `..` ou un caractère de contrôle
 - `redirect()` : chemin interne uniquement (`//`, `/\` et caractères de contrôle mènent ailleurs) ; `redirectExternal()` : `http`/`https`. Sinon, accueil
+- Slash final : redirection 301 uniquement vers un chemin interne (même règle que `redirect()`), sinon 404. Chemin de la requête pris tel quel dans `REQUEST_URI`, jamais via `parse_url()` (`//x/feed` deviendrait `/feed`)
 
 ## Produit
 
@@ -67,10 +68,10 @@ En place :
 |---|---|
 | `/` | Newsroom publique : infos de l'organisme, annonces |
 | `/news/{slug}` | Page d'une annonce, balises Open Graph (aperçu WhatsApp/Facebook) |
-| `/feed/` | **Seule partie PWA** (manifest et service worker limités à `/feed/`) : fil, abonnement push et mail |
-| `/admin/` | Back-office, hors portée du service worker |
+| `/feed` | **Seule partie PWA** (manifest et service worker limités à `/feed`) : fil, abonnement push et mail |
+| `/admin` | Back-office, hors portée du service worker |
 
-- iOS : web push uniquement si le site est ajouté à l'écran d'accueil (iOS 16.4+) → guide dans `/feed/`, et le mail reste indispensable
+- iOS : web push uniquement si le site est ajouté à l'écran d'accueil (iOS 16.4+) → guide dans `/feed`, et le mail reste indispensable
 
 ## Remarques
 

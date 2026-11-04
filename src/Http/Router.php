@@ -11,6 +11,7 @@ use ReflectionMethod;
 use Yawasla\Controller\AbstractAdminController;
 use Yawasla\Core\Config;
 use Yawasla\Core\Modules;
+use Yawasla\Debug\Debug;
 use Yawasla\I18n\Translator;
 use Yawasla\Trait\Singleton;
 
@@ -26,6 +27,8 @@ final class Router
 
     private string $current = '';
 
+    private ?string $canonical = null;
+
     private ?string $adminLocale = null;
 
     private string $cacheFile;
@@ -37,11 +40,14 @@ final class Router
         $this->cacheFile = dirname(__DIR__, 2) . '/data/cache/routes.php';
         $this->basePath = substr($_SERVER['SCRIPT_NAME'], 0, (int) strrpos($_SERVER['SCRIPT_NAME'], '/'));
 
-        if (!is_file($this->cacheFile)) {
-            $this->writeCache($this->compile());
+        if (Debug::getInstance()->enabled() || !is_file($this->cacheFile)) {
+            $data = $this->compile();
+            $this->writeCache($data);
+        } else {
+            $data = require $this->cacheFile;
         }
 
-        ['routes' => $this->routes, 'names' => $this->names] = require $this->cacheFile;
+        ['routes' => $this->routes, 'names' => $this->names] = $data;
     }
 
     /** @return array{class-string, string, list<string>} */
@@ -51,7 +57,20 @@ final class Router
             $path = substr($path, strlen($this->basePath));
         }
 
-        $path = rtrim($path, '/') ?: '/';
+        $trimmed = rtrim($path, '/') ?: '/';
+
+        if ($path !== '' && $trimmed !== $path) {
+            $target = $this->basePath . $trimmed;
+
+            if (!preg_match('#^/(?![/\\\\])[^\x00-\x20\x7f\\\\]*$#', $target)) {
+                throw new NotFoundException();
+            }
+
+            throw new RedirectException($target);
+        }
+
+        $path = $trimmed;
+        $canonical = $this->basePath . $path;
 
         if (preg_match('#^/admin/(' . implode('|', Translator::LOCALES) . ')(?=/|$)#', $path, $m)) {
             $this->adminLocale = $m[1];
@@ -64,8 +83,15 @@ final class Router
             $method = 'GET';
         }
 
+        $allowed = [];
+
         foreach ($this->routes as $route) {
-            if (in_array($method, $route['methods'], true) && preg_match($route['regex'], $path, $matches)) {
+            if (preg_match($route['regex'], $path, $matches)) {
+                if (!in_array($method, $route['methods'], true)) {
+                    array_push($allowed, ...$route['methods']);
+                    continue;
+                }
+
                 $params = array_map('rawurldecode', array_slice($matches, 1));
 
                 foreach ($params as $param) {
@@ -75,9 +101,18 @@ final class Router
                 }
 
                 $this->current = $route['name'];
+                $this->canonical = $canonical;
 
                 return [$route['class'], $route['action'], $params];
             }
+        }
+
+        if ($allowed !== []) {
+            if (in_array('GET', $allowed, true)) {
+                $allowed[] = 'HEAD';
+            }
+
+            throw new MethodNotAllowedException(array_values(array_unique($allowed)));
         }
 
         throw new NotFoundException();
@@ -86,6 +121,11 @@ final class Router
     public function current(): string
     {
         return $this->current;
+    }
+
+    public function canonical(): ?string
+    {
+        return $this->canonical;
     }
 
     public function basePath(): string
