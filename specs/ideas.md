@@ -7,12 +7,10 @@ Pistes non décidées. Une idée validée passe dans `roadmap.md`.
 - **Multi-organisation** : plusieurs organisations sur une même installation. Le schéma y est préparé (un utilisateur appartient à une organisation, l'organisation d'une publication est celle de son auteur). Servir plusieurs domaines imposerait de lire l'en-tête `Host`, aujourd'hui interdit pour les liens des mails : liste blanche de domaines en base
 - **Sauvegarde** : sauvegarder le site et la base de données
 - **API Janaza** : activer une API pour partager les prières avec le projet janaza.cloud
-- **API Corpus** : récupérer un article de corpus.yawasla.org
+- **API Corpus** : module Yawasla qui interroge l'API de corpus.yawasla.org pour récupérer un article ou une page de la bibliothèque des Compagnons (synthèse et hadiths)
 - Plugin WordPress dédié
-- Installeur avancé
 - Mise à jour automatique
 - Multi-utilisateur complet
-- Gestion des prières
 - Compteurs de vues et de likes : à compter hors de `publication`, en évitant les robots et les doublons
 - Publication regroupant plusieurs contenus (un article et plusieurs médias…) : `publication_id` n'est pas unique dans les tables enfants pour le permettre
 
