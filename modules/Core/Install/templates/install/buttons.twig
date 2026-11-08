@@ -1,0 +1,6 @@
+<div class="d-flex flex-row-reverse justify-content-between mt-4">
+    <button type="submit" class="btn btn-primary">{{ submit|default('Next')|trans }}</button>
+    {% if back|default(false) %}
+        <button type="submit" name="back" value="1" class="btn btn-outline-secondary" formnovalidate>{{ 'Back'|trans }}</button>
+    {% endif %}
+</div>

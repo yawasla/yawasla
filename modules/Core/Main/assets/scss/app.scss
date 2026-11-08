@@ -33,6 +33,36 @@
     @include theme($dark-bg, $dark-bg-soft, $dark-card, $dark-border, $dark-text, $dark-ink-soft, $dark-green, $dark-green-deep, $dark-green);
 }
 
+.btn-primary {
+    --bs-btn-color: #{$dark-bg};
+    --bs-btn-bg: var(--bs-primary);
+    --bs-btn-border-color: var(--bs-primary);
+    --bs-btn-hover-color: #{$dark-bg};
+    --bs-btn-hover-bg: var(--bs-primary);
+    --bs-btn-hover-border-color: var(--bs-primary);
+    --bs-btn-active-color: #{$dark-bg};
+    --bs-btn-active-bg: var(--bs-primary);
+    --bs-btn-active-border-color: var(--bs-primary);
+    --bs-btn-disabled-color: #{$dark-bg};
+    --bs-btn-disabled-bg: var(--bs-primary);
+    --bs-btn-disabled-border-color: var(--bs-primary);
+
+    &:hover {
+        filter: brightness(0.92);
+    }
+}
+
+[data-bs-theme="light"] {
+    --sui-color-neutral: #{$green};
+}
+
+[data-bs-theme="light"] .btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+    --bs-btn-disabled-color: #fff;
+}
+
 .theme-toggle-dark,
 .theme-toggle-light {
     display: inline-flex;

@@ -1,10 +1,6 @@
-{% extends 'main/layout.twig' %}
+{% extends 'main/errors/layout.twig' %}
 
-{% block title %}Erreur{% endblock %}
+{% block code %}500{% endblock %}
+{% block heading %}{{ 'An error occurred.'|trans }}{% endblock %}
+{% block message %}{{ 'Please try again in a few moments.'|trans }}{% endblock %}
 
-{% block content %}
-<main>
-    <h1>Une erreur est survenue</h1>
-    <p>Réessayez dans quelques instants.</p>
-</main>
-{% endblock %}

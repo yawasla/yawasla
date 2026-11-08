@@ -12,6 +12,7 @@ use Twig\Template;
 use Twig\TwigFunction;
 use Yawasla\Core\Modules;
 use Yawasla\Debug\Debug;
+use Yawasla\Form\Form;
 use Yawasla\Http\Router;
 use Yawasla\Http\Vite;
 use Yawasla\I18n\Translator;
@@ -136,6 +137,7 @@ abstract class AbstractController
             $this->twig->addFunction(new TwigFunction('asset', fn (string $file): string => $router->basePath() . '/assets/' . $file . '?v=' . filemtime($public . '/assets/' . $file)));
             $this->twig->addFunction(new TwigFunction('vite', [new Vite($root, $public . '/assets', $router->basePath() . '/assets'), 'tags'], ['is_safe' => ['html']]));
             $this->twig->addFunction(new TwigFunction('module', $this->module(...), ['is_safe' => ['html']]));
+            $this->twig->addFunction(new TwigFunction('csrf', [Form::class, 'field'], ['is_safe' => ['html']]));
             $this->twig->addFilter(new TwigFilter('trans', [$translator, 'trans']));
             $this->twig->addFunction(new TwigFunction('dump', $this->dump(...), ['needs_context' => true, 'is_variadic' => true]));
 

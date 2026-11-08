@@ -1,0 +1,15 @@
+{% set fieldType = type|default('text') %}
+{% set fieldError = form.error(name) %}
+{% set fieldId = 'field-' ~ name %}
+{% set fieldClass = 'form-control' ~ (fieldError ? ' is-invalid' : '') %}
+<div class="mb-3">
+    <label class="form-label" for="{{ fieldId }}">{{ label }}</label>
+    {% if multiline|default(false) %}
+        <textarea class="{{ fieldClass }}" id="{{ fieldId }}" name="{{ name }}" rows="3"{% if required|default(false) %} required{% endif %}{% if maxlength|default(0) %} maxlength="{{ maxlength }}"{% endif %}{% if counter|default(0) %} data-counter="{{ counter }}"{% endif %}{% if fieldError %} aria-invalid="true" aria-describedby="{{ fieldId }}-error"{% endif %}>{{ form.value(name) }}</textarea>
+    {% else %}
+        <input class="{{ fieldClass }}" id="{{ fieldId }}" name="{{ name }}" type="{{ fieldType }}" value="{{ fieldType == 'password' ? '' : form.value(name) }}" autocomplete="{{ autocomplete|default('off') }}"{% if required|default(false) %} required{% endif %}{% if maxlength|default(0) %} maxlength="{{ maxlength }}"{% endif %}{% if counter|default(0) %} data-counter="{{ counter }}"{% endif %}{% if fieldError %} aria-invalid="true" aria-describedby="{{ fieldId }}-error"{% endif %}>
+    {% endif %}
+    {% if fieldError %}<div class="invalid-feedback" id="{{ fieldId }}-error">{{ fieldError }}</div>{% endif %}
+    {% if help|default('') %}<div class="form-text">{{ help }}</div>{% endif %}
+    {% if counter|default(0) %}<div class="form-text" id="{{ fieldId }}-count"></div>{% endif %}
+</div>

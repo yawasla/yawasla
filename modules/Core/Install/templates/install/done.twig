@@ -1,0 +1,6 @@
+{% extends 'install/layout.twig' %}
+
+{% block step %}
+    <div class="alert alert-success" role="alert">{{ 'The installation is complete.'|trans }}</div>
+    <a class="btn btn-primary" href="{{ adminUrl }}">{{ 'Go to the admin'|trans }}</a>
+{% endblock %}

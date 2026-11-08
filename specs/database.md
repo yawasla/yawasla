@@ -46,6 +46,7 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 ## Conventions
 
 - Tables au singulier, colonnes en `snake_case`, dates en `DATETIME`, booléens en `BOOLEAN`
+- Préfixe de tables facultatif : `DB_PREFIX` dans `.env` (`yw` donne `yw_user`), vide par défaut, appliqué par Medoo et par `{table}` dans les migrations. Tout SQL écrit à la main passe par `Connection::prefix()`
 - MySQL : `utf8mb4` / `utf8mb4_unicode_ci` sur chaque table, ajouté par le `MySQLAdapter` s'il manque
 - Une clé étrangère a exactement le type de l'id référencé (`INT UNSIGNED`), sinon MySQL refuse la table
 - Index sur chaque clé étrangère : MySQL les crée seul, le `Migrator` les ajoute en SQLite s'ils manquent

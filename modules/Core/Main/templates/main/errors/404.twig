@@ -1,10 +1,6 @@
-{% extends 'main/layout.twig' %}
+{% extends 'main/errors/layout.twig' %}
 
-{% block title %}Page introuvable{% endblock %}
+{% block code %}404{% endblock %}
+{% block heading %}{{ 'Page not found'|trans }}{% endblock %}
+{% block message %}{{ 'This page does not exist or has been moved.'|trans }}{% endblock %}
 
-{% block content %}
-<main>
-    <h1>Page introuvable</h1>
-    <p><a href="{{ path('home') }}">Retour à l'accueil</a></p>
-</main>
-{% endblock %}

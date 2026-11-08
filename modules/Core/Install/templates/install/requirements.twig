@@ -1,0 +1,23 @@
+{% extends 'install/layout.twig' %}
+
+{% block step %}
+    <div class="alert alert-danger" role="alert">
+        <p class="mb-2">{{ 'Please fix these problems, then reload this page.'|trans }}</p>
+        <ul class="mb-0">
+            {% for error in errors %}
+                <li>{{ error|trans }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if databaseMissing %}
+        {% if createFailed %}
+            <div class="alert alert-warning" role="alert">{{ 'The database could not be created: create it from your hosting panel.'|trans }}</div>
+        {% endif %}
+        <p class="mb-1">{{ 'If you create it yourself, use this encoding:'|trans }}</p>
+        <p><code>{{ charset }}</code> / <code>{{ collation }}</code></p>
+        <form method="post" action="{{ path('install') }}">
+            {{ csrf() }}
+            <button type="submit" name="create_database" value="1" class="btn btn-primary">{{ 'Create the database'|trans }}</button>
+        </form>
+    {% endif %}
+{% endblock %}

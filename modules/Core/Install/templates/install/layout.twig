@@ -1,0 +1,34 @@
+{% extends 'main/layout.twig' %}
+
+{% block title %}{{ 'Installation'|trans }}{% endblock %}
+
+{% block head %}{{ vite('@install/ts/form.ts') }}{% endblock %}
+
+{% block content %}
+<main class="bg-body-tertiary min-vh-100 py-4 py-md-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-7">
+                <header class="text-center mb-4">
+                    <img src="{{ asset('img/logo_yawasla.webp') }}" alt="Yawasla" class="mb-2" width="88" height="88">
+                    <h1 class="h4 mb-3">{{ 'Installation'|trans }}</h1>
+                    {% include 'main/partials/theme-toggle.twig' %}
+                </header>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        {% if step is defined %}
+                            <div class="d-flex gap-1 mb-2" aria-hidden="true">
+                                {% for i in 1..5 %}
+                                    <div class="flex-fill rounded pt-1 {{ i <= step ? 'bg-primary' : 'bg-secondary bg-opacity-25' }}"></div>
+                                {% endfor %}
+                            </div>
+                            <p class="small text-body-secondary mb-4">{{ 'Step %step% of %total%'|trans({'%step%': step, '%total%': 5}) }}</p>
+                        {% endif %}
+                        {% block step %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

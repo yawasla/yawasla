@@ -18,11 +18,14 @@ final class Migrator
 
     private string $root;
 
+    private string $table;
+
     public function __construct(?PDO $pdo = null, ?string $driver = null)
     {
         $this->pdo = $pdo ?? Connection::getInstance()->medoo()->pdo;
         $this->driver = $driver ?? Connection::driver();
         $this->root = dirname(__DIR__, 2);
+        $this->table = Connection::prefix() . 'migration';
     }
 
     /** @return list<string> */
@@ -52,7 +55,7 @@ final class Migrator
 
                 $migration = $this->load($module, $name, $file);
                 $migration->up();
-                $this->execute($module, $name, $migration->queries(), 'INSERT INTO migration (name, module, created_at) VALUES (?, ?, ?)', [$name, $module, date('Y-m-d H:i:s')]);
+                $this->execute($module, $name, $migration->queries(), 'INSERT INTO ' . $this->table . ' (name, module, created_at) VALUES (?, ?, ?)', [$name, $module, date('Y-m-d H:i:s')]);
                 $migrated[] = $module . '/' . $name;
             }
 
@@ -89,7 +92,7 @@ final class Migrator
             foreach ($files as [$id, $migration, $file]) {
                 $instance = $this->load($id, $migration, $file);
                 $instance->down();
-                $this->execute($id, $migration, $instance->queries(), 'DELETE FROM migration WHERE module = ? AND name = ?', [$id, $migration]);
+                $this->execute($id, $migration, $instance->queries(), 'DELETE FROM ' . $this->table . ' WHERE module = ? AND name = ?', [$id, $migration]);
                 $reverted[] = $id . '/' . $migration;
             }
 
@@ -208,17 +211,13 @@ final class Migrator
     /** @return array<string, array<string, true>> */
     private function done(): array
     {
-        $exists = $this->driver === 'mysql'
-            ? $this->pdo->query("SHOW TABLES LIKE 'migration'")->fetchColumn()
-            : $this->pdo->query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'migration'")->fetchColumn();
-
-        if ($exists === false) {
+        if (!Connection::hasTable($this->pdo, $this->driver, $this->table)) {
             return [];
         }
 
         $done = [];
 
-        foreach ($this->pdo->query('SELECT module, name FROM migration')->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        foreach ($this->pdo->query('SELECT module, name FROM ' . $this->table)->fetchAll(PDO::FETCH_ASSOC) as $row) {
             $done[$row['module']][$row['name']] = true;
         }
 

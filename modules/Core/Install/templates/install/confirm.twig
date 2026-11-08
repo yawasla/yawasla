@@ -1,0 +1,27 @@
+{% extends 'install/layout.twig' %}
+
+{% block step %}
+    <h2 class="h5 mb-3">{{ 'Confirmation'|trans }}</h2>
+    <form method="post" action="{{ path('install') }}">
+        {{ csrf() }}
+        {% include 'install/global-error.twig' %}
+        <dl>
+            <dt>{{ 'Website address'|trans }}</dt>
+            <dd>{{ state.site.site_url }}</dd>
+            <dt>{{ 'Website name'|trans }}</dt>
+            <dd>{{ state.site.site_name }}</dd>
+            <dt>{{ 'Description'|trans }}</dt>
+            <dd>{{ state.site.site_description }}</dd>
+            <dt>{{ 'Organization name'|trans }}</dt>
+            <dd>{{ state.organization.name }}</dd>
+            {% set location = [state.organization.address, state.organization.zip_code, state.organization.city, state.organization.country]|filter(v => v != '')|join(', ') %}
+            {% if location %}
+                <dt>{{ 'Address'|trans }}</dt>
+                <dd>{{ location }}</dd>
+            {% endif %}
+            <dt>{{ 'Administrator'|trans }}</dt>
+            <dd>{{ state.admin.first_name }} {{ state.admin.last_name }} ({{ state.admin.email }})</dd>
+        </dl>
+        {% include 'install/buttons.twig' with {back: true, submit: 'Install'} %}
+    </form>
+{% endblock %}

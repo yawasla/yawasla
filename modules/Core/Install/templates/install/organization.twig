@@ -1,0 +1,21 @@
+{% extends 'install/layout.twig' %}
+
+{% block step %}
+    <h2 class="h5 mb-3">{{ 'Organization'|trans }}</h2>
+    <form method="post" action="{{ path('install') }}" data-shader-ui="form" data-sui-guide>
+        {{ csrf() }}
+        {% include 'install/global-error.twig' %}
+        {% include 'main/partials/field.twig' with {name: 'name', label: 'Organization name'|trans, required: true, maxlength: 255, help: 'The rest can be completed in the admin.'|trans} %}
+        {% include 'main/partials/field.twig' with {name: 'address', label: 'Address'|trans, maxlength: 255, autocomplete: 'street-address'} %}
+        <div class="row">
+            <div class="col-12 col-md-4">
+                {% include 'main/partials/field.twig' with {name: 'zip_code', label: 'Zip code'|trans, maxlength: 20, autocomplete: 'postal-code'} %}
+            </div>
+            <div class="col-12 col-md-8">
+                {% include 'main/partials/field.twig' with {name: 'city', label: 'City'|trans, maxlength: 100, autocomplete: 'address-level2'} %}
+            </div>
+        </div>
+        {% include 'main/partials/field.twig' with {name: 'country', label: 'Country'|trans, maxlength: 100, autocomplete: 'country-name'} %}
+        {% include 'install/buttons.twig' with {back: true} %}
+    </form>
+{% endblock %}

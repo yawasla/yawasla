@@ -1,0 +1,15 @@
+{% extends 'main/layout.twig' %}
+
+{% block title %}{{ block('heading') }}{% endblock %}
+
+{% block content %}
+<main class="d-flex flex-column align-items-center justify-content-center text-center min-vh-100 p-3">
+    <img src="{{ asset('img/logo_yawasla.webp') }}" alt="Yawasla" class="mb-3" width="88" height="88">
+    <p class="display-4 fw-bold text-primary mb-1">{% block code %}{% endblock %}</p>
+    <h1 class="h4 mb-2">{% block heading %}{% endblock %}</h1>
+    <p class="text-body-secondary mb-4">{% block message %}{% endblock %}</p>
+    {% block action %}
+        <a class="btn btn-primary" href="{{ path('home') }}">{{ 'Back to home'|trans }}</a>
+    {% endblock %}
+</main>
+{% endblock %}

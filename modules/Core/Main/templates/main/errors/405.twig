@@ -1,10 +1,6 @@
-{% extends 'main/layout.twig' %}
+{% extends 'main/errors/layout.twig' %}
 
-{% block title %}{{ 'Method not allowed'|trans }}{% endblock %}
+{% block code %}405{% endblock %}
+{% block heading %}{{ 'Method not allowed'|trans }}{% endblock %}
+{% block message %}{{ 'This action is not available on this page.'|trans }}{% endblock %}
 
-{% block content %}
-<main>
-    <h1>{{ 'Method not allowed'|trans }}</h1>
-    <p><a href="{{ path('home') }}">{{ 'Back to home'|trans }}</a></p>
-</main>
-{% endblock %}

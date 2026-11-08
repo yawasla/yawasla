@@ -13,24 +13,25 @@ Une migration s'écrit une seule fois, en SQL MySQL simple. Le `Migrator` l'exé
 return new class extends AbstractMigration {
     public function up(): void
     {
-        $this->sql('CREATE TABLE category (
+        $this->sql('CREATE TABLE {category} (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             parent_id INT UNSIGNED NULL,
-            CONSTRAINT category_parent_id_fk FOREIGN KEY (parent_id) REFERENCES category (id)
+            CONSTRAINT {category_parent_id_fk} FOREIGN KEY (parent_id) REFERENCES {category} (id)
         )');
-        $this->sql('CREATE INDEX category_name ON category (name)');
+        $this->sql('CREATE INDEX {category_name} ON {category} (name)');
     }
 
     public function down(): void
     {
-        $this->sql('DROP TABLE category');
+        $this->sql('DROP TABLE {category}');
     }
 };
 ```
 
 Conventions :
 - SQL MySQL simple : ce qui sort des règles ci-dessous est refusé en SQLite
+- Noms de tables, d'index et de clés étrangères entre accolades (`{user}`) : `AbstractMigration::sql()` les remplace par le nom préfixé par `DB_PREFIX`. MySQL veut des noms de clés étrangères uniques dans toute la base. Pas d'accolades autour d'un mot dans une chaîne SQL
 - Id déclaré en ligne : `id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY`, jamais `PRIMARY KEY (id)` à part
 - Index nommés `table_colonne` : en SQLite, un nom d'index est unique dans toute la base, en MySQL par table
 - Clés étrangères nommées `CONSTRAINT table_colonne_fk` : MySQL exige le nom pour `DROP FOREIGN KEY`, sinon il en invente un (`table_ibfk_1`)
@@ -153,6 +154,8 @@ Message clair plutôt qu'une traduction approximative qui passerait en silence.
 3. Données : copie table par table, clés étrangères désactivées, dans une transaction, ids d'origine conservés. La table `migration` n'est pas copiée (remplie au point 2)
 4. Vérification : nombre de lignes comparé table par table, avant de valider. Le `.env` n'est pas modifié : la commande indique quoi changer
 5. Échec : toutes les tables créées dans la cible sont supprimées (elle était vide au départ), on peut relancer après correction
+
+Seules les tables qui portent le préfixe `DB_PREFIX` sont vues par `Transfer`, côté source comme côté cible : les autres applications d'une base partagée ne sont ni comptées ni supprimées.
 
 Site en maintenance pendant la copie, sinon les écritures sont perdues. Pas de transaction de lecture : elle bloquerait SQLite. À venir : `Transfer` refuse sans `in_maintenance`.
 

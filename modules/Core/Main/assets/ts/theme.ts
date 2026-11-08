@@ -7,7 +7,7 @@
     }
 
     if (theme !== 'light' && theme !== 'dark') {
-        theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        theme = 'dark';
     }
 
     document.documentElement.setAttribute('data-bs-theme', theme);

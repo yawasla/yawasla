@@ -24,6 +24,14 @@ final class ErrorController extends AbstractController
         return $this->render('main/errors/405.twig');
     }
 
+    public function maintenance(): string
+    {
+        http_response_code(503);
+        header('Retry-After: 3600');
+
+        return $this->render('main/errors/503.twig');
+    }
+
     public function serverError(): string
     {
         http_response_code(500);

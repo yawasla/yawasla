@@ -21,6 +21,6 @@ abstract class AbstractMigration
 
     protected function sql(string $query): void
     {
-        $this->queries[] = $query;
+        $this->queries[] = preg_replace('/\{(\w+)\}/', Connection::prefix() . '$1', $query);
     }
 }

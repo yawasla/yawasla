@@ -49,7 +49,7 @@ final class Transfer
     /** @return array<string, int> */
     private function data(): array
     {
-        $tables = array_values(array_diff($this->tables($this->target, $this->targetDriver), ['migration']));
+        $tables = array_values(array_diff($this->tables($this->target, $this->targetDriver), [Connection::prefix() . 'migration']));
         $missing = array_diff($tables, $this->tables($this->source, $this->sourceDriver));
 
         if ($missing !== []) {
@@ -136,9 +136,11 @@ final class Transfer
     /** @return list<string> */
     private function tables(PDO $pdo, string $driver): array
     {
-        return $pdo->query($driver === 'mysql'
+        $tables = $pdo->query($driver === 'mysql'
             ? 'SHOW TABLES'
             : "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\'")->fetchAll(PDO::FETCH_COLUMN);
+
+        return array_values(array_filter($tables, fn (string $table): bool => str_starts_with($table, Connection::prefix())));
     }
 
     private function quote(string $name, string $driver): string

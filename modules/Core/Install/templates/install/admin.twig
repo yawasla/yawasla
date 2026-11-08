@@ -1,0 +1,15 @@
+{% extends 'install/layout.twig' %}
+
+{% block step %}
+    <h2 class="h5 mb-3">{{ 'Administrator'|trans }}</h2>
+    <form method="post" action="{{ path('install') }}" data-shader-ui="form" data-sui-guide>
+        {{ csrf() }}
+        {% include 'install/global-error.twig' %}
+        {% include 'main/partials/field.twig' with {name: 'email', label: 'Email'|trans, type: 'email', required: true, maxlength: 255, autocomplete: 'email'} %}
+        {% include 'main/partials/field.twig' with {name: 'first_name', label: 'First name'|trans, required: true, maxlength: 100, autocomplete: 'given-name'} %}
+        {% include 'main/partials/field.twig' with {name: 'last_name', label: 'Last name'|trans, required: true, maxlength: 100, autocomplete: 'family-name'} %}
+        {% include 'main/partials/field.twig' with {name: 'password', label: 'Password'|trans, type: 'password', required: not passwordSet, autocomplete: 'new-password', help: passwordSet ? 'Leave empty to keep the password already entered.'|trans : 'At least %min% characters, including a digit and a symbol.'|trans({'%min%': constant('Yawasla\\Auth\\Password::MIN_LENGTH')})} %}
+        {% include 'main/partials/field.twig' with {name: 'password_confirm', label: 'Confirm password'|trans, type: 'password', required: not passwordSet, autocomplete: 'new-password'} %}
+        {% include 'install/buttons.twig' with {back: true} %}
+    </form>
+{% endblock %}
