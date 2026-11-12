@@ -148,7 +148,7 @@ Message clair plutôt qu'une traduction approximative qui passerait en silence.
 ## Changer de serveur SQL
 
 `db:migrate --server mysql|sqlite`, logique dans `src/Database/Transfer.php` :
-0. Refus si la base actuelle a des migrations en attente, ou si la cible est le serveur actuel
+0. Refus si la base actuelle a des migrations en attente, ou si la cible est le serveur actuel. La source est toujours le serveur de `DB_DRIVER` : il reste sur le serveur actuel pendant la copie et ne change qu'après. Le message de refus le rappelle, le README détaille la procédure dans les deux sens
 1. Base cible depuis le `.env`, jamais en ligne de commande (pas de mot de passe dans l'historique du shell) : vers MySQL, l'utilisateur remplit `DB_HOST`, `DB_NAME`… en gardant `DB_DRIVER=sqlite` ; vers SQLite, `data/database.sqlite`. La cible doit être vide. `Connection` ne gère qu'une connexion : la commande ouvre la seconde
 2. Schéma : toutes les migrations rejouées sur la cible
 3. Données : copie table par table, clés étrangères désactivées, dans une transaction, ids d'origine conservés. La table `migration` n'est pas copiée (remplie au point 2)
@@ -158,6 +158,8 @@ Message clair plutôt qu'une traduction approximative qui passerait en silence.
 Seules les tables qui portent le préfixe `DB_PREFIX` sont vues par `Transfer`, côté source comme côté cible : les autres applications d'une base partagée ne sont ni comptées ni supprimées.
 
 Site en maintenance pendant la copie, sinon les écritures sont perdues. Pas de transaction de lecture : elle bloquerait SQLite. À venir : `Transfer` refuse sans `in_maintenance`.
+
+MySQL en mode strict : Medoo remplace le `sql_mode` du serveur par `ANSI_QUOTES` seul, qui tronque ou met à zéro sans erreur une valeur invalide (texte trop long, texte dans un `INT`, date impossible). `Connection` rétablit le mode strict après lui (`ANSI_QUOTES,STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION`), pour toute l'application comme pour `Transfer`.
 
 Pièges, tous deux en annulation avec un message qui désigne la ligne :
 - SQLite vers MySQL, `UNIQUE` : `utf8mb4_unicode_ci` ignore casse et accents, « Café » et « cafe » deviennent le même slug

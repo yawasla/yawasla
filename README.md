@@ -57,7 +57,26 @@ Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 - Routes and Twig templates are cached: after adding or changing a route, run `php bin/console cache:clear`.
 - To create or update the database, run `php bin/console db:migrate`: it applies the pending migrations of every module (`migrations/YYYYMMDD-XX.php`).
 - To create an empty migration file in a module, run `php bin/console db:migrate --create <Module>`.
-- To move the database to another SQL server, fill in its settings in `.env`, run `php bin/console db:migrate --server mysql` (or `sqlite`), then change `DB_DRIVER`. Put the site in maintenance first: anything written during the copy would be lost.
+- To move the database to another SQL server, see below.
+
+#### Moving to another SQL server
+
+`php bin/console db:migrate --server <target>` copies the whole database **from** the server set in `DB_DRIVER` **to** the target given on the command line. `DB_DRIVER` must therefore still point to the current server during the copy: change it only once the copy has succeeded.
+
+From SQLite to MySQL / MariaDB:
+
+1. Create the database (`utf8mb4` / `utf8mb4_unicode_ci`), or use an existing one with no table starting with `DB_PREFIX`
+2. In `.env`, fill in `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, and **keep** `DB_DRIVER=sqlite`
+3. Run `php bin/console db:migrate --server mysql`
+4. Set `DB_DRIVER=mysql`
+
+From MySQL / MariaDB to SQLite:
+
+1. Make sure `data/database.sqlite` does not exist, or has no table starting with `DB_PREFIX`
+2. **Keep** `DB_DRIVER=mysql` and run `php bin/console db:migrate --server sqlite`
+3. Set `DB_DRIVER=sqlite`
+
+Put the site in maintenance first: anything written during the copy would be lost. The current database is only read, never changed. If the copy fails, the message names the faulty row, the tables created in the target are removed, and you can run it again once the row is fixed.
 
 #### Routes
 

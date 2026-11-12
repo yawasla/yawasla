@@ -24,7 +24,7 @@ final class Transfer
     public function run(): array
     {
         if ($this->sourceDriver === $this->targetDriver) {
-            throw new LogicException('The database is already on ' . $this->targetDriver);
+            throw new LogicException('The current database is already on ' . $this->targetDriver . ' (DB_DRIVER in .env). DB_DRIVER must stay on the server you copy from until the copy is done.');
         }
 
         if ((new Migrator($this->source, $this->sourceDriver))->pending() !== []) {
