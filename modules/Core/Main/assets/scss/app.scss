@@ -63,11 +63,35 @@
     --bs-btn-disabled-color: #fff;
 }
 
+.fab {
+    --bs-btn-bg: var(--bs-body-bg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 3rem;
+    block-size: 3rem;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.theme-fab,
+.locale-fab {
+    position: fixed;
+    inset-inline-end: 1rem;
+    z-index: 1030;
+}
+
+.theme-fab {
+    inset-block-end: 1rem;
+}
+
+.locale-fab {
+    inset-block-start: 1rem;
+}
+
 .theme-toggle-dark,
 .theme-toggle-light {
     display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
 [data-bs-theme="light"] .theme-toggle-light,

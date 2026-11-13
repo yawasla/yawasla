@@ -1,0 +1,15 @@
+{% extends 'auth/layout.twig' %}
+
+{% block title %}{{ 'Sign in'|trans }}{% endblock %}
+
+{% block card %}
+    {% if notice %}<div class="alert alert-success" role="status">{{ notice }}</div>{% endif %}
+    <form method="post" action="{{ path('login') }}" data-shader-ui="form" data-sui-guide>
+        {{ csrf() }}
+        {% include 'auth/global-error.twig' %}
+        {% include 'main/partials/field.twig' with {name: 'email', label: 'Email'|trans, type: 'email', required: true, maxlength: 255, autocomplete: 'username'} %}
+        {% include 'main/partials/field.twig' with {name: 'password', label: 'Password'|trans, type: 'password', required: true, autocomplete: 'current-password'} %}
+        <button type="submit" class="btn btn-primary w-100 mt-2">{{ 'Sign in'|trans }}</button>
+    </form>
+    <p class="text-center small mt-3 mb-0"><a href="{{ path('login_reset') }}">{{ 'Forgot your password?'|trans }}</a></p>
+{% endblock %}

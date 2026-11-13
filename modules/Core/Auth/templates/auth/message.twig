@@ -1,0 +1,8 @@
+{% extends 'auth/layout.twig' %}
+
+{% block title %}{{ title|trans }}{% endblock %}
+
+{% block card %}
+    <p>{{ text|trans({'%minutes%': minutes}) }}</p>
+    <a class="btn btn-outline-secondary w-100" href="{{ path('login') }}">{{ 'Back to sign in'|trans }}</a>
+{% endblock %}

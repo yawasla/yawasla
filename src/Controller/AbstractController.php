@@ -19,6 +19,8 @@ use Yawasla\I18n\Translator;
 
 abstract class AbstractController
 {
+    public const STRICT_ROUTES = false;
+
     private ?Environment $twig = null;
 
     /**
@@ -134,6 +136,7 @@ abstract class AbstractController
             $this->twig->addGlobal('locale', $translator->locale());
             $this->twig->addGlobal('dir', $translator->dir());
             $this->twig->addFunction(new TwigFunction('path', [$router, 'path']));
+            $this->twig->addFunction(new TwigFunction('locale_urls', [$router, 'localeUrls']));
             $this->twig->addFunction(new TwigFunction('asset', fn (string $file): string => $router->basePath() . '/assets/' . $file . '?v=' . filemtime($public . '/assets/' . $file)));
             $this->twig->addFunction(new TwigFunction('vite', [new Vite($root, $public . '/assets', $router->basePath() . '/assets'), 'tags'], ['is_safe' => ['html']]));
             $this->twig->addFunction(new TwigFunction('module', $this->module(...), ['is_safe' => ['html']]));

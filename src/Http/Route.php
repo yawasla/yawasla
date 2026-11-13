@@ -11,9 +11,10 @@ final class Route
 {
     /** @param list<string> $methods */
     public function __construct(
-        public string $path,
+        public string $path = '',
         public string $name = '',
         public array $methods = ['GET'],
+        public ?string $auth = null,
     ) {
     }
 }

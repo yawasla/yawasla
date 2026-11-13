@@ -15,6 +15,8 @@ final class Translator
 
     public const LOCALES = ['en', 'fr', 'ar'];
 
+    public const NAMES = ['en' => 'English', 'fr' => 'Français', 'ar' => 'العربية'];
+
     private const RTL = ['ar'];
 
     private string $locale;

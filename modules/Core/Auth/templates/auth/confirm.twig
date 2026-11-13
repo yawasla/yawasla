@@ -1,0 +1,12 @@
+{% extends 'auth/layout.twig' %}
+
+{% block title %}{{ 'Confirm sign in'|trans }}{% endblock %}
+
+{% block card %}
+    <p>{{ 'Click the button to finish signing in.'|trans }}</p>
+    <form method="post" action="{{ path('login_confirm', {token: token}) }}">
+        {{ csrf() }}
+        {% include 'auth/global-error.twig' %}
+        <button type="submit" class="btn btn-primary w-100">{{ 'Sign in'|trans }}</button>
+    </form>
+{% endblock %}

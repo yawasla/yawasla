@@ -1,0 +1,14 @@
+{% set localeUrls = locale_urls() %}
+{% if localeUrls %}
+    <div class="dropdown locale-fab">
+        <button type="button" class="btn btn-outline-secondary shadow-sm fab small fw-semibold" data-bs-toggle="dropdown" aria-expanded="false">
+            <span aria-hidden="true">{{ locale|upper }}</span>
+            <span class="visually-hidden">{{ 'Language'|trans }}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            {% for code, url in localeUrls %}
+                <li><a class="dropdown-item{{ code == locale ? ' active' : '' }}" href="{{ url }}" hreflang="{{ code }}" lang="{{ code }}"{% if code == locale %} aria-current="true"{% endif %}>{{ constant('Yawasla\\I18n\\Translator::NAMES')[code] }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

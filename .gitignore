@@ -6,5 +6,6 @@
 /node_modules/
 /public/assets/css/
 /public/assets/js/
+/public/assets/media/
 /public/assets/.vite/
 /templates/custom.twig

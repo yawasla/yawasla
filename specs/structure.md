@@ -10,17 +10,21 @@
 ├── vite.config.ts  build des assets ; tsconfig.json pour la vérification des types
 ├── .env            config (APP_ENV, BDD, SMTP), non versionné ; modèle : .env.example
 ├── src/            noyau (namespace Yawasla\)
+│   ├── Auth/         Auth (accès des routes, connexion), Password, Throttle
 │   ├── Controller/   AbstractController.php (base), AbstractAdminController.php
 │   ├── Command/      commandes de bin/console
 │   ├── Core/         Config, Modules
 │   ├── Database/     Connection, AbstractMigration, Migrator, AbstractAdapter, MySQLAdapter, SQLiteAdapter, Transfer
 │   ├── Debug/        barre de debug, dump()
+│   ├── Form/         Form (CSRF, validation)
 │   ├── Http/         Router, Route (attribut), Vite (balises des assets)
 │   ├── I18n/         Translator, filtre Twig |trans
+│   ├── Mail/         Mailer (PHPMailer, mails de sécurité)
+│   ├── Model/        User, Token, Setting (table config)
 │   ├── Trait/        Singleton
-│   └── …             Model/, Auth/, Mail/, Notify/, Seo/, Form/ à venir
+│   └── …             Notify/, Seo/ à venir
 ├── modules/
-│   ├── Core/         modules du cœur : Main, News, Feed…
+│   ├── Core/         modules du cœur : Main, Auth, Install, News, Feed…
 │   └── Extension/    modules de l'utilisateur
 ├── templates/      index.twig (structure de l'accueil), main.twig (accueil du cœur), custom.twig.example
 ├── specs/          specs détaillées par partie
@@ -43,6 +47,22 @@
 
 `public/index.php` → `bootstrap.php` (en-têtes de sécurité, autoload des modules, gestion des erreurs) → `Router` (route compilée → contrôleur d'un module) → `Controller::render()` (Twig, barre de debug en dev).
 
+**Accès** : `#[Route(..., auth: 'guest'|'user'|'admin')]`, sur la classe (hérité par ses méthodes) ou sur la méthode, qui l'emporte.
+- `guest` : tout le monde ; `user` : compte connecté et actif ; `admin` : compte avec le rôle `admin` (inclut `user`)
+- Le Router vérifie la session avant d'instancier le contrôleur ; droit insuffisant → 404
+- Par défaut `guest`, sauf en **strict route mode** : aucun défaut, chaque route doit déclarer son `auth`. Le mode se définit dans le contrôleur abstrait (désactivé dans `AbstractController`, activé dans `AbstractAdminController`)
+- Refusé à la compilation (`LogicException`) : valeur d'`auth` inconnue, route sans `auth` en strict route mode, route `/admin` dont le contrôleur n'hérite pas d'`AbstractAdminController` (qui envoie aussi `no-store` et `noindex`)
+
+**Langue** : `/admin` et `/login` portent la langue dans l'URL (`/admin/fr/…`, `/login/ar/reset`), retirée avant le match (`Router::LOCALIZED`) ; sans préfixe : anglais. `path()` et `localize()` ajoutent la langue en cours. Sur ces pages, `main/layout.twig` affiche un bouton rond flottant en haut (menu des trois langues, même page dans l'autre langue, via `locale_urls()`) ; le bouton du thème est en bas. Ailleurs, la langue vient de `APP_LANG` et le bouton n'apparaît pas.
+
+**Paramètres** : le type vient de la signature de la méthode, sans syntaxe dans le chemin. Chaque `{param}` correspond au paramètre de la méthode du même nom, transmis par nom.
+- `string` : `[^/]+`, en 404 s'il contient `/`, `\`, `..` ou un caractère de contrôle
+- `int` : `[1-9]\d{0,17}`, converti en entier (ni `0`, ni zéro en tête, ni dépassement d'entier) ; sinon 404 sans atteindre le contrôleur. Sans conversion, `strict_types` ferait d'un `int $id` une 500
+- `bool`, hors strict route mode uniquement : `true` / `false` / `1` / `0`, convertis par le Router (jamais la règle de PHP, où `"false"` vaut `true`) ; sinon 404
+- `float`, hors strict route mode uniquement : `-?(0|[1-9]\d{0,14})(\.\d{1,15})?`, converti en flottant (négatif permis, ni exposant, ni zéro en tête, ni `NAN` / `INF`) ; sinon 404
+- Strict route mode : `string` et `int` uniquement
+- Refusé à la compilation (`LogicException`) : `{param}` sans paramètre du même nom dans la méthode, paramètre sans type ou d'un type non permis
+
 ## Modules
 
 Tout le site est fait de modules, ceux du cœur compris : le noyau (`src/`) ne contient que le socle commun.
@@ -59,7 +79,8 @@ modules/Core/News/
 
 - Nom du module = nom du dossier (`News`), son identifiant en minuscules (`news`) sert aux templates (`news/show.twig`) et aux assets (`@news/ts/…`). Noms uniques entre `Core/` et `Extension/`
 - **Un module ne remplace jamais un module du cœur** : on désactive celui du cœur et on active le sien. Twig cherche d'abord dans le cœur, puis dans les extensions, puis dans `templates/`
-- `Core/Main` (layout, partials, erreurs, debug, thème, Bootstrap, migrations du cœur) est verrouillé, comme `Admin` et `Install` à venir : on ne peut pas les désactiver
+- `Core/Main` (layout, partials, erreurs, debug, thème, Bootstrap, migrations du cœur) est verrouillé, comme `Auth`, `Install` et `Admin` à venir : on ne peut pas les désactiver
+- Authentification en deux parties : le noyau (`src/Auth/`) porte ce dont le Router et les autres modules ont besoin (accès, mot de passe, jetons, session) et ne dépend d'aucun module ; `Core/Auth` porte les pages (connexion sous `/login`, lien, déconnexion, reset), leurs templates, traductions et mails. Détail : `specs/auth.md`
 - Traductions : celles de chaque module sont fusionnées, celles du cœur priment
 - Bloc : `{{ module('Banner') }}` rend `banner/block.twig` avec les données de `Block` (classe invocable qui renvoie un tableau), ou rien si le module est absent ou désactivé
 - Accueil : `custom.twig` s'il existe, sinon `main.twig` ; tous deux étendent `index.twig`. `custom.twig` appartient à l'utilisateur, non versionné et jamais remplacé à la mise à jour

@@ -82,6 +82,24 @@ Put the site in maintenance first: anything written during the copy would be los
 
 Routes are declared with the `#[Route]` attribute on controllers. Parameters such as `{slug}` accept any character, Arabic included, except `/`, `\`, `..` and control characters: a URL containing one of them answers 404.
 
+```php
+#[Route('/admin/news', auth: 'admin')]
+final class NewsController extends AbstractAdminController
+{
+    #[Route('', name: 'admin_news')]
+    public function index(): string { /* … */ }
+
+    #[Route('/{slug}', name: 'admin_news_edit', methods: ['GET', 'POST'])]
+    public function edit(string $slug): string { /* … */ }
+}
+```
+
+`auth` sets who can open the route: `guest` (everyone), `user` (any signed-in, active account) or `admin` (accounts with the `admin` role). Set on the class, it applies to every method; set on a method, it overrides the class. The router checks it before creating the controller: without the required access, the route answers 404, as if it did not exist.
+
+Without `auth`, a route is open to everyone (`guest`), except in **strict route mode**: there is no default, and every route must declare its `auth`, or the site fails while compiling the routes instead of opening the route by mistake. A controller enables it with `public const STRICT_ROUTES = true;`. `AbstractAdminController` does, and every route under `/admin` must use a controller that extends it.
+
+Each `{param}` is passed to the method argument of the same name, and its type sets what the URL accepts: `string` (any text, as above), `int` (a positive number without leading zero), and outside strict route mode `bool` (`true`, `false`, `1`, `0`) and `float` (such as `-3.25`, no exponent). A value that does not match answers 404 without reaching the controller. A parameter missing from the method, or a type not allowed, fails while compiling the routes.
+
 #### Assets
 
 Sources are in each module's `assets/ts/` (TypeScript) and `assets/scss/` (SCSS, Bootstrap included in `modules/Core/Main`), compiled with [Vite](https://vite.dev) to `public/assets/js/` and `public/assets/css/`. Compiled files are not committed: build them after cloning and after every change.

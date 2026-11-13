@@ -1,0 +1,14 @@
+{% extends 'auth/layout.twig' %}
+
+{% block title %}{{ 'Reset password'|trans }}{% endblock %}
+
+{% block card %}
+    <p>{{ 'Enter your email: if an account exists, you will receive a link to choose a new password.'|trans }}</p>
+    <form method="post" action="{{ path('login_reset') }}" data-shader-ui="form" data-sui-guide>
+        {{ csrf() }}
+        {% include 'auth/global-error.twig' %}
+        {% include 'main/partials/field.twig' with {name: 'email', label: 'Email'|trans, type: 'email', required: true, maxlength: 255, autocomplete: 'username'} %}
+        <button type="submit" class="btn btn-primary w-100 mt-2">{{ 'Send'|trans }}</button>
+    </form>
+    <p class="text-center small mt-3 mb-0"><a href="{{ path('login') }}">{{ 'Back to sign in'|trans }}</a></p>
+{% endblock %}

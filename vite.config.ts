@@ -51,7 +51,13 @@ export default defineConfig(({ mode }) => ({
             output: {
                 entryFileNames: ({ name }) => `js/${name.replace(/\.ts$/, '')}-[hash].js`,
                 chunkFileNames: 'js/[name]-[hash].js',
-                assetFileNames: ({ names, originalFileNames }) => names[0]?.endsWith('.css') && originalFileNames[0] ? `css/${name(originalFileNames[0])}-[hash].css` : 'media/[name]-[hash][extname]',
+                assetFileNames: ({ names, originalFileNames }) => {
+                    if (!names[0]?.endsWith('.css')) {
+                        return 'media/[name]-[hash][extname]';
+                    }
+
+                    return originalFileNames[0] ? `css/${name(originalFileNames[0])}-[hash].css` : 'css/[name]-[hash][extname]';
+                },
             },
         },
     },

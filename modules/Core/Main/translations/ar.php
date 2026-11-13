@@ -20,4 +20,5 @@ return [
     'This page does not exist or has been moved.' => 'هذه الصفحة غير موجودة أو تم نقلها.',
     'This action is not available on this page.' => 'هذا الإجراء غير متاح في هذه الصفحة.',
     'Please try again in a few moments.' => 'يرجى المحاولة بعد قليل.',
+    'Language' => 'اللغة',
 ];

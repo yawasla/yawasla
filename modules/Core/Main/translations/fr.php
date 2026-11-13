@@ -20,4 +20,5 @@ return [
     'This page does not exist or has been moved.' => 'Cette page n\'existe pas ou a été déplacée.',
     'This action is not available on this page.' => 'Cette action n\'est pas disponible sur cette page.',
     'Please try again in a few moments.' => 'Réessayez dans quelques instants.',
+    'Language' => 'Langue',
 ];
