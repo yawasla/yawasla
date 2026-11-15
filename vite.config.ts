@@ -13,8 +13,18 @@ const clean = (): Plugin => ({
     name: 'yawasla:clean',
     apply: 'build',
     buildStart() {
-        for (const dir of ['css', 'js', '.vite']) {
+        for (const dir of ['css', 'js', 'media', '.vite']) {
             rmSync(resolve(assets, dir), { recursive: true, force: true });
+        }
+    },
+});
+
+const woff2Only = (): Plugin => ({
+    name: 'yawasla:woff2-only',
+    enforce: 'pre',
+    transform(code, id) {
+        if (id.includes('@phosphor-icons/web') && id.split('?')[0].endsWith('.css')) {
+            return code.replace(/src:[^;]+;/, 'src: url("./Phosphor.woff2") format("woff2");');
         }
     },
 });
@@ -31,7 +41,7 @@ const rtl = () => ({
 export default defineConfig(({ mode }) => ({
     base: './',
     publicDir: false,
-    plugins: [clean()],
+    plugins: [clean(), woff2Only()],
     css: {
         postcss: { plugins: [rtl()] },
         preprocessorOptions: {

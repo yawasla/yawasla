@@ -53,11 +53,13 @@ php bin/console serve [port]
 Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 
 - To show the debug toolbar (errors, dumps, SQL queries…), set `APP_ENV=dev` in `.env`. Never in production.
+- With `APP_ENV=dev`, `/install` does not require HTTPS and accepts an `http://` website address, such as `http://localhost:8000`. In production, the address must start with `https://`.
 - Without a mail server, set `MAIL_DRIVER=log` (with `APP_ENV=dev` only): security emails such as sign-in links are written to `data/logs/mail.log` instead of being sent.
 - The built-in server ignores `.htaccess` files: headers, caching and the `uploads/` protection can only be tested on Apache.
 - Routes and Twig templates are cached: after adding or changing a route, run `php bin/console cache:clear`.
 - To create or update the database, run `php bin/console db:migrate`: it applies the pending migrations of every module (`migrations/YYYYMMDD-XX.php`).
 - To create an empty migration file in a module, run `php bin/console db:migrate --create <Module>`.
+- To put the site in maintenance (only admins can see it), run `php bin/console maintenance on`, and `off` to open it again. Without access to the admin or the command line, create or delete the empty file `data/maintenance`.
 - To move the database to another SQL server, see below.
 
 #### Moving to another SQL server

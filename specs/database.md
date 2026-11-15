@@ -6,7 +6,7 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 
 | Table | Rôle |
 |---|---|
-| `organization` | l'association ou la mosquée : identité, coordonnées, `in_maintenance` |
+| `organization` | l'association ou la mosquée : identité, coordonnées (la maintenance n'est pas en base : fichier `data/maintenance`) |
 | `user` | compte de l'admin, rattaché à une organisation |
 | `token` | jeton à usage unique : lien de connexion, reset, confirmation d'abonnement… |
 | `publication` | ce qui est publié, quel que soit son type : auteur, slug, nom, dates |

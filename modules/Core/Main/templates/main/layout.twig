@@ -7,8 +7,13 @@
     {% block head %}{% endblock %}
 </head>
 <body>
+{% block maintenance_banner %}
+    {% if maintenance_banner() %}<div class="alert alert-warning rounded-0 border-0 m-0 py-2 text-center small" role="status">{{ 'Maintenance on: the site is not visible to visitors'|trans }}</div>{% endif %}
+{% endblock %}
 {% block content %}{% endblock %}
-{% include 'main/partials/locale-switch.twig' %}
-{% include 'main/partials/theme-toggle.twig' %}
+{% block fabs %}
+    {% include 'main/partials/locale-switch.twig' %}
+    {% include 'main/partials/theme-toggle.twig' %}
+{% endblock %}
 </body>
 </html>

@@ -15,6 +15,10 @@ final class Session
 
     private const LIFETIME = 86400;
 
+    private const FLASH = '_flash';
+
+    private const FLASH_TYPES = ['success', 'info', 'warning', 'danger'];
+
     private function __construct()
     {
         $dir = dirname(__DIR__, 2) . '/data/sessions';
@@ -50,6 +54,29 @@ final class Session
     public function remove(string $key): void
     {
         unset($_SESSION[$key]);
+    }
+
+    public function flash(string $type, string $message): void
+    {
+        if (!in_array($type, self::FLASH_TYPES, true)) {
+            throw new \InvalidArgumentException('Unknown flash type: ' . $type);
+        }
+
+        $_SESSION[self::FLASH][] = ['type' => $type, 'message' => $message];
+    }
+
+    /** @return list<array{type: string, message: string}> */
+    public static function flashes(): array
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE && !isset($_COOKIE[self::NAME])) {
+            return [];
+        }
+
+        $session = self::getInstance();
+        $flashes = $session->get(self::FLASH, []);
+        $session->remove(self::FLASH);
+
+        return $flashes;
     }
 
     public function regenerate(): void

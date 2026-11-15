@@ -2,6 +2,8 @@
 
 {% block head %}{{ vite('@auth/ts/form.ts') }}{% endblock %}
 
+{% block maintenance_banner %}{% endblock %}
+
 {% block content %}
 <main class="bg-body-tertiary min-vh-100 py-4 py-md-5">
     <div class="container">
@@ -13,9 +15,11 @@
                 </header>
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
+                        {% include 'main/partials/flash.twig' %}
                         {% block card %}{% endblock %}
                     </div>
                 </div>
+                <p class="text-center small mt-3 mb-0"><a href="{{ path('home') }}" class="link-body-emphasis">{{ 'Back to the site'|trans }}</a></p>
             </div>
         </div>
     </div>

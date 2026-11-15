@@ -1,0 +1,3 @@
+{% for flash in flashes() %}
+    <div class="alert alert-{{ flash.type }}" role="{{ flash.type == 'danger' ? 'alert' : 'status' }}">{{ flash.message }}</div>
+{% endfor %}

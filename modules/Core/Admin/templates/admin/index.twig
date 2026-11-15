@@ -1,13 +1,7 @@
-{% extends 'main/layout.twig' %}
+{% extends 'admin/layout.twig' %}
 
-{% block title %}{{ 'Administration'|trans }}{% endblock %}
+{% block title %}{{ 'Dashboard'|trans }}{% endblock %}
 
-{% block content %}
-<main class="container py-4">
-    <h1 class="h4 mb-3">{{ 'Welcome %name%'|trans({'%name%': name}) }}</h1>
-    <form method="post" action="{{ path('logout') }}">
-        {{ csrf() }}
-        <button type="submit" class="btn btn-outline-secondary">{{ 'Sign out'|trans }}</button>
-    </form>
-</main>
+{% block main %}
+    <p>{{ 'Welcome %name%'|trans({'%name%': admin.user.first_name}) }}</p>
 {% endblock %}

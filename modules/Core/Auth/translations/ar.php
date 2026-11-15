@@ -2,6 +2,7 @@
 
 return [
     'At least %min% characters, including a digit and a symbol.' => '%min% أحرف على الأقل، منها رقم ورمز.',
+    'Back to the site' => 'العودة إلى الموقع',
     'Back to sign in' => 'العودة إلى تسجيل الدخول',
     'Change password' => 'تغيير كلمة المرور',
     'Check your email' => 'تحقق من بريدك الإلكتروني',

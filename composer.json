@@ -1,7 +1,7 @@
 {
     "name": "yawasla/org",
     "description": "Online newsroom for mosques and Muslim associations.",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "type": "project",
     "license": "Apache-2.0",
     "require": {

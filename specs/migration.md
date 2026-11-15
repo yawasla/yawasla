@@ -157,7 +157,7 @@ Message clair plutôt qu'une traduction approximative qui passerait en silence.
 
 Seules les tables qui portent le préfixe `DB_PREFIX` sont vues par `Transfer`, côté source comme côté cible : les autres applications d'une base partagée ne sont ni comptées ni supprimées.
 
-Site en maintenance pendant la copie, sinon les écritures sont perdues. Pas de transaction de lecture : elle bloquerait SQLite. À venir : `Transfer` refuse sans `in_maintenance`.
+Site en maintenance pendant la copie, sinon les écritures sont perdues. Pas de transaction de lecture : elle bloquerait SQLite.
 
 MySQL en mode strict : Medoo remplace le `sql_mode` du serveur par `ANSI_QUOTES` seul, qui tronque ou met à zéro sans erreur une valeur invalide (texte trop long, texte dans un `INT`, date impossible). `Connection` rétablit le mode strict après lui (`ANSI_QUOTES,STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION`), pour toute l'application comme pour `Transfer`.
 

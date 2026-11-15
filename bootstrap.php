@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use Yawasla\Module\Core\Main\Controller\ErrorController;
+use Yawasla\Auth\Auth;
+use Yawasla\Controller\AbstractAdminController;
 use Yawasla\Core\Installation;
+use Yawasla\Core\Maintenance;
 use Yawasla\Core\Modules;
 use Yawasla\Database\ConnectionException;
 use Yawasla\Debug\Debug;
@@ -12,6 +15,7 @@ use Yawasla\Http\MethodNotAllowedException;
 use Yawasla\Http\NotFoundException;
 use Yawasla\Http\RedirectException;
 use Yawasla\Http\Router;
+use Yawasla\Module\Core\Auth\Controller\LoginController;
 use Yawasla\Module\Core\Install\Controller\InstallController;
 use Yawasla\I18n\Translator;
 
@@ -59,9 +63,14 @@ if (Debug::getInstance()->enabled()) {
 try {
     [$class, $action, $params] = Router::getInstance()->match($_SERVER['REQUEST_METHOD'], explode('?', $_SERVER['REQUEST_URI'], 2)[0] ?: '/');
     Debug::getInstance()->route($class, $action, $params);
-    echo $class === InstallController::class || Installation::getInstance()->installed()
-        ? (new $class())->$action(...$params)
-        : (new ErrorController())->maintenance();
+    $open = $class === InstallController::class
+        || (Installation::getInstance()->installed() && (
+            !Maintenance::enabled()
+            || $class === LoginController::class
+            || is_subclass_of($class, AbstractAdminController::class)
+            || Auth::getInstance()->allows('admin')
+        ));
+    echo $open ? (new $class())->$action(...$params) : (new ErrorController())->maintenance();
 } catch (ConnectionException $e) {
     trigger_error((string) $e, E_USER_WARNING);
     echo (new ErrorController())->maintenance();

@@ -10,10 +10,13 @@ use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
 use Twig\Template;
 use Twig\TwigFunction;
+use Yawasla\Auth\Auth;
+use Yawasla\Core\Maintenance;
 use Yawasla\Core\Modules;
 use Yawasla\Debug\Debug;
 use Yawasla\Form\Form;
 use Yawasla\Http\Router;
+use Yawasla\Http\Session;
 use Yawasla\Http\Vite;
 use Yawasla\I18n\Translator;
 
@@ -100,6 +103,15 @@ abstract class AbstractController
         return '';
     }
 
+    private function icon(string $name): string
+    {
+        if (!preg_match('/^[a-z0-9]+(-[a-z0-9]+)*$/', $name)) {
+            throw new \InvalidArgumentException('Invalid icon name: ' . $name);
+        }
+
+        return '<i class="ph ph-' . $name . '" aria-hidden="true"></i>';
+    }
+
     private function module(string $name): string
     {
         $module = Modules::getInstance()->get($name);
@@ -141,6 +153,9 @@ abstract class AbstractController
             $this->twig->addFunction(new TwigFunction('vite', [new Vite($root, $public . '/assets', $router->basePath() . '/assets'), 'tags'], ['is_safe' => ['html']]));
             $this->twig->addFunction(new TwigFunction('module', $this->module(...), ['is_safe' => ['html']]));
             $this->twig->addFunction(new TwigFunction('csrf', [Form::class, 'field'], ['is_safe' => ['html']]));
+            $this->twig->addFunction(new TwigFunction('flashes', [Session::class, 'flashes']));
+            $this->twig->addFunction(new TwigFunction('icon', $this->icon(...), ['is_safe' => ['html']]));
+            $this->twig->addFunction(new TwigFunction('maintenance_banner', fn (): bool => Maintenance::enabled() && Auth::getInstance()->allows('admin')));
             $this->twig->addFilter(new TwigFilter('trans', [$translator, 'trans']));
             $this->twig->addFunction(new TwigFunction('dump', $this->dump(...), ['needs_context' => true, 'is_variadic' => true]));
 

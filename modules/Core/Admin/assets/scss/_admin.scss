@@ -1,0 +1,37 @@
+.admin-sidebar {
+    @media (min-width: 992px) {
+        position: sticky;
+        inset-block-start: 0;
+        flex: 0 0 15rem;
+        block-size: 100vh;
+        border-inline-end: 1px solid var(--bs-border-color);
+    }
+}
+
+.admin-sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin-sidebar .nav-link {
+    color: var(--bs-body-color);
+}
+
+.admin-sidebar .nav-link:hover,
+.admin-sidebar .nav-link.active {
+    color: var(--bs-primary);
+}
+
+.admin-sidebar .nav-link.active {
+    font-weight: 600;
+}
+
+.admin-topbar {
+    min-block-size: 3.5rem;
+}
+
+
+.admin-content {
+    min-inline-size: 0;
+}

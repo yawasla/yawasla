@@ -18,6 +18,7 @@ return [
     'Your session has expired. Please try again.' => 'انتهت صلاحية الجلسة. يرجى المحاولة مرة أخرى.',
     'Access denied' => 'الوصول مرفوض',
     'You do not have permission to access this page.' => 'ليس لديك إذن للوصول إلى هذه الصفحة.',
+    'Maintenance on: the site is not visible to visitors' => 'الصيانة مفعّلة: الموقع غير مرئي للزوار',
     'Page not found' => 'الصفحة غير موجودة',
     'This page does not exist or has been moved.' => 'هذه الصفحة غير موجودة أو تم نقلها.',
     'This action is not available on this page.' => 'هذا الإجراء غير متاح في هذه الصفحة.',

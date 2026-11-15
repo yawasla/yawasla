@@ -3,7 +3,7 @@
 ## Module
 
 - Module du cœur `modules/Core/Install`, verrouillé comme `Main` : on ne peut pas le désactiver
-- Route `/install`, hors de `/admin`
+- Route `/install`, hors de `/admin`. Langue dans l'URL comme `/login` (`/install/fr`, `/install/ar`, anglais sans préfixe), bouton de langue flottant ; les saisies restent en session au changement de langue
 
 ## État de l'installation
 
@@ -38,7 +38,9 @@ Si la base nommée dans `.env` n'existe pas, l'étape 0 l'indique, donne l'encod
 2. **Organisation** : nom, prérempli avec le nom du site tant qu'il est vide, et adresse facultative (adresse, code postal, ville, pays) ; le reste se complète dans l'admin
 3. **Administrateur** : email, prénom, nom, mot de passe saisi deux fois (7 caractères minimum, dont au moins un chiffre et un symbole)
 4. **Confirmation** : récapitulatif des saisies
-5. **Validation** : lien vers l'admin, dans la langue du site (404 tant que l'admin n'existe pas)
+5. **Validation** : lien vers l'admin, dans la langue de l'install
+
+Exemples dans les champs (placeholders traduits, le libellé reste au-dessus) : mosquée fictive du nom d'Ibn Oumm Maktoum, le Compagnon aveugle ; adresses web et email en `example.org` (domaine réservé aux exemples, RFC 2606), jamais un vrai domaine. Pas de champ prérempli depuis l'en-tête `Host`.
 
 Vérifications :
 - PHP trop ancien ou `data/` non inscriptible peuvent planter avant Twig : ces deux tests s'affichent en HTML brut

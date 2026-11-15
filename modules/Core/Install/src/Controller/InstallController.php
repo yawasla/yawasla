@@ -239,9 +239,9 @@ final class InstallController extends AbstractController
 
     private function adminUrl(): string
     {
-        $locale = Translator::getInstance()->locale();
+        $router = Router::getInstance();
 
-        return Router::getInstance()->basePath() . '/admin' . ($locale === 'en' ? '' : '/' . $locale);
+        return $router->basePath() . $router->localize('/admin');
     }
 
     private function reload(): string

@@ -42,8 +42,7 @@ return new class extends AbstractMigration {
             country VARCHAR(100) NULL,
             website VARCHAR(255) NULL,
             created_at DATETIME NOT NULL,
-            updated_at DATETIME NOT NULL,
-            in_maintenance BOOLEAN NOT NULL DEFAULT 0
+            updated_at DATETIME NOT NULL
         )');
         $this->sql('CREATE TABLE {user} (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

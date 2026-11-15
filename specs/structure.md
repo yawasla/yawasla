@@ -5,7 +5,7 @@
 ```
 ./
 ├── bootstrap.php
-├── bin/console     CLI : serve [port], cache:clear, db:migrate
+├── bin/console     CLI : serve [port], cache:clear, db:migrate, maintenance [on|off]
 ├── package.json    npm run check | dev | build | watch
 ├── vite.config.ts  build des assets ; tsconfig.json pour la vérification des types
 ├── .env            config (APP_ENV, BDD, SMTP), non versionné ; modèle : .env.example
@@ -13,7 +13,7 @@
 │   ├── Auth/         Auth (accès des routes, connexion), Password, Throttle
 │   ├── Controller/   AbstractController.php (base), AbstractAdminController.php
 │   ├── Command/      commandes de bin/console
-│   ├── Core/         Config, Modules
+│   ├── Core/         Config, Modules, Installation, Maintenance, Cache
 │   ├── Database/     Connection, AbstractMigration, Migrator, AbstractAdapter, MySQLAdapter, SQLiteAdapter, Transfer
 │   ├── Debug/        barre de debug, dump()
 │   ├── Form/         Form (CSRF, validation)
@@ -28,7 +28,7 @@
 │   └── Extension/    modules de l'utilisateur
 ├── templates/      index.twig (structure de l'accueil), main.twig (accueil du cœur), custom.twig.example
 ├── specs/          specs détaillées par partie
-├── data/           base SQLite, sessions, logs, cache/ (Twig, routes.php)
+├── data/           base SQLite, sessions, logs, cache/ (Twig, routes.php), installed, maintenance
 ├── nbe/            ancien moteur NBE, non versionné : on y pioche des idées, rien n'en est chargé
 └── public/         racine web, renommable (www/, public_html/…)
     ├── index.php   seul point d'entrée PHP
@@ -53,7 +53,9 @@
 - Par défaut `guest`, sauf en **strict route mode** : aucun défaut, chaque route doit déclarer son `auth`. Le mode se définit dans le contrôleur abstrait (désactivé dans `AbstractController`, activé dans `AbstractAdminController`)
 - Refusé à la compilation (`LogicException`) : valeur d'`auth` inconnue, route sans `auth` en strict route mode, route `/admin` dont le contrôleur n'hérite pas d'`AbstractAdminController` (qui envoie aussi `no-store` et `noindex`)
 
-**Langue** : `/admin` et `/login` portent la langue dans l'URL (`/admin/fr/…`, `/login/ar/reset`), retirée avant le match (`Router::LOCALIZED`) ; sans préfixe : anglais. `path()` et `localize()` ajoutent la langue en cours. Sur ces pages, `main/layout.twig` affiche un bouton rond flottant en haut (menu des trois langues, même page dans l'autre langue, via `locale_urls()`) ; le bouton du thème est en bas. Ailleurs, la langue vient de `APP_LANG` et le bouton n'apparaît pas.
+**Langue** : `/admin`, `/login` et `/install` portent la langue dans l'URL (`/admin/fr/…`, `/login/ar/reset`, `/install/fr`), retirée avant le match (`Router::LOCALIZED`) ; sans préfixe : anglais. `path()` et `localize()` ajoutent la langue en cours. Sur ces pages, `main/layout.twig` affiche un bouton rond flottant en haut (menu des trois langues, même page dans l'autre langue, via `locale_urls()`) ; le bouton du thème est en bas. Ailleurs, la langue vient de `APP_LANG` et le bouton n'apparaît pas.
+
+**Messages flash** : `Session::flash($type, $message)` (`success`, `info`, `warning`, `danger`, sinon exception), message déjà traduit, affiché une fois par `main/partials/flash.twig` (inclus dans les layouts de connexion et d'admin), toujours échappé. `flashes()` ne démarre pas de session sans cookie.
 
 **Paramètres** : le type vient de la signature de la méthode, sans syntaxe dans le chemin. Chaque `{param}` correspond au paramètre de la méthode du même nom, transmis par nom.
 - `string` : `[^/]+`, en 404 s'il contient `/`, `\`, `..` ou un caractère de contrôle
@@ -69,7 +71,7 @@ Tout le site est fait de modules, ceux du cœur compris : le noyau (`src/`) ne c
 
 ```
 modules/Core/News/
-├── Module.php      tableau : version, requires (modules requis), locked (cœur uniquement)
+├── Module.php      tableau : version, requires (modules requis), locked (cœur uniquement), admin (entrées du menu : specs/admin.md)
 ├── src/            namespace Yawasla\Module\Core\News\ ; Controller/ (routes #[Route]), Block.php
 ├── templates/news/
 ├── translations/   fr.php, ar.php
@@ -79,7 +81,7 @@ modules/Core/News/
 
 - Nom du module = nom du dossier (`News`), son identifiant en minuscules (`news`) sert aux templates (`news/show.twig`) et aux assets (`@news/ts/…`). Noms uniques entre `Core/` et `Extension/`
 - **Un module ne remplace jamais un module du cœur** : on désactive celui du cœur et on active le sien. Twig cherche d'abord dans le cœur, puis dans les extensions, puis dans `templates/`
-- `Core/Main` (layout, partials, erreurs, debug, thème, Bootstrap, migrations du cœur) est verrouillé, comme `Auth`, `Install` et `Admin` : on ne peut pas les désactiver
+- `Core/Main` (layout, partials, erreurs, debug, thème, Bootstrap, migrations du cœur) est verrouillé, comme `Auth`, `Install` et `Admin` (`specs/admin.md`) : on ne peut pas les désactiver
 - Authentification en deux parties : le noyau (`src/Auth/`) porte ce dont le Router et les autres modules ont besoin (accès, mot de passe, jetons, session) et ne dépend d'aucun module ; `Core/Auth` porte les pages (connexion sous `/login`, lien, déconnexion, reset), leurs templates, traductions et mails. Détail : `specs/auth.md`
 - Traductions : celles de chaque module sont fusionnées, celles du cœur priment
 - Bloc : `{{ module('Banner') }}` rend `banner/block.twig` avec les données de `Block` (classe invocable qui renvoie un tableau), ou rien si le module est absent ou désactivé
@@ -94,6 +96,8 @@ modules/Core/News/
 - Vite compile tout fichier `modules/*/*/assets/{ts,scss}/*` sauf les partials `_*.scss`, vers `public/assets/js/` et `css/`, préfixé par le module (`main-app-[hash].css`)
 - Noms hashés : `vite('@main/ts/app.ts')` dans Twig lit `assets/.vite/manifest.json` et écrit les balises (CSS, `modulepreload`, script) ; `vite(…, module: false)` pour un script classique (`theme.ts`, bloquant pour éviter le flash de thème). `asset()` reste pour les fichiers statiques (images)
 - RTL : `app.rtl.scss` passe par rtlcss, seule entrée retournée
-- Chaque build vide `css/`, `js/` et `.vite/` : on n'y écrit jamais à la main
+- Chaque build vide `css/`, `js/`, `media/` et `.vite/` : on n'y écrit jamais à la main
+- Icônes : Phosphor (MIT), style `regular` seul, par npm, importé par `@main/ts/app.ts` pour tout le site ; police téléchargée seulement si une icône est affichée. Plugin Vite `woff2-only` : seul le woff2 est copié (le paquet déclare aussi ttf, woff et un svg de 3 Mo). Twig `icon('moon')` → `<i class="ph ph-moon" aria-hidden="true"></i>` (nom en minuscules et tirets, sinon exception) ; `icon-flip` retourne les icônes directionnelles en RTL
+- Police : Google Sans (OFL), variable 400–700, sans italique, sur tout le site. Exception à npm : le paquet Fontsource n'a pas l'arabe, les woff2 `latin`, `latin-ext` et `arabic` de Google Fonts sont versionnés dans `Core/Main/assets/fonts/` avec `OFL.txt`, déclarés dans `_fonts.scss` (`unicode-range` : l'arabe n'est chargé que s'il est affiché). Mise à jour : retélécharger ces trois fichiers
 - `npm run build` et `npm run dev` vérifient les types (`tsc`) avant de compiler ; `npm run watch` ne les vérifie pas
 - Fichiers compilés non versionnés : les archives de release les contiennent

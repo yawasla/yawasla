@@ -3,7 +3,6 @@
 {% block title %}{{ 'Sign in'|trans }}{% endblock %}
 
 {% block card %}
-    {% if notice %}<div class="alert alert-success" role="status">{{ notice }}</div>{% endif %}
     <form method="post" action="{{ path('login') }}" data-shader-ui="form" data-sui-guide>
         {{ csrf() }}
         {% include 'auth/global-error.twig' %}

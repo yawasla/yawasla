@@ -1,4 +1,5 @@
 @use "bootstrap/scss/bootstrap";
+@use "fonts";
 @use "sass:color";
 @use "variables" as *;
 
@@ -102,4 +103,18 @@
 .home-logo {
     inline-size: 10rem;
     block-size: auto;
+}
+
+.ph {
+    font-size: 1.25em;
+    vertical-align: -0.2em;
+}
+
+[dir="rtl"] .icon-flip {
+    transform: scaleX(-1);
+}
+
+.form-control::placeholder {
+    color: var(--bs-secondary-color);
+    opacity: 0.5;
 }

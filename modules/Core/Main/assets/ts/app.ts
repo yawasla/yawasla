@@ -1,4 +1,5 @@
 import 'bootstrap';
+import '@phosphor-icons/web/regular';
 
 for (const button of document.querySelectorAll('[data-theme-toggle]')) {
     button.addEventListener('click', () => {

@@ -20,8 +20,6 @@ use Yawasla\Model\User;
 
 final class LoginController extends AbstractController
 {
-    private const NOTICE = 'auth_notice';
-
     private const LOGIN_MINUTES = 5;
 
     private const RESET_MINUTES = 30;
@@ -62,10 +60,7 @@ final class LoginController extends AbstractController
             }
         }
 
-        $notice = Session::getInstance()->get(self::NOTICE, '');
-        Session::getInstance()->remove(self::NOTICE);
-
-        return $this->render('auth/login.twig', ['form' => $form, 'notice' => $notice]);
+        return $this->render('auth/login.twig', ['form' => $form]);
     }
 
     #[Route('/login/confirm/{token}', name: 'login_confirm', methods: ['GET', 'POST'])]
@@ -144,7 +139,7 @@ final class LoginController extends AbstractController
 
             (new User())->changePassword($userId, Password::hash($form->value('password')));
             $tokens->cancel($userId);
-            Session::getInstance()->set(self::NOTICE, Translator::getInstance()->trans('Your password has been changed. You can sign in.'));
+            Session::getInstance()->flash('success', Translator::getInstance()->trans('Your password has been changed. You can sign in.'));
 
             return $this->redirect(Router::getInstance()->path('login'), 303);
         }

@@ -11,6 +11,8 @@ Pistes non décidées. Une idée validée passe dans `roadmap.md`.
 - Plugin WordPress dédié
 - Mise à jour automatique
 - Multi-utilisateur complet
+- **Alertes de santé** dans la barre du haut de l'admin : `MAIL_FROM` vide, cron arrêté, `data/` non inscriptible… En clair et traduit, jamais de détail technique
+- **Message de maintenance** personnalisable (« Retour prévu à 18 h ») sur la page 503
 - **Bouton rouge** : un admin déconnecte toutes les sessions sauf la sienne, en cas de compte piraté. Suppression des fichiers `sess_*` de `data/sessions` sauf `session_id()` ; POST avec CSRF et confirmation. Déconnecte tout le monde (on ne sait pas quel fichier appartient à quel compte) ; à combiner avec la désactivation du compte ou le changement de son mot de passe, sinon le pirate se reconnecte
 - Compteurs de vues et de likes : à compter hors de `publication`, en évitant les robots et les doublons
 - Publication regroupant plusieurs contenus (un article et plusieurs médias…) : `publication_id` n'est pas unique dans les tables enfants pour le permettre

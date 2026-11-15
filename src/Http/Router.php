@@ -30,7 +30,7 @@ final class Router
 
     private const STRICT_PARAMS = ['string', 'int'];
 
-    private const LOCALIZED = ['/admin', '/login'];
+    private const LOCALIZED = ['/admin', '/login', '/install'];
 
     /** @var list<array{methods: list<string>, regex: string, class: class-string, action: string, name: string, auth: string, params: list<array{string, string}>}> */
     private array $routes;
@@ -161,6 +161,17 @@ final class Router
     public function auth(): string
     {
         return $this->auth;
+    }
+
+    public function routeAuth(string $name): ?string
+    {
+        foreach ($this->routes as $route) {
+            if ($route['name'] === $name) {
+                return $route['auth'];
+            }
+        }
+
+        return null;
     }
 
     public function canonical(): ?string

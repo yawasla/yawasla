@@ -14,7 +14,7 @@ final class Modules
 
     private const GROUPS = ['Core', 'Extension'];
 
-    /** @var array<string, array{name: string, id: string, dir: string, namespace: string, core: bool, version: string, locked: bool, requires: list<string>}> */
+    /** @var array<string, array{name: string, id: string, dir: string, namespace: string, core: bool, version: string, locked: bool, requires: list<string>, admin: list<array{route: string, label: string, icon: string}>}> */
     private array $modules = [];
 
     private function __construct()
@@ -44,6 +44,7 @@ final class Modules
                     'version' => $config['version'] ?? '',
                     'locked' => $group === 'Core' && ($config['locked'] ?? false),
                     'requires' => $config['requires'] ?? [],
+                    'admin' => $config['admin'] ?? [],
                 ];
             }
         }
@@ -64,13 +65,13 @@ final class Modules
         }
     }
 
-    /** @return array<string, array{name: string, id: string, dir: string, namespace: string, core: bool, version: string, locked: bool, requires: list<string>}> */
+    /** @return array<string, array{name: string, id: string, dir: string, namespace: string, core: bool, version: string, locked: bool, requires: list<string>, admin: list<array{route: string, label: string, icon: string}>}> */
     public function enabled(): array
     {
         return $this->modules;
     }
 
-    /** @return array{name: string, id: string, dir: string, namespace: string, core: bool, version: string, locked: bool, requires: list<string>}|null */
+    /** @return array{name: string, id: string, dir: string, namespace: string, core: bool, version: string, locked: bool, requires: list<string>, admin: list<array{route: string, label: string, icon: string}>}|null */
     public function get(string $name): ?array
     {
         return $this->enabled()[strtolower($name)] ?? null;

@@ -14,9 +14,9 @@ Ce qui est décidé, dans l'ordre. Une idée de `ideas.md` n'arrive ici qu'une f
 
 ## À faire
 
-1. **Admin** : layout, menu, routes `/admin/{locale}` (en cours : module `Core/Admin`, accueil provisoire avec déconnexion)
+1. **Admin** : layout, menu, barre du haut, icônes, maintenance : `specs/admin.md` (fait)
 2. **Activation des modules** depuis l'admin : table `module`, modules verrouillés, dépendances, vidage du cache, désinstallation des extensions
-3. **Organisation et config** dans l'admin, mode maintenance
+3. **Organisation et config** dans l'admin
 4. **Médias** : upload, liste blanche d'images
 5. **News** : saisie dans l'admin, page `/news/{slug}`, Open Graph, bloc d'accueil
 6. **Janaza** : saisie, annulation, archivage, bloc d'accueil

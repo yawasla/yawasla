@@ -2,6 +2,7 @@
 
 return [
     'At least %min% characters, including a digit and a symbol.' => 'Au moins %min% caractères, dont un chiffre et un symbole.',
+    'Back to the site' => 'Retour au site',
     'Back to sign in' => 'Retour à la connexion',
     'Change password' => 'Changer le mot de passe',
     'Check your email' => 'Consultez vos emails',

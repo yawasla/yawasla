@@ -39,6 +39,7 @@ Le détail est dans `specs/` : lire le fichier concerné avant de travailler sur
 | `structure.md` | arborescence, parcours d'une requête, modules, assets |
 | `database.md` | tables, relations, choix et conventions |
 | `auth.md` | accès des routes, connexion en deux temps, jetons, limitation, session, reset |
+| `admin.md` | layout de l'admin, menu déclaré par les modules, barre du haut, maintenance |
 | `migration.md` | écriture des migrations, `Migrator`, traduction vers SQLite, changement de serveur SQL |
 | `roadmap.md` | ce qui est décidé, dans l'ordre, avec son statut |
 | `ideas.md` | pistes non décidées |
@@ -85,4 +86,4 @@ En place :
 
 **Mail** : deux voies. Sécurité (connexion, reset) via PHPMailer (SMTP ou `mail()`), indépendante du fournisseur de diffusion. Diffusion des annonces via Brevo, interchangeable.
 
-**i18n** : interface du système en fr, en, ar ; langue de l'admin et de la connexion dans l'URL (`/admin/fr/…`, `/login/fr/…`), celle du front dans `.env`. RTL : propriétés CSS logiques dans nos styles, Bootstrap compilé en `app.rtl.scss` via rtlcss. Langue d'interface ≠ langue du contenu.
+**i18n** : interface du système en fr, en, ar ; langue de l'admin, de la connexion et de l'install dans l'URL (`/admin/fr/…`, `/login/fr/…`, `/install/fr`), celle du front dans `.env`. RTL : propriétés CSS logiques dans nos styles, Bootstrap compilé en `app.rtl.scss` via rtlcss. Langue d'interface ≠ langue du contenu.
