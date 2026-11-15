@@ -3,7 +3,7 @@
 ## Module
 
 - Module du cœur `modules/Core/Install`, verrouillé comme `Main` : on ne peut pas le désactiver
-- Route `/install`, hors de `/admin`. Langue dans l'URL comme `/login` (`/install/fr`, `/install/ar`, anglais sans préfixe), bouton de langue flottant ; les saisies restent en session au changement de langue
+- Route `/install`, hors de `/admin`. Langue dans l'URL comme `/login` (`/install/fr`, `/install/ar`, langue de `APP_LANG` sans préfixe), bouton de langue flottant ; les saisies restent en session au changement de langue
 
 ## État de l'installation
 
@@ -23,7 +23,7 @@ Le site est installé si `data/installed` existe, ou si la table `user` contient
 
 ## Lancement
 
-Uniquement sur la route `/install` : rien n'y redirige. Pas de clé : le premier qui y va installe.
+Uniquement sur la route `/install` : rien n'y redirige. Pas de clé : le premier qui y va installe (risque accepté pour rester simple, le README dit d'installer aussitôt les fichiers déposés).
 
 `.env` est facultatif avec SQLite : sans lui, les valeurs par défaut s'appliquent. Il est nécessaire pour MySQL / MariaDB.
 
@@ -40,10 +40,11 @@ Si la base nommée dans `.env` n'existe pas, l'étape 0 l'indique, donne l'encod
 4. **Confirmation** : récapitulatif des saisies
 5. **Validation** : lien vers l'admin, dans la langue de l'install
 
-Exemples dans les champs (placeholders traduits, le libellé reste au-dessus) : mosquée fictive du nom d'Ibn Oumm Maktoum, le Compagnon aveugle ; adresses web et email en `example.org` (domaine réservé aux exemples, RFC 2606), jamais un vrai domaine. Pas de champ prérempli depuis l'en-tête `Host`.
+Exemples dans les champs (placeholders traduits, le libellé reste au-dessus) : mosquée fictive du nom d'Ibn Oumm Maktoum, le Compagnon aveugle ; adresses web et email en `example.org` (domaine réservé aux exemples, RFC 2606), jamais un vrai domaine. Adresse du site préremplie avec l'adresse en cours sans `/install` (schéma, `Host`, sous-dossier) : simple proposition à confirmer, faite pour celui qui installe et à partir de sa propre requête. Ce qui est enregistré est ce qu'il valide ; les mails n'utilisent que l'adresse en base. En production, une adresse `http://` est refusée par la validation.
 
 Vérifications :
 - PHP trop ancien ou `data/` non inscriptible peuvent planter avant Twig : ces deux tests s'affichent en HTML brut
+- HTTPS : `$_SERVER['HTTPS']` ou `X-Forwarded-Proto: https` (Cloudflare « Flexible », proxy d'hébergeur), sinon un débutant bloqué passerait en `APP_ENV=dev` en production. L'en-tête est falsifiable mais ne sert qu'à ce contrôle : seul celui qui installe peut se tromper lui-même
 - HTTPS n'est pas exigé si `APP_ENV=dev`, et le cookie de session n'y est pas `Secure` (`bin/console serve` est en HTTP)
 
 Saisies :

@@ -51,7 +51,7 @@ return new class extends AbstractMigration {
             first_name VARCHAR(100) NOT NULL,
             last_name VARCHAR(100) NOT NULL,
             roles LONGTEXT NOT NULL,
-            password_hash VARCHAR(255) NOT NULL,
+            password VARCHAR(255) NOT NULL,
             phone VARCHAR(30) NULL,
             created_at DATETIME NOT NULL,
             connected_at DATETIME NULL,
@@ -106,7 +106,8 @@ return new class extends AbstractMigration {
         $this->sql('CREATE TABLE {media} (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             publication_id INT UNSIGNED NOT NULL,
-            file VARCHAR(255) NOT NULL,
+            path VARCHAR(255) NOT NULL,
+            filename VARCHAR(255) NOT NULL,
             mime VARCHAR(100) NOT NULL,
             size INT NOT NULL,
             CONSTRAINT {media_publication_id_fk} FOREIGN KEY (publication_id) REFERENCES {publication} (id)

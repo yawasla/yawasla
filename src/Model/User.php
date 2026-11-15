@@ -9,7 +9,7 @@ use Yawasla\Database\Connection;
 
 final class User
 {
-    private const FIELDS = ['id', 'organization_id', 'email', 'first_name', 'last_name', 'roles'];
+    private const FIELDS = ['id', 'organization_id', 'email', 'first_name', 'last_name', 'roles', 'password'];
 
     /** @return array<string, mixed>|null */
     public function findActive(int $id): ?array
@@ -25,7 +25,7 @@ final class User
 
     public function passwordHash(string $email): ?string
     {
-        $hash = $this->db()->get('user', 'password_hash', ['email' => $email, 'is_activated' => 1]);
+        $hash = $this->db()->get('user', 'password', ['email' => $email, 'is_activated' => 1]);
 
         return is_string($hash) ? $hash : null;
     }
@@ -37,7 +37,7 @@ final class User
 
     public function changePassword(int $id, string $hash): void
     {
-        $this->db()->update('user', ['password_hash' => $hash], ['id' => $id]);
+        $this->db()->update('user', ['password' => $hash], ['id' => $id]);
     }
 
     /**
@@ -55,6 +55,8 @@ final class User
         $user['id'] = (int) $user['id'];
         $roles = json_decode((string) $user['roles'], true);
         $user['roles'] = is_array($roles) ? $roles : [];
+        $user['fingerprint'] = hash('sha256', (string) $user['password']);
+        unset($user['password']);
 
         return $user;
     }

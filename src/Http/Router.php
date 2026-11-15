@@ -94,7 +94,7 @@ final class Router
         $prefix = $this->localizedPrefix($path);
 
         if ($prefix !== null) {
-            $this->urlLocale = 'en';
+            $this->urlLocale = $this->defaultLocale();
 
             if (preg_match('#^' . $prefix . '/(' . implode('|', Translator::LOCALES) . ')(?=/|$)#', $path, $m)) {
                 $this->urlLocale = $m[1];
@@ -186,7 +186,7 @@ final class Router
 
     public function locale(): string
     {
-        return $this->urlLocale ?? Config::getInstance()->get('APP_LANG', 'en');
+        return $this->urlLocale ?? $this->defaultLocale();
     }
 
     /** @return array<string, string> */
@@ -200,7 +200,7 @@ final class Router
         $urls = [];
 
         foreach (Translator::LOCALES as $locale) {
-            $urls[$locale] = $this->basePath . ($locale === 'en' ? $this->localizedPath : $prefix . '/' . $locale . substr($this->localizedPath, strlen($prefix)));
+            $urls[$locale] = $this->basePath . ($locale === $this->defaultLocale() ? $this->localizedPath : $prefix . '/' . $locale . substr($this->localizedPath, strlen($prefix)));
         }
 
         return $urls;
@@ -211,7 +211,7 @@ final class Router
         $prefix = $this->localizedPrefix($path);
         $locale = $this->locale();
 
-        if ($prefix === null || $locale === 'en' || !in_array($locale, Translator::LOCALES, true)) {
+        if ($prefix === null || $locale === $this->defaultLocale() || !in_array($locale, Translator::LOCALES, true)) {
             return $path;
         }
 
@@ -251,8 +251,19 @@ final class Router
                     $path = rtrim($prefix . $route->path, '/') ?: '/';
                     $auth = $route->auth ?? $parent?->auth ?? ($strict ? null : 'guest');
 
-                    if (($path === '/admin' || str_starts_with($path, '/admin/')) && !$class->isSubclassOf(AbstractAdminController::class)) {
+                    $adminPath = $path === '/admin' || str_starts_with($path, '/admin/');
+                    $adminController = $class->isSubclassOf(AbstractAdminController::class);
+
+                    if ($adminPath && !$adminController) {
                         throw new \LogicException($class->getName() . ' must extend ' . AbstractAdminController::class);
+                    }
+
+                    if ($adminController && !$adminPath) {
+                        throw new \LogicException('Route ' . $path . ' of ' . $class->getName() . ' must be under /admin');
+                    }
+
+                    if ($adminController && $auth === 'guest') {
+                        throw new \LogicException('Route ' . $path . ' of ' . $class->getName() . ' cannot be guest');
                     }
 
                     if ($auth === null) {
@@ -275,7 +286,7 @@ final class Router
                             '#\\\\\{(\w+)\\\\\}#',
                             fn (array $m): string => '(' . self::PARAMS[$params[$m[1]]] . ')',
                             preg_quote($path, '#'),
-                        ) . '$#',
+                        ) . '$#D',
                         'class' => $class->getName(),
                         'action' => $method->getName(),
                         'name' => $route->name,
@@ -323,6 +334,13 @@ final class Router
         }
 
         return $params;
+    }
+
+    private function defaultLocale(): string
+    {
+        $locale = Config::getInstance()->get('APP_LANG', 'en');
+
+        return in_array($locale, Translator::LOCALES, true) ? $locale : 'en';
     }
 
     private function localizedPrefix(string $path): ?string

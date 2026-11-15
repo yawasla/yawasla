@@ -10,3 +10,8 @@ Require all denied
 <If "-d %{REQUEST_FILENAME}">
   Require all granted
 </If>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^.+/index\.php$ - [F]
+</IfModule>

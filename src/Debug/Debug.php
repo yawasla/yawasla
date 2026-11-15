@@ -100,7 +100,11 @@ final class Debug
 
     private function user(): string
     {
-        $user = Auth::getInstance()->user();
+        try {
+            $user = Auth::getInstance()->user();
+        } catch (\Throwable) {
+            return '';
+        }
 
         if ($user === null) {
             return '';

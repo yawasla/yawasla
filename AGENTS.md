@@ -55,13 +55,16 @@ Règles :
 - Pas de JS ni de style inline, pas de CDN : la CSP l'interdit, tout ajout externe doit y être déclaré
 - Uploads : liste blanche d'images uniquement (un SVG ou un HTML exécuterait du JS sur le domaine)
 - Tout contrôleur `/admin` hérite d'`AbstractAdminController` ; l'accès se déclare dans la route (`auth`), jamais à la main dans le contrôleur
+- Tout POST passe par `Form::validate()` ou `Form::validToken()`
 
 En place :
-- `bootstrap.php` envoie les en-têtes (CSP, HSTS sans `includeSubDomains`…) pour tout serveur ; `public/.htaccess` pour les fichiers statiques
-- Racine du projet exposée par erreur : `.htaccess` bloque tout, `index.php` répond 503 (nginx non couvert)
+- `bootstrap.php` envoie les en-têtes (CSP, HSTS sans `includeSubDomains`, `Permissions-Policy` sans caméra, micro, géolocalisation, paiement ni USB, `Cross-Origin-Opener-Policy: same-origin`…) pour tout serveur ; `public/.htaccess` pour les fichiers statiques. `noindex` sur l'admin, la connexion et l'install
+- Racine du projet exposée par erreur : `.htaccess` bloque tout, `index.php` répond 503 (nginx non couvert) ; seul l'`index.php` de la racine est autorisé, celui d'un sous-dossier (`vendor/`, extension…) est refusé par `mod_rewrite`
 - `data/` et scripts dans `uploads/` refusés par leur `.htaccess`, CSP `sandbox` sur `uploads/` ; `assets/.vite/` refusé par `public/.htaccess`
-- Accès vérifié par le Router avant d'instancier le contrôleur : non connecté, `/admin/*` → `/login` (existant ou non : rien ne trahit les routes), ailleurs 404, jamais 405 ; connecté sans le droit → 403. Strict route mode (`STRICT_ROUTES`, activé dans `AbstractAdminController`) : `auth` obligatoire, un oubli plante à la compilation au lieu d'ouvrir la route ; route `/admin` hors `AbstractAdminController` refusée à la compilation
+- Accès vérifié par le Router avant d'instancier le contrôleur : non connecté, `/admin/*` → `/login` (existant ou non : rien ne trahit les routes), ailleurs 404, jamais 405 ; connecté sans le droit → 403. Strict route mode (`STRICT_ROUTES`, activé dans `AbstractAdminController`) : `auth` obligatoire, un oubli plante à la compilation au lieu d'ouvrir la route ; route `/admin` hors `AbstractAdminController`, contrôleur admin hors `/admin` ou en `guest` refusés à la compilation
+- POST avec `Sec-Fetch-Site: cross-site` refusé en 403 dans `bootstrap.php`, avant le Router : filet si un contrôleur oublie le jeton CSRF. En-tête absent (vieux navigateur, serveur à serveur) : accepté, le jeton reste la protection
 - Debug seulement si `APP_ENV` vaut exactement `dev` ; erreurs jamais affichées au client
+- Logs : `zend.exception_ignore_args` forcé (sinon les traces écrivent les arguments, mots de passe compris) et `#[\SensitiveParameter]` sur tout paramètre de mot de passe ; `php.log` tourne à 5 Mo, 10 fichiers au plus (`Core/Log`)
 - Langue filtrée par liste blanche ; paramètres de route en 404 s'ils contiennent `/`, `\`, `..` ou un caractère de contrôle
 - `redirect()` : chemin interne uniquement (`//`, `/\` et caractères de contrôle mènent ailleurs) ; `redirectExternal()` : `http`/`https`. Sinon, accueil
 - Slash final : redirection 301 uniquement vers un chemin interne (même règle que `redirect()`), sinon 404. Chemin de la requête pris tel quel dans `REQUEST_URI`, jamais via `parse_url()` (`//x/feed` deviendrait `/feed`)
@@ -86,4 +89,4 @@ En place :
 
 **Mail** : deux voies. Sécurité (connexion, reset) via PHPMailer (SMTP ou `mail()`), indépendante du fournisseur de diffusion. Diffusion des annonces via Brevo, interchangeable.
 
-**i18n** : interface du système en fr, en, ar ; langue de l'admin, de la connexion et de l'install dans l'URL (`/admin/fr/…`, `/login/fr/…`, `/install/fr`), celle du front dans `.env`. RTL : propriétés CSS logiques dans nos styles, Bootstrap compilé en `app.rtl.scss` via rtlcss. Langue d'interface ≠ langue du contenu.
+**i18n** : interface du système en fr, en, ar ; langue de l'admin, de la connexion et de l'install dans l'URL (`/admin/fr/…`, `/login/fr/…`, `/install/fr`), celle du front dans `.env` (`APP_LANG`, qui est aussi la langue de ces pages sans préfixe). RTL : propriétés CSS logiques dans nos styles, Bootstrap compilé en `app.rtl.scss` via rtlcss. Langue d'interface ≠ langue du contenu.

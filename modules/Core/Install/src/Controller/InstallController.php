@@ -29,6 +29,8 @@ final class InstallController extends AbstractController
     #[Route('/install', name: 'install', methods: ['GET', 'POST'])]
     public function index(): string
     {
+        header('X-Robots-Tag: noindex');
+
         $this->denyIfInstalled();
 
         $requirements = new Requirements();
@@ -108,7 +110,7 @@ final class InstallController extends AbstractController
                 'site_url' => ['required' => true, 'max' => 255, 'type' => 'url'],
                 'site_name' => ['required' => true, 'max' => 255],
                 'site_description' => ['required' => true, 'max' => 500],
-            ], $state['site']),
+            ], $state['site'] + ['site_url' => $this->currentUrl()]),
             2 => new Form([
                 'name' => ['required' => true, 'max' => 255],
                 'address' => ['max' => 255],
@@ -235,6 +237,14 @@ final class InstallController extends AbstractController
         $session->regenerate();
 
         return $this->render('install/done.twig', ['step' => 5, 'adminUrl' => $this->adminUrl()]);
+    }
+
+    private function currentUrl(): string
+    {
+        $https = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+            || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+
+        return ($https ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? '') . Router::getInstance()->basePath();
     }
 
     private function adminUrl(): string

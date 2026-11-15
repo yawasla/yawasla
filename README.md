@@ -126,9 +126,13 @@ SSL is required.
 
 Download a release archive (it contains the compiled assets, no Node.js needed) or build the assets with `npm run build`, upload the project without `node_modules/`, and point the site's document root to the `public/` folder.
 
+Then open `/install` right away: until the installation is finished, the first visitor to reach it becomes the administrator.
+
 On shared hosting, rename `public/` to your host's web folder (OVH: `www/`, cPanel: `public_html/`) and upload the rest of the project to its parent folder. Everything outside the web folder (code, database, uploaded media) is never reachable from the web.
 
 If the site answers with an empty **503** page, the document root points to the project root instead of `public/`. On Apache, the `.htaccess` at the project root then blocks every file (`.env`, `vendor/`…) until the document root is fixed. Nginx ignores `.htaccess` files: its `root` must point to `public/`.
+
+Behind a reverse proxy or a CDN (Cloudflare…), every visitor reaches PHP with the proxy's IP: the sign-in limit (5 attempts per hour and per IP) then applies to everyone at once. Make the server pass the real visitor IP in `REMOTE_ADDR` (Apache `mod_remoteip`, nginx `real_ip`); Yawasla never reads `X-Forwarded-For`, which any visitor can forge.
 
 ## Tech stack
 

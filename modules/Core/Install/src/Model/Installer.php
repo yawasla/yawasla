@@ -43,7 +43,7 @@ final class Installer
                 'first_name' => $admin['first_name'],
                 'last_name' => $admin['last_name'],
                 'roles' => json_encode(['admin'], JSON_THROW_ON_ERROR),
-                'password_hash' => $admin['password_hash'],
+                'password' => $admin['password_hash'],
                 'created_at' => $now,
             ]);
         });

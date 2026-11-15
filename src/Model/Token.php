@@ -32,6 +32,16 @@ final class Token
         return $token;
     }
 
+    public function recent(int $userId, string $type, int $minutes): bool
+    {
+        return $this->db()->has('token', [
+            'user_id' => $userId,
+            'type' => $type,
+            'used_at' => null,
+            'created_at[>]' => date('Y-m-d H:i:s', time() - $minutes * 60),
+        ]);
+    }
+
     public function userId(string $token, string $type): ?int
     {
         $id = $this->db()->get('token', 'user_id', $this->valid($token, $type));

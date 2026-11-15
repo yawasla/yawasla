@@ -51,3 +51,4 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 - Une clé étrangère a exactement le type de l'id référencé (`INT UNSIGNED`), sinon MySQL refuse la table
 - Index sur chaque clé étrangère : MySQL les crée seul, le `Migrator` les ajoute en SQLite s'ils manquent
 - SQLite : `PRAGMA foreign_keys = ON` à chaque connexion (fait par `Connection`)
+- Pas de colonne au nom d'une fonction PHP (`file`, `date`, `count`, `password_hash`…) : Medoo prend un dernier argument appelable de `select()` pour une fonction de rappel. D'où `user.password` (hash bcrypt) et `media.path` + `media.filename`. Colonnes toujours en tableau dans `select()` (`['path']`, jamais `'path'`)

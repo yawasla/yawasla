@@ -6,6 +6,7 @@ use Yawasla\Module\Core\Main\Controller\ErrorController;
 use Yawasla\Auth\Auth;
 use Yawasla\Controller\AbstractAdminController;
 use Yawasla\Core\Installation;
+use Yawasla\Core\Log;
 use Yawasla\Core\Maintenance;
 use Yawasla\Core\Modules;
 use Yawasla\Database\ConnectionException;
@@ -22,6 +23,7 @@ use Yawasla\I18n\Translator;
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 ini_set('error_log', __DIR__ . '/data/logs/php.log');
+ini_set('zend.exception_ignore_args', '1');
 error_reporting(E_ALL);
 
 header_remove('X-Powered-By');
@@ -29,9 +31,13 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Strict-Transport-Security: max-age=31536000');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+header('Cross-Origin-Opener-Policy: same-origin');
 header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'");
 
 $loader = require __DIR__ . '/vendor/autoload.php';
+
+Log::rotate(__DIR__ . '/data/logs/php.log');
 
 set_exception_handler(function (Throwable $e): void {
     error_log((string) $e);
@@ -61,6 +67,10 @@ if (Debug::getInstance()->enabled()) {
 }
 
 try {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '') === 'cross-site') {
+        throw new ForbiddenException();
+    }
+
     [$class, $action, $params] = Router::getInstance()->match($_SERVER['REQUEST_METHOD'], explode('?', $_SERVER['REQUEST_URI'], 2)[0] ?: '/');
     Debug::getInstance()->route($class, $action, $params);
     $open = $class === InstallController::class

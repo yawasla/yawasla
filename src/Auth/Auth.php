@@ -16,6 +16,8 @@ final class Auth
 
     private const SESSION_KEY = 'user_id';
 
+    private const FINGERPRINT_KEY = 'user_fingerprint';
+
     /** @var array<string, mixed>|false|null */
     private array|false|null $user = null;
 
@@ -34,6 +36,7 @@ final class Auth
         $session = Session::getInstance();
         $session->regenerate();
         $session->set(self::SESSION_KEY, $userId);
+        $session->set(self::FINGERPRINT_KEY, (new User())->findActive($userId)['fingerprint'] ?? '');
         (new User())->connected($userId);
         $this->user = null;
     }
@@ -68,10 +71,19 @@ final class Auth
             return null;
         }
 
-        $user = (new User())->findActive($id);
+        try {
+            $user = (new User())->findActive($id);
+        } catch (\PDOException) {
+            return null;
+        }
 
-        if ($user === null) {
+        $fingerprint = $session->get(self::FINGERPRINT_KEY);
+
+        if ($user === null || !is_string($fingerprint) || !hash_equals($user['fingerprint'], $fingerprint)) {
             $session->remove(self::SESSION_KEY);
+            $session->remove(self::FINGERPRINT_KEY);
+
+            return null;
         }
 
         return $user;

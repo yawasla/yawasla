@@ -5,7 +5,7 @@ On part du principe qu'il y aura des attaques : un compte compromis publie au no
 ## Deux parties
 
 - **Noyau, `src/Auth/`** : ce dont le Router et les autres modules ont besoin, sans dépendre d'aucun module. `Auth` (accès des routes, utilisateur connecté), `Password` (règles et hachage, partagé avec l'Install), `Throttle` (limitation) ; modèles `User` et `Token` dans `src/Model/`, envoi par `src/Mail/Mailer.php`
-- **Module `Core/Auth`**, verrouillé : `LoginController` et ses pages, templates, traductions et mails. Routes : `/login`, `/login/confirm/{token}`, `/login/reset`, `/login/reset/{token}`, `/logout`. Langue dans l'URL comme l'admin (`/login/fr/reset`), sauf `/logout` qui ne fait que déconnecter et rediriger vers `/login` dans la langue du site ; sans préfixe : anglais. Le lien du mail garde la langue de la demande, et la connexion mène à l'admin dans cette langue
+- **Module `Core/Auth`**, verrouillé : `LoginController` et ses pages, templates, traductions et mails. Routes : `/login`, `/login/confirm/{token}`, `/login/reset`, `/login/reset/{token}`, `/logout`. Langue dans l'URL comme l'admin (`/login/fr/reset`), sauf `/logout` qui ne fait que déconnecter et rediriger vers `/login` dans la langue du site ; sans préfixe : langue de `APP_LANG`. Le lien du mail garde la langue de la demande, et la connexion mène à l'admin dans cette langue
 
 ## Accès des routes
 
@@ -20,10 +20,10 @@ Déclaré dans `#[Route(auth: 'guest'|'user'|'admin')]`, vérifié par le Router
 
 En deux temps, sous `/login` :
 
-1. **Identifiants** : email et mot de passe. Réponse identique quelle que soit l'issue (compte inconnu, désactivé, mauvais mot de passe, IP limitée) ; compte inconnu : le mot de passe saisi est haché (même coût qu'une vérification), pour que le temps de réponse ne trahisse pas l'existence du compte
+1. **Identifiants** : email et mot de passe. Réponse identique quelle que soit l'issue (compte inconnu, désactivé, mauvais mot de passe, IP limitée) ; compte inconnu : le mot de passe est vérifié contre un hash factice de même coût (`Password::verifyDummy()`), jamais haché (`password_hash()` lève une erreur sur `\0` là où `password_verify()` répond `false` : une 500 trahirait le compte). Toute réponse au POST valide de connexion ou de reset dure au moins 1 s (+ 0 à 250 ms au hasard) : l'envoi du mail ne se voit pas au temps de réponse
 2. **Lien par mail** : si les identifiants sont bons, un lien à usage unique valable 5 min est envoyé. Il ouvre une page avec un bouton qui valide la connexion (`/login/confirm/{token}`), jamais à l'ouverture (les scanners de liens des messageries l'ouvriraient). Le lien n'est pas lié au navigateur qui a saisi les identifiants : on ouvre souvent le mail sur un autre appareil
 
-À la validation : jeton marqué utilisé (une seule requête l'emporte), compte toujours actif, ID de session régénéré, `user_id` en session, `user.connected_at` mis à jour.
+À la validation : jeton marqué utilisé (une seule requête l'emporte), compte toujours actif, ID de session régénéré, `user_id` et empreinte du mot de passe (`sha256` du hash) en session, `user.connected_at` mis à jour. À chaque requête, empreinte différente de celle en base → session vidée : un nouveau mot de passe déconnecte toutes les sessions du compte.
 
 ## Jetons
 
@@ -35,9 +35,10 @@ Table `token` (`specs/database.md`), `type` = `login` ou `reset`.
 
 ## Limitation
 
-5 tentatives (POST des formulaires de connexion et de reset) par heure et par IP, comptées dans un fichier sous `data/cache/`, nommé d'après le hash de l'IP (rien de la requête dans un chemin de fichier). Au-delà : plus de formulaire, et les POST sont redirigés sans être lus. `data/cache/` vidé à la mise à jour remet les compteurs à zéro.
+5 tentatives (POST des formulaires de connexion et de reset) par heure et par IP (IPv6 : par bloc /64, sinon une adresse par essai contourne la limite ; `REMOTE_ADDR` seul, jamais `X-Forwarded-For` falsifiable), comptées dans un fichier sous `data/cache/`, nommé d'après le hash de l'IP (rien de la requête dans un chemin de fichier). Au-delà : plus de formulaire, et les POST sont redirigés sans être lus. `data/cache/` vidé à la mise à jour remet les compteurs à zéro.
 
 - Connexion validée : compteur de l'IP qui valide supprimé
+- Compteur de plus d'une heure supprimé à la lecture, et nettoyage de tous les compteurs périmés une fois sur 100 tentatives : pas d'IP hachées gardées indéfiniment
 - Compteur impossible à écrire : tout est bloqué avec un warning, jamais ouvert (la limitation tomberait en silence)
 
 ## Session
@@ -55,9 +56,9 @@ Pas de déconnexion automatique (pas d'usage sur ordinateur public) : la session
 Mail via PHPMailer (voie sécurité, indépendante du fournisseur de diffusion), même réponse uniforme que la connexion.
 
 1. `/login/reset` : formulaire avec l'email ; réponse toujours identique (« si un compte existe, un mail a été envoyé »). Compte dans la limitation
-2. Lien à usage unique (`type = reset`) valable 30 min : il faut le temps de choisir un mot de passe
+2. Lien à usage unique (`type = reset`) valable 30 min : il faut le temps de choisir un mot de passe. Au plus un mail de reset par compte toutes les 5 min (jeton non utilisé plus récent), même réponse : pas d'inondation de la boîte
 3. Le lien ouvre le formulaire du nouveau mot de passe (`Password::isValid()`) ; rien ne change à l'ouverture
-4. À la validation : mot de passe changé, jeton marqué utilisé, autres jetons valables du compte annulés, redirection vers `/login` sans connexion automatique (on repasse par les deux temps)
+4. À la validation : compte toujours actif (sinon lien invalide), mot de passe changé (bcrypt, coût 12), jeton marqué utilisé, autres jetons valables du compte annulés, redirection vers `/login` sans connexion automatique (on repasse par les deux temps)
 
 
 ## Mail

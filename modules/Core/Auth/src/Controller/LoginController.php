@@ -24,6 +24,10 @@ final class LoginController extends AbstractController
 
     private const RESET_MINUTES = 30;
 
+    private const RESET_INTERVAL = 5;
+
+    private const MIN_RESPONSE = 1.0;
+
     public function __construct()
     {
         header('Cache-Control: no-store');
@@ -54,7 +58,9 @@ final class LoginController extends AbstractController
             $throttle->hit();
 
             if ($form->validate($_POST)) {
+                $start = microtime(true);
                 $this->sendLoginLink($form->value('email'), $form->value('password'));
+                $this->pad($start);
 
                 return $this->message('Check your email', 'If the email and password are correct, a sign-in link has been sent. It is valid for %minutes% minutes.', self::LOGIN_MINUTES);
             }
@@ -107,7 +113,9 @@ final class LoginController extends AbstractController
             $throttle->hit();
 
             if ($form->validate($_POST)) {
+                $start = microtime(true);
                 $this->sendResetLink($form->value('email'));
+                $this->pad($start);
 
                 return $this->message('Check your email', 'If an account exists for this email, a link has been sent. It is valid for %minutes% minutes.', self::RESET_MINUTES);
             }
@@ -133,7 +141,7 @@ final class LoginController extends AbstractController
         if ($this->posted() && $form->validate($_POST) && $this->checkPassword($form)) {
             $userId = $tokens->use($token, 'reset');
 
-            if ($userId === null) {
+            if ($userId === null || (new User())->findActive($userId) === null) {
                 return $this->invalidLink();
             }
 
@@ -157,13 +165,13 @@ final class LoginController extends AbstractController
         return $this->redirect(Router::getInstance()->path('login'), 303);
     }
 
-    private function sendLoginLink(string $email, string $password): void
+    private function sendLoginLink(string $email, #[\SensitiveParameter] string $password): void
     {
         $users = new User();
         $hash = $users->passwordHash($email);
 
         if ($hash === null) {
-            Password::hash($password);
+            Password::verifyDummy($password);
 
             return;
         }
@@ -186,12 +194,13 @@ final class LoginController extends AbstractController
     private function sendResetLink(string $email): void
     {
         $user = (new User())->findActiveByEmail($email);
+        $tokens = new Token();
 
-        if ($user === null) {
+        if ($user === null || $tokens->recent($user['id'], 'reset', self::RESET_INTERVAL)) {
             return;
         }
 
-        $token = (new Token())->create($user['id'], 'reset', self::RESET_MINUTES);
+        $token = $tokens->create($user['id'], 'reset', self::RESET_MINUTES);
 
         $this->mail($user, 'Reset your password on %site%', 'Open this link to choose a new password. It is valid for %minutes% minutes and works only once:', self::RESET_MINUTES, 'login_reset_token', $token, 'If you did not ask for this email, ignore it.');
     }
@@ -210,6 +219,15 @@ final class LoginController extends AbstractController
             . $translator->trans($warning) . "\n\n" . $site . "\n";
 
         (new Mailer())->send((string) $user['email'], $translator->trans($subject, ['%site%' => $site]), $body);
+    }
+
+    private function pad(float $start): void
+    {
+        $wait = $start + self::MIN_RESPONSE + random_int(0, 250) / 1000 - microtime(true);
+
+        if ($wait > 0) {
+            usleep((int) ($wait * 1000000));
+        }
     }
 
     private function checkPassword(Form $form): bool
