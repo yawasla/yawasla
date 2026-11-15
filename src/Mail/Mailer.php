@@ -13,10 +13,29 @@ final class Mailer
     public function send(string $to, string $subject, string $body): bool
     {
         $config = Config::getInstance();
+        $driver = strtolower(trim($config->get('MAIL_DRIVER')));
+        $from = trim($config->get('MAIL_FROM'));
+
+        if ($from === '') {
+            trigger_error('MAIL_FROM is not set in .env: security emails cannot be sent', E_USER_WARNING);
+        }
+
+        if ($driver === 'log') {
+            if ($config->get('APP_ENV') === 'dev') {
+                return $this->log($to, $subject, $body);
+            }
+
+            trigger_error('MAIL_DRIVER=log is ignored outside APP_ENV=dev: the mail is sent with mail()', E_USER_WARNING);
+        }
+
+        if ($from === '') {
+            return false;
+        }
+
         $mail = new PHPMailer(true);
 
         try {
-            if ($config->get('MAIL_DRIVER') === 'smtp') {
+            if ($driver === 'smtp') {
                 $mail->isSMTP();
                 $mail->Host = $config->get('SMTP_HOST');
                 $mail->Port = (int) $config->get('SMTP_PORT', '465');
@@ -27,7 +46,7 @@ final class Mailer
             }
 
             $mail->CharSet = PHPMailer::CHARSET_UTF8;
-            $mail->setFrom($config->get('MAIL_FROM'));
+            $mail->setFrom($from);
             $mail->addAddress($to);
             $mail->Subject = $subject;
             $mail->Body = $body;
@@ -35,9 +54,16 @@ final class Mailer
 
             return true;
         } catch (Exception $e) {
-            error_log('Mail failed: ' . $e->getMessage());
+            trigger_error('Mail failed: ' . $e->getMessage(), E_USER_WARNING);
 
             return false;
         }
+    }
+
+    private function log(string $to, string $subject, string $body): bool
+    {
+        $entry = '==== ' . date('Y-m-d H:i:s') . " ====\nTo: " . $to . "\nSubject: " . $subject . "\n\n" . $body . "\n";
+
+        return file_put_contents(dirname(__DIR__, 2) . '/data/logs/mail.log', $entry, FILE_APPEND | LOCK_EX) !== false;
     }
 }

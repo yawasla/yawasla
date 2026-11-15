@@ -7,6 +7,7 @@ namespace Yawasla\Debug;
 use Medoo\Medoo;
 use PDO;
 use Twig\Profiler\Profile;
+use Yawasla\Auth\Auth;
 use Yawasla\Core\Config;
 use Yawasla\Http\Router;
 use Yawasla\I18n\Translator;
@@ -97,6 +98,17 @@ final class Debug
         $this->missing[$text] = true;
     }
 
+    private function user(): string
+    {
+        $user = Auth::getInstance()->user();
+
+        if ($user === null) {
+            return '';
+        }
+
+        return '#' . $user['id'] . ' ' . $user['email'] . ' (' . implode(', ', $user['roles']) . ')';
+    }
+
     /** @return array<string, mixed> */
     public function collect(): array
     {
@@ -104,7 +116,7 @@ final class Debug
         $translator = Translator::getInstance();
 
         return [
-            'route' => ['name' => $router->current(), 'locale' => $router->locale(), 'basePath' => $router->basePath()] + ($this->route ?? []),
+            'route' => ['name' => $router->current(), 'auth' => $router->auth(), 'user' => $this->user(), 'locale' => $router->locale(), 'basePath' => $router->basePath()] + ($this->route ?? []),
             'request' => [
                 'method' => $_SERVER['REQUEST_METHOD'] ?? '',
                 'uri' => (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH),

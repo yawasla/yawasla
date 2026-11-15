@@ -20,6 +20,7 @@ Repères plutôt que règles : ils ne doivent pas freiner le développement, tan
 - Noms de classes, méthodes et messages d'erreur en anglais ; classes abstraites préfixées par `Abstract`
 - Classes simples ; singletons via le trait `Singleton` pour les services transverses (`Config`, `Router`, `Translator`, `Connection`, `Debug`)
 - Base de données via Medoo, appelé dans `Model/`
+- Erreur attrapée : `trigger_error(…, E_USER_WARNING)`, jamais `error_log()` (barre de debug en dev, `php.log` partout)
 - Une dépendance ou un outil de plus seulement s'il simplifie vraiment
 - Le cœur n'est pas modifié par l'utilisateur : il passe par un module dans `modules/Extension/` et par `templates/custom.twig`
 
@@ -58,7 +59,7 @@ En place :
 - `bootstrap.php` envoie les en-têtes (CSP, HSTS sans `includeSubDomains`…) pour tout serveur ; `public/.htaccess` pour les fichiers statiques
 - Racine du projet exposée par erreur : `.htaccess` bloque tout, `index.php` répond 503 (nginx non couvert)
 - `data/` et scripts dans `uploads/` refusés par leur `.htaccess`, CSP `sandbox` sur `uploads/` ; `assets/.vite/` refusé par `public/.htaccess`
-- Accès vérifié par le Router avant d'instancier le contrôleur ; refus → 404, jamais 405 (révélerait la route). Strict route mode (`STRICT_ROUTES`, activé dans `AbstractAdminController`) : `auth` obligatoire, un oubli plante à la compilation au lieu d'ouvrir la route ; route `/admin` hors `AbstractAdminController` refusée à la compilation
+- Accès vérifié par le Router avant d'instancier le contrôleur : non connecté, `/admin/*` → `/login` (existant ou non : rien ne trahit les routes), ailleurs 404, jamais 405 ; connecté sans le droit → 403. Strict route mode (`STRICT_ROUTES`, activé dans `AbstractAdminController`) : `auth` obligatoire, un oubli plante à la compilation au lieu d'ouvrir la route ; route `/admin` hors `AbstractAdminController` refusée à la compilation
 - Debug seulement si `APP_ENV` vaut exactement `dev` ; erreurs jamais affichées au client
 - Langue filtrée par liste blanche ; paramètres de route en 404 s'ils contiennent `/`, `\`, `..` ou un caractère de contrôle
 - `redirect()` : chemin interne uniquement (`//`, `/\` et caractères de contrôle mènent ailleurs) ; `redirectExternal()` : `http`/`https`. Sinon, accueil

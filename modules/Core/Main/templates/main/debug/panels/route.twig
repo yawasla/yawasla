@@ -2,6 +2,8 @@
     'Name': route.name,
     'Controller': route.class ?? '',
     'Action': route.action ?? '',
+    'Auth': route.auth ?: '—',
+    'User': route.user ?: '—',
     'Parameters': (route.params ?? [])|join(', '),
     'Locale': route.locale,
     'Base path': route.basePath,

@@ -1,0 +1,5 @@
+{% extends 'main/errors/layout.twig' %}
+
+{% block code %}403{% endblock %}
+{% block heading %}{{ 'Access denied'|trans }}{% endblock %}
+{% block message %}{{ 'You do not have permission to access this page.'|trans }}{% endblock %}

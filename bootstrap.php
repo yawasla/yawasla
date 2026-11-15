@@ -7,6 +7,7 @@ use Yawasla\Core\Installation;
 use Yawasla\Core\Modules;
 use Yawasla\Database\ConnectionException;
 use Yawasla\Debug\Debug;
+use Yawasla\Http\ForbiddenException;
 use Yawasla\Http\MethodNotAllowedException;
 use Yawasla\Http\NotFoundException;
 use Yawasla\Http\RedirectException;
@@ -62,13 +63,14 @@ try {
         ? (new $class())->$action(...$params)
         : (new ErrorController())->maintenance();
 } catch (ConnectionException $e) {
-    error_log((string) $e);
+    trigger_error((string) $e, E_USER_WARNING);
     echo (new ErrorController())->maintenance();
+} catch (ForbiddenException) {
+    echo (new ErrorController())->forbidden();
 } catch (NotFoundException) {
     echo (new ErrorController())->notFound();
 } catch (MethodNotAllowedException $e) {
     echo (new ErrorController())->methodNotAllowed($e->methods);
 } catch (RedirectException $e) {
-    $query = $_SERVER['QUERY_STRING'] ?? '';
-    header('Location: ' . $e->url . ($query !== '' && !preg_match('/[\x00-\x20\x7f]/', $query) ? '?' . $query : ''), true, 301);
+    header('Location: ' . $e->url, true, $e->status);
 }

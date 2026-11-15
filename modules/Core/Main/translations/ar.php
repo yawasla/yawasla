@@ -16,6 +16,8 @@ return [
     'The site is temporarily unavailable. Please try again later.' => 'الموقع غير متاح مؤقتًا. يرجى المحاولة لاحقًا.',
     'This field is required.' => 'هذا الحقل مطلوب.',
     'Your session has expired. Please try again.' => 'انتهت صلاحية الجلسة. يرجى المحاولة مرة أخرى.',
+    'Access denied' => 'الوصول مرفوض',
+    'You do not have permission to access this page.' => 'ليس لديك إذن للوصول إلى هذه الصفحة.',
     'Page not found' => 'الصفحة غير موجودة',
     'This page does not exist or has been moved.' => 'هذه الصفحة غير موجودة أو تم نقلها.',
     'This action is not available on this page.' => 'هذا الإجراء غير متاح في هذه الصفحة.',

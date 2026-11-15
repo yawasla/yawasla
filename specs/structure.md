@@ -49,7 +49,7 @@
 
 **Accès** : `#[Route(..., auth: 'guest'|'user'|'admin')]`, sur la classe (hérité par ses méthodes) ou sur la méthode, qui l'emporte.
 - `guest` : tout le monde ; `user` : compte connecté et actif ; `admin` : compte avec le rôle `admin` (inclut `user`)
-- Le Router vérifie la session avant d'instancier le contrôleur ; droit insuffisant → 404
+- Le Router vérifie la session avant d'instancier le contrôleur. Refus : non connecté, `/admin/*` → 302 vers `/login`, ailleurs 404 ; connecté sans le droit → 403. Détail : `specs/auth.md`
 - Par défaut `guest`, sauf en **strict route mode** : aucun défaut, chaque route doit déclarer son `auth`. Le mode se définit dans le contrôleur abstrait (désactivé dans `AbstractController`, activé dans `AbstractAdminController`)
 - Refusé à la compilation (`LogicException`) : valeur d'`auth` inconnue, route sans `auth` en strict route mode, route `/admin` dont le contrôleur n'hérite pas d'`AbstractAdminController` (qui envoie aussi `no-store` et `noindex`)
 
@@ -79,7 +79,7 @@ modules/Core/News/
 
 - Nom du module = nom du dossier (`News`), son identifiant en minuscules (`news`) sert aux templates (`news/show.twig`) et aux assets (`@news/ts/…`). Noms uniques entre `Core/` et `Extension/`
 - **Un module ne remplace jamais un module du cœur** : on désactive celui du cœur et on active le sien. Twig cherche d'abord dans le cœur, puis dans les extensions, puis dans `templates/`
-- `Core/Main` (layout, partials, erreurs, debug, thème, Bootstrap, migrations du cœur) est verrouillé, comme `Auth`, `Install` et `Admin` à venir : on ne peut pas les désactiver
+- `Core/Main` (layout, partials, erreurs, debug, thème, Bootstrap, migrations du cœur) est verrouillé, comme `Auth`, `Install` et `Admin` : on ne peut pas les désactiver
 - Authentification en deux parties : le noyau (`src/Auth/`) porte ce dont le Router et les autres modules ont besoin (accès, mot de passe, jetons, session) et ne dépend d'aucun module ; `Core/Auth` porte les pages (connexion sous `/login`, lien, déconnexion, reset), leurs templates, traductions et mails. Détail : `specs/auth.md`
 - Traductions : celles de chaque module sont fusionnées, celles du cœur priment
 - Bloc : `{{ module('Banner') }}` rend `banner/block.twig` avec les données de `Block` (classe invocable qui renvoie un tableau), ou rien si le module est absent ou désactivé

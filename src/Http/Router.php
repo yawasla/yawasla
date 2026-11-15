@@ -40,6 +40,8 @@ final class Router
 
     private string $current = '';
 
+    private string $auth = '';
+
     private ?string $canonical = null;
 
     private ?string $urlLocale = null;
@@ -81,7 +83,9 @@ final class Router
                 throw new NotFoundException();
             }
 
-            throw new RedirectException($target);
+            $query = $_SERVER['QUERY_STRING'] ?? '';
+
+            throw new RedirectException($target . ($query !== '' && !preg_match('/[\x00-\x20\x7f]/', $query) ? '?' . $query : ''));
         }
 
         $path = $trimmed;
@@ -98,6 +102,10 @@ final class Router
             }
         }
 
+        if ($prefix === '/admin' && !Auth::getInstance()->allows('user')) {
+            throw new RedirectException($this->basePath . $this->localize('/login'), 302);
+        }
+
         if ($method === 'HEAD') {
             $method = 'GET';
         }
@@ -107,6 +115,10 @@ final class Router
         foreach ($this->routes as $route) {
             if (preg_match($route['regex'], $path, $matches)) {
                 if ($route['auth'] !== 'guest' && !Auth::getInstance()->allows($route['auth'])) {
+                    if (Auth::getInstance()->allows('user')) {
+                        throw new ForbiddenException();
+                    }
+
                     continue;
                 }
 
@@ -122,6 +134,7 @@ final class Router
                 }
 
                 $this->current = $route['name'];
+                $this->auth = $route['auth'];
                 $this->canonical = $canonical;
                 $this->localizedPath = $prefix !== null ? $path : null;
 
@@ -143,6 +156,11 @@ final class Router
     public function current(): string
     {
         return $this->current;
+    }
+
+    public function auth(): string
+    {
+        return $this->auth;
     }
 
     public function canonical(): ?string

@@ -53,6 +53,7 @@ php bin/console serve [port]
 Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 
 - To show the debug toolbar (errors, dumps, SQL queries…), set `APP_ENV=dev` in `.env`. Never in production.
+- Without a mail server, set `MAIL_DRIVER=log` (with `APP_ENV=dev` only): security emails such as sign-in links are written to `data/logs/mail.log` instead of being sent.
 - The built-in server ignores `.htaccess` files: headers, caching and the `uploads/` protection can only be tested on Apache.
 - Routes and Twig templates are cached: after adding or changing a route, run `php bin/console cache:clear`.
 - To create or update the database, run `php bin/console db:migrate`: it applies the pending migrations of every module (`migrations/YYYYMMDD-XX.php`).
@@ -94,7 +95,7 @@ final class NewsController extends AbstractAdminController
 }
 ```
 
-`auth` sets who can open the route: `guest` (everyone), `user` (any signed-in, active account) or `admin` (accounts with the `admin` role). Set on the class, it applies to every method; set on a method, it overrides the class. The router checks it before creating the controller: without the required access, the route answers 404, as if it did not exist.
+`auth` sets who can open the route: `guest` (everyone), `user` (any signed-in, active account) or `admin` (accounts with the `admin` role). Set on the class, it applies to every method; set on a method, it overrides the class. The router checks it before creating the controller. Signed out, any path under `/admin`, existing or not, redirects to `/login` in the same language, and other protected routes answer 404, as if they did not exist. Signed in without the required access, the route answers 403. Opening `/login` while signed in redirects to the admin.
 
 Without `auth`, a route is open to everyone (`guest`), except in **strict route mode**: there is no default, and every route must declare its `auth`, or the site fails while compiling the routes instead of opening the route by mistake. A controller enables it with `public const STRICT_ROUTES = true;`. `AbstractAdminController` does, and every route under `/admin` must use a controller that extends it.
 

@@ -33,7 +33,7 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 
 **Digest** : `digest_included` dit qu'un contenu doit figurer dans le prochain digest, `digest_sent_at` qu'il y est parti. Un contenu n'est jamais envoyé deux fois.
 
-**Jetons** : seul le hash est stocké (`token_hash`), jamais le jeton. Un jeton est valable s'il n'a pas expiré (`expired_at`) et n'a pas servi (`used_at` NULL). Il appartient soit à un utilisateur, soit à un abonné, selon `type`.
+**Jetons** : seul le hash est stocké (`token_hash`), jamais le jeton. Un jeton est valable s'il n'a pas expiré (`expired_at`) et n'a pas servi (`used_at` NULL). Il appartient soit à un utilisateur, soit à un abonné, selon `type`. Expirés ou utilisés : supprimés à la création d'un jeton.
 
 **Booléens et dates** : `is_published` / `published_at` et `is_activated` / `deactivated_at` coexistent volontairement ; le code met toujours les deux à jour ensemble.
 

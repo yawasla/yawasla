@@ -67,7 +67,7 @@ final class InstallController extends AbstractController
 
                 return $this->reload();
             } catch (PDOException $e) {
-                error_log((string) $e);
+                trigger_error((string) $e, E_USER_WARNING);
                 $createFailed = true;
             }
         }
@@ -222,7 +222,7 @@ final class InstallController extends AbstractController
         try {
             (new Installer())->install($state['site'], $state['organization'], $state['admin']);
         } catch (Throwable $e) {
-            error_log((string) $e);
+            trigger_error((string) $e, E_USER_WARNING);
             $form->addError(Form::GLOBAL_ERROR, Translator::getInstance()->trans('The installation failed. Details are in data/logs/php.log.'));
 
             return $this->show($state, $form);

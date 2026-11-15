@@ -9,12 +9,12 @@ Ce qui est décidé, dans l'ordre. Une idée de `ideas.md` n'arrive ici qu'une f
 - Modules : `modules/Core` et `modules/Extension`, routes, templates, traductions, assets et blocs par module, `custom.twig`
 - Schéma de la base : `specs/database.md`, migration `Core/Main/migrations/20261031-01.php`
 - Install : `/install` (vérifications, site, organisation, premier utilisateur), fermé une fois l'installation terminée ; `Migrator` traducteur vers SQLite, `db:migrate`, changement de serveur `db:migrate --server` : `specs/install.md`, `specs/migration.md`
-- Authentification : accès dans `#[Route(auth:)]`, paramètres de route typés, module `Core/Auth` (connexion en deux temps, jetons, limitation, session 24 h, déconnexion, reset) : `specs/auth.md`
+- Authentification : accès dans `#[Route(auth:)]`, paramètres de route typés, module `Core/Auth` (connexion en deux temps, jetons, limitation, session 24 h, déconnexion, reset), `/admin` → `/login` hors connexion, 403, `MAIL_DRIVER=log` : `specs/auth.md`
 - Migrations : `Migrator` (up / down, désinstallation d'une extension), `php bin/console db:migrate`
 
 ## À faire
 
-1. **Admin** : layout, menu, routes `/admin/{locale}`
+1. **Admin** : layout, menu, routes `/admin/{locale}` (en cours : module `Core/Admin`, accueil provisoire avec déconnexion)
 2. **Activation des modules** depuis l'admin : table `module`, modules verrouillés, dépendances, vidage du cache, désinstallation des extensions
 3. **Organisation et config** dans l'admin, mode maintenance
 4. **Médias** : upload, liste blanche d'images

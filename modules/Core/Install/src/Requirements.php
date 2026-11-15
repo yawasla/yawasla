@@ -79,7 +79,7 @@ final class Requirements
             return 'The database set in .env does not exist yet.';
         }
 
-        error_log((string) $e);
+        trigger_error((string) $e, E_USER_WARNING);
 
         return str_contains($message, '[2002]') && Config::getInstance()->get('DB_HOST') === 'localhost'
             ? 'The database server cannot be reached through localhost: try DB_HOST=127.0.0.1 in .env'

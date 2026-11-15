@@ -8,6 +8,13 @@ use Yawasla\Controller\AbstractController;
 
 final class ErrorController extends AbstractController
 {
+    public function forbidden(): string
+    {
+        http_response_code(403);
+
+        return $this->render('main/errors/403.twig');
+    }
+
     public function notFound(): string
     {
         http_response_code(404);

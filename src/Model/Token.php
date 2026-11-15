@@ -14,6 +14,13 @@ final class Token
         $token = bin2hex(random_bytes(32));
         $now = time();
 
+        $this->db()->delete('token', [
+            'OR' => [
+                'expired_at[<=]' => date('Y-m-d H:i:s', $now),
+                'used_at[!]' => null,
+            ],
+        ]);
+
         $this->db()->insert('token', [
             'user_id' => $userId,
             'token_hash' => hash('sha256', $token),

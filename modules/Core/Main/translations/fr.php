@@ -16,6 +16,8 @@ return [
     'The site is temporarily unavailable. Please try again later.' => 'Le site est momentanément indisponible. Réessayez plus tard.',
     'This field is required.' => 'Ce champ est obligatoire.',
     'Your session has expired. Please try again.' => 'Votre session a expiré. Veuillez réessayer.',
+    'Access denied' => 'Accès refusé',
+    'You do not have permission to access this page.' => 'Vous n\'avez pas l\'autorisation d\'accéder à cette page.',
     'Page not found' => 'Page introuvable',
     'This page does not exist or has been moved.' => 'Cette page n\'existe pas ou a été déplacée.',
     'This action is not available on this page.' => 'Cette action n\'est pas disponible sur cette page.',

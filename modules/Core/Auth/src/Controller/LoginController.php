@@ -35,6 +35,12 @@ final class LoginController extends AbstractController
     #[Route('/login', name: 'login', methods: ['GET', 'POST'])]
     public function login(): string
     {
+        if (Auth::getInstance()->user() !== null) {
+            $router = Router::getInstance();
+
+            return $this->redirect($router->basePath() . $router->localize('/admin'));
+        }
+
         $throttle = new Throttle();
 
         if ($throttle->blocked()) {
@@ -81,6 +87,7 @@ final class LoginController extends AbstractController
             }
 
             Auth::getInstance()->login($userId);
+            (new Throttle())->clear();
 
             $router = Router::getInstance();
 
