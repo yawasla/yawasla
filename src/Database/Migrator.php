@@ -28,19 +28,25 @@ final class Migrator
         $this->table = Connection::prefix() . 'migration';
     }
 
-    /** @return list<string> */
-    public function pending(): array
+    /**
+     * @param array<string, array<string, mixed>>|null $modules
+     * @return list<string>
+     */
+    public function pending(?array $modules = null): array
     {
         $done = $this->done();
 
         return array_values(array_map(
             fn (array $file): string => $file[0] . '/' . $file[1],
-            array_filter($this->files(), fn (array $file): bool => !isset($done[$file[0]][$file[1]])),
+            array_filter($this->files($modules ?? Modules::getInstance()->enabled()), fn (array $file): bool => !isset($done[$file[0]][$file[1]])),
         ));
     }
 
-    /** @return list<string> */
-    public function run(): array
+    /**
+     * @param array<string, array<string, mixed>>|null $modules
+     * @return list<string>
+     */
+    public function run(?array $modules = null): array
     {
         $lock = $this->lock();
 
@@ -48,7 +54,7 @@ final class Migrator
             $done = $this->done();
             $migrated = [];
 
-            foreach ($this->files() as [$module, $name, $file]) {
+            foreach ($this->files($modules ?? Modules::getInstance()->enabled()) as [$module, $name, $file]) {
                 if (isset($done[$module][$name])) {
                     continue;
                 }
@@ -66,27 +72,21 @@ final class Migrator
         }
     }
 
-    /** @return list<string> */
-    public function uninstall(string $name): array
+    /**
+     * @param array<string, mixed> $module
+     * @return list<string>
+     */
+    public function uninstall(array $module): array
     {
-        $modules = Modules::getInstance()->enabled();
-        $module = $modules[strtolower($name)] ?? throw new LogicException('Unknown module: ' . $name);
-
         if ($module['core']) {
             throw new LogicException('Core modules cannot be uninstalled: ' . $module['name']);
-        }
-
-        foreach ($modules as $other) {
-            if (in_array($module['name'], $other['requires'], true)) {
-                throw new LogicException($other['name'] . ' requires ' . $module['name']);
-            }
         }
 
         $lock = $this->lock();
 
         try {
             $done = $this->done()[$module['id']] ?? [];
-            $files = array_reverse(array_filter($this->files(), fn (array $file): bool => $file[0] === $module['id'] && isset($done[$file[1]])));
+            $files = array_reverse(array_filter($this->files([$module['id'] => $module]), fn (array $file): bool => isset($done[$file[1]])));
             $reverted = [];
 
             foreach ($files as [$id, $migration, $file]) {
@@ -165,10 +165,12 @@ final class Migrator
         return $lock;
     }
 
-    /** @return list<array{string, string, string}> */
-    private function files(): array
+    /**
+     * @param array<string, array<string, mixed>> $modules
+     * @return list<array{string, string, string}>
+     */
+    private function files(array $modules): array
     {
-        $modules = Modules::getInstance()->enabled();
         $sorted = [];
         $seen = [];
         $visit = function (array $module) use (&$visit, &$sorted, &$seen, $modules): void {
@@ -179,13 +181,18 @@ final class Migrator
             $seen[$module['id']] = true;
 
             foreach ($module['requires'] as $required) {
-                $visit($modules[strtolower($required)]);
+                if (isset($modules[strtolower($required)])) {
+                    $visit($modules[strtolower($required)]);
+                }
             }
 
             $sorted[$module['id']] = $module;
         };
 
-        $visit($modules['main']);
+        if (isset($modules['main'])) {
+            $visit($modules['main']);
+        }
+
         array_map($visit, array_filter($modules, fn (array $module): bool => $module['core']));
         array_map($visit, array_filter($modules, fn (array $module): bool => !$module['core']));
         $files = [];

@@ -54,8 +54,6 @@ set_exception_handler(function (Throwable $e): void {
     }
 });
 
-Modules::getInstance()->autoload($loader);
-
 if (Debug::getInstance()->enabled()) {
     set_error_handler(function (int $level, string $message, string $file, int $line): bool {
         if (error_reporting() & $level) {
@@ -66,6 +64,8 @@ if (Debug::getInstance()->enabled()) {
     });
 }
 
+Modules::getInstance()->autoload($loader);
+
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '') === 'cross-site') {
         throw new ForbiddenException();
@@ -75,7 +75,7 @@ try {
     Debug::getInstance()->route($class, $action, $params);
     $open = $class === InstallController::class
         || (Installation::getInstance()->installed() && (
-            !Maintenance::enabled()
+            !Maintenance::active()
             || $class === LoginController::class
             || is_subclass_of($class, AbstractAdminController::class)
             || Auth::getInstance()->allows('admin')

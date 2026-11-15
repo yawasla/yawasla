@@ -65,7 +65,7 @@ Déroulé d'une migration en SQLite :
 6. `PRAGMA foreign_key_check` sur les tables touchées par la migration et celles qui les référencent : une violation annule tout. Une ancienne violation ailleurs dans la base ne bloque pas la migration
 7. `COMMIT`, puis `PRAGMA foreign_keys = ON`
 
-**Désinstaller** une extension (depuis le tableau de bord des modules, à venir) : `Migrator::uninstall()` joue ses `down()` dans l'ordre inverse, supprime ses lignes de `migration` et la désactive. Refusé pour le cœur (ses tables sont dans `Core/Main`, verrouillé) et si un autre module en dépend. **Désactiver** un module garde ses données.
+**Désinstaller** une extension (depuis la page des modules, à venir) : `Migrator::uninstall()` joue ses `down()` dans l'ordre inverse et supprime ses lignes de `migration`. Refusé pour le cœur (ses tables sont dans `Core/Main`, verrouillé). Le reste (extension inactive, dépendances, dossier) : `specs/modules.md`. **Désactiver** un module garde ses données.
 
 ## Règles
 
@@ -136,7 +136,7 @@ Message clair plutôt qu'une traduction approximative qui passerait en silence.
 
 | Commande | Rôle |
 |---|---|
-| `php bin/console db:migrate` | joue les migrations en attente sur la base actuelle (remplace `migrate`) |
+| `php bin/console db:migrate` | joue les migrations en attente sur la base actuelle |
 | `php bin/console db:migrate --server mysql\|sqlite` | copie toute la base vers un autre serveur SQL |
 | `php bin/console db:migrate --create [Module]` | crée un fichier de migration vide dans le module |
 
@@ -164,7 +164,3 @@ MySQL en mode strict : Medoo remplace le `sql_mode` du serveur par `ANSI_QUOTES`
 Pièges, tous deux en annulation avec un message qui désigne la ligne :
 - SQLite vers MySQL, `UNIQUE` : `utf8mb4_unicode_ci` ignore casse et accents, « Café » et « cafe » deviennent le même slug
 - SQLite accepte des valeurs que MySQL refuse (texte dans un `INT`…)
-
-## Références
-
-Étudiés pour la recréation de table en SQLite : Phinx (`SQLiteAdapter`), Doctrine DBAL (`SQLitePlatform`), Laravel (`SQLiteGrammar`). Tous trois font écrire le schéma avec une API PHP et apportent des dépendances lourdes ; aucun ne traduit du SQL brut. Repris : l'ordre officiel de recréation (Phinx, Laravel), la relecture des index et triggers (Phinx), la recréation pour les `ADD COLUMN` refusés (DBAL), `ENUM` en `CHECK` (Laravel), l'index de clé étrangère seulement s'il manque (DBAL).

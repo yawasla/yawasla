@@ -57,9 +57,10 @@ Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 - Without a mail server, set `MAIL_DRIVER=log` (with `APP_ENV=dev` only): security emails such as sign-in links are written to `data/logs/mail.log` instead of being sent.
 - The built-in server ignores `.htaccess` files: headers, caching and the `uploads/` protection can only be tested on Apache.
 - Routes and Twig templates are cached: after adding or changing a route, run `php bin/console cache:clear`.
-- To create or update the database, run `php bin/console db:migrate`: it applies the pending migrations of every module (`migrations/YYYYMMDD-XX.php`).
+- To create or update the database, run `php bin/console db:migrate`: it applies the pending migrations of every enabled module (`migrations/YYYYMMDD-XX.php`) and records their versions in `data/modules.json`.
 - To create an empty migration file in a module, run `php bin/console db:migrate --create <Module>`.
 - To put the site in maintenance (only admins can see it), run `php bin/console maintenance on`, and `off` to open it again. Without access to the admin or the command line, create or delete the empty file `data/maintenance`.
+- To list, enable or disable the modules, run `php bin/console module list`, `module enable <Module>` or `module disable <Module>`, or use the Modules page of the admin.
 - To move the database to another SQL server, see below.
 
 #### Moving to another SQL server
@@ -119,6 +120,10 @@ Every file directly in a module's `assets/ts/` or `assets/scss/` is an entry, ex
 #### Modules
 
 The whole site is made of modules: `modules/Core/` for the core, `modules/Extension/` for yours. Never edit a core module: disable it and enable your own instead. To customize the home page, copy `templates/custom.twig.example` to `templates/custom.twig` and place the blocks you want with `{{ module('Name') }}`. Updates never replace `modules/Extension/` nor `templates/custom.twig`.
+
+Each module describes itself in `module.json` (version, required modules, admin menu entries). An extension dropped in `modules/Extension/` stays disabled until an admin enables it. If an extension breaks the site, set its `"active"` to `false` in `data/modules.json`.
+
+After uploading a new version, the update finishes when an admin signs in (or with the button of the Modules page): until then, visitors see the maintenance page if the core changed, and an updated extension stays disabled.
 
 ## Deployment
 

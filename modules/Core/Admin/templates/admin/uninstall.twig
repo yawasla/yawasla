@@ -1,0 +1,16 @@
+{% extends 'admin/layout.twig' %}
+
+{% block title %}{{ 'Uninstall %module%'|trans({'%module%': module.name}) }}{% endblock %}
+
+{% block main %}
+    <div class="alert alert-danger">
+        {{ 'Uninstalling deletes the data of %module% and moves its folder to the trash, where it is deleted after 7 days.'|trans({'%module%': module.name}) }}
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <form method="post" action="{{ path('admin_modules_uninstall_confirm', {module: module.name}) }}">
+            {{ csrf() }}
+            <button type="submit" class="btn btn-danger">{{ icon('trash') }} {{ 'Uninstall'|trans }}</button>
+        </form>
+        <a class="btn btn-outline-secondary" href="{{ path('admin_modules') }}">{{ 'Cancel'|trans }}</a>
+    </div>
+{% endblock %}

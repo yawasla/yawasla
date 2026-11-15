@@ -1,0 +1,12 @@
+<table class="table table-sm font-monospace">
+    <thead><tr><th>Module</th><th>Group</th><th>Version</th><th>State</th><th>Reason</th></tr></thead>
+    {% for m in modules %}
+        <tr>
+            <td>{{ m.name }}</td>
+            <td>{{ m.group }}</td>
+            <td>{{ m.version }}</td>
+            <td><span class="badge {{ m.active ? 'text-bg-success' : 'text-bg-secondary' }}">{{ m.active ? 'enabled' : 'disabled' }}</span></td>
+            <td class="text-break">{{ m.reason ?: '—' }}{% if m.detail %} <span class="text-body-secondary">({{ m.detail }})</span>{% endif %}</td>
+        </tr>
+    {% endfor %}
+</table>

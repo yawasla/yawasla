@@ -1,0 +1,53 @@
+{% extends 'admin/layout.twig' %}
+
+{% block title %}{{ 'Modules'|trans }}{% endblock %}
+
+{% block actions %}
+    {% if trash %}
+        <a class="btn btn-sm btn-outline-secondary" href="{{ path('admin_modules_trash') }}">{{ icon('trash') }} {{ 'Trash'|trans }} <span class="badge text-bg-secondary">{{ trash }}</span></a>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    {% if update %}
+        <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2">
+            <span class="me-auto">{{ 'An update is waiting: its migrations have not been run yet.'|trans }}</span>
+            <form method="post" action="{{ path('admin_modules_update') }}">
+                {{ csrf() }}
+                <button type="submit" class="btn btn-sm btn-warning">{{ icon('arrows-clockwise') }} {{ 'Finish the update'|trans }}</button>
+            </form>
+        </div>
+    {% endif %}
+    <ul class="list-group">
+        {% for module in modules %}
+            <li class="list-group-item d-flex flex-wrap align-items-center gap-2 py-3">
+                <div class="me-auto">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="fw-semibold">{{ module.name }}</span>
+                        <span class="badge {{ module.core ? 'text-bg-primary' : 'text-bg-success' }}">{{ module.core ? 'Yawasla' : 'Extension'|trans }}</span>
+                        <span class="badge {{ module.active ? 'text-bg-warning' : 'text-bg-light border' }}">{{ (module.active ? 'Enabled' : 'Disabled')|trans }}</span>
+                        <span class="small text-body-secondary">{{ module.version }}</span>
+                    </div>
+                    {% if module.text %}<p class="small mb-0">{{ module.text }}</p>{% endif %}
+                    {% if module.requires %}<p class="small text-body-secondary mb-0"><small><span class="icon-flip d-inline-block">{{ icon('caret-right') }}</span> {{ 'Depends on: %modules%'|trans({'%modules%': module.requires|join(', ')}) }}</small></p>{% endif %}
+                    {% if module.dependents %}<p class="small text-body-secondary mb-0"><small><span class="icon-flip d-inline-block">{{ icon('caret-right') }}</span> {{ 'Required by: %modules%'|trans({'%modules%': module.dependents|join(', ')}) }}</small></p>{% endif %}
+                    {% if module.message[0] and module.reason not in ['locked', 'requires', 'disabled', 'not_enabled'] %}<p class="small text-body-secondary mb-0">{{ module.message[0]|trans(module.message[1]) }}</p>{% endif %}
+                    {% if module.installed and module.installed != module.version %}<p class="small text-body-secondary mb-0">{{ 'Installed version: %version%'|trans({'%version%': module.installed}) }}</p>{% endif %}
+                </div>
+                {% if module.locked %}
+                    <span class="text-body-secondary" title="{{ 'Locked'|trans }}">{{ icon('lock') }}<span class="visually-hidden">{{ 'Locked'|trans }}</span></span>
+                {% else %}
+                    <div class="d-flex gap-2">
+                        <form method="post" action="{{ path(module.wanted ? 'admin_modules_disable' : 'admin_modules_enable', {module: module.name}) }}">
+                            {{ csrf() }}
+                            <button type="submit" class="btn btn-sm {{ module.wanted ? 'btn-outline-secondary' : 'btn-primary' }}">{{ (module.wanted ? 'Disable' : 'Enable')|trans }}</button>
+                        </form>
+                        {% if not module.core and not module.wanted %}
+                            <a class="btn btn-sm btn-outline-danger" href="{{ path('admin_modules_uninstall', {module: module.name}) }}">{{ 'Uninstall'|trans }}</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

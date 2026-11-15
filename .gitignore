@@ -9,3 +9,5 @@
 /public/assets/media/
 /public/assets/.vite/
 /templates/custom.twig
+/modules/Extension/*
+!/modules/Extension/.gitkeep

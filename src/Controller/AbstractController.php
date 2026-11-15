@@ -155,7 +155,7 @@ abstract class AbstractController
             $this->twig->addFunction(new TwigFunction('csrf', [Form::class, 'field'], ['is_safe' => ['html']]));
             $this->twig->addFunction(new TwigFunction('flashes', [Session::class, 'flashes']));
             $this->twig->addFunction(new TwigFunction('icon', $this->icon(...), ['is_safe' => ['html']]));
-            $this->twig->addFunction(new TwigFunction('maintenance_banner', fn (): bool => Maintenance::enabled() && Auth::getInstance()->allows('admin')));
+            $this->twig->addFunction(new TwigFunction('maintenance_banner', fn (): bool => Maintenance::active() && Auth::getInstance()->allows('admin')));
             $this->twig->addFilter(new TwigFilter('trans', [$translator, 'trans']));
             $this->twig->addFunction(new TwigFunction('dump', $this->dump(...), ['needs_context' => true, 'is_variadic' => true]));
 

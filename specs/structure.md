@@ -5,7 +5,7 @@
 ```
 ./
 ├── bootstrap.php
-├── bin/console     CLI : serve [port], cache:clear, db:migrate, maintenance [on|off]
+├── bin/console     CLI : serve [port], cache:clear, db:migrate, maintenance [on|off], module list|enable|disable
 ├── package.json    npm run check | dev | build | watch
 ├── vite.config.ts  build des assets ; tsconfig.json pour la vérification des types
 ├── .env            config (APP_ENV, BDD, SMTP), non versionné ; modèle : .env.example
@@ -13,7 +13,7 @@
 │   ├── Auth/         Auth (accès des routes, connexion), Password, Throttle
 │   ├── Controller/   AbstractController.php (base), AbstractAdminController.php
 │   ├── Command/      commandes de bin/console
-│   ├── Core/         Config, Modules, Installation, Maintenance, Cache
+│   ├── Core/         Config, Modules, ModuleManager, Installation, Maintenance, Cache, Trash, System
 │   ├── Database/     Connection, AbstractMigration, Migrator, AbstractAdapter, MySQLAdapter, SQLiteAdapter, Transfer
 │   ├── Debug/        barre de debug, dump()
 │   ├── Form/         Form (CSRF, validation)
@@ -28,7 +28,7 @@
 │   └── Extension/    modules de l'utilisateur
 ├── templates/      index.twig (structure de l'accueil), main.twig (accueil du cœur), custom.twig.example
 ├── specs/          specs détaillées par partie
-├── data/           base SQLite, sessions, logs, cache/ (Twig, routes.php), installed, maintenance
+├── data/           base SQLite, sessions, logs, cache/ (Twig, routes.php), installed, maintenance, modules.json, trash/
 ├── nbe/            ancien moteur NBE, non versionné : on y pioche des idées, rien n'en est chargé
 └── public/         racine web, renommable (www/, public_html/…)
     ├── index.php   seul point d'entrée PHP
@@ -56,7 +56,7 @@
 
 **Langue** : `/admin`, `/login` et `/install` portent la langue dans l'URL (`/admin/fr/…`, `/login/ar/reset`, `/install/fr`), retirée avant le match (`Router::LOCALIZED`) ; sans préfixe : la langue de `APP_LANG` (anglais si absente ou inconnue), les autres langues ont leur préfixe (`/login/en` si `APP_LANG=fr`). `path()` et `localize()` ajoutent la langue en cours. Sur ces pages, `main/layout.twig` affiche un bouton rond flottant en haut (menu des trois langues, même page dans l'autre langue, via `locale_urls()`) ; le bouton du thème est en bas. Ailleurs, la langue vient de `APP_LANG` et le bouton n'apparaît pas.
 
-**Messages flash** : `Session::flash($type, $message)` (`success`, `info`, `warning`, `danger`, sinon exception), message déjà traduit, affiché une fois par `main/partials/flash.twig` (inclus dans les layouts de connexion et d'admin), toujours échappé. `flashes()` ne démarre pas de session sans cookie.
+**Messages flash** : `Session::flash($type, $message)` (`success`, `info`, `warning`, `danger`, sinon exception), message déjà traduit, affiché une fois par `main/partials/flash.twig` (inclus dans les layouts de connexion et d'admin), toujours échappé, fermable (alerte Bootstrap `alert-dismissible`). `flashes()` ne démarre pas de session sans cookie.
 
 **Paramètres** : le type vient de la signature de la méthode, sans syntaxe dans le chemin. Chaque `{param}` correspond au paramètre de la méthode du même nom, transmis par nom.
 - `string` : `[^/]+`, en 404 s'il contient `/`, `\`, `..` ou un caractère de contrôle
@@ -68,28 +68,7 @@
 
 ## Modules
 
-Tout le site est fait de modules, ceux du cœur compris : le noyau (`src/`) ne contient que le socle commun.
-
-```
-modules/Core/News/
-├── Module.php      tableau : version, requires (modules requis), locked (cœur uniquement), admin (entrées du menu : specs/admin.md)
-├── src/            namespace Yawasla\Module\Core\News\ ; Controller/ (routes #[Route]), Block.php
-├── templates/news/
-├── translations/   fr.php, ar.php
-├── migrations/     YYYYMMDD-XX.php (extensions uniquement ; le cœur met tout dans Core/Main/migrations)
-└── assets/         ts/, scss/
-```
-
-- Nom du module = nom du dossier (`News`), son identifiant en minuscules (`news`) sert aux templates (`news/show.twig`) et aux assets (`@news/ts/…`). Noms uniques entre `Core/` et `Extension/`
-- **Un module ne remplace jamais un module du cœur** : on désactive celui du cœur et on active le sien. Twig cherche d'abord dans le cœur, puis dans les extensions, puis dans `templates/`
-- `Core/Main` (layout, partials, erreurs, debug, thème, Bootstrap, migrations du cœur) est verrouillé, comme `Auth`, `Install` et `Admin` (`specs/admin.md`) : on ne peut pas les désactiver
-- Authentification en deux parties : le noyau (`src/Auth/`) porte ce dont le Router et les autres modules ont besoin (accès, mot de passe, jetons, session) et ne dépend d'aucun module ; `Core/Auth` porte les pages (connexion sous `/login`, lien, déconnexion, reset), leurs templates, traductions et mails. Détail : `specs/auth.md`
-- Traductions : celles de chaque module sont fusionnées, celles du cœur priment
-- Bloc : `{{ module('Banner') }}` rend `banner/block.twig` avec les données de `Block` (classe invocable qui renvoie un tableau), ou rien si le module est absent ou désactivé
-- Accueil : `custom.twig` s'il existe, sinon `main.twig` ; tous deux étendent `index.twig`. `custom.twig` appartient à l'utilisateur, non versionné et jamais remplacé à la mise à jour
-- Mise à jour : on remplace tout sauf `modules/Extension/`, `templates/custom.twig`, `data/`, `.env` et `public/uploads/`
-- Activation en base, depuis l'admin (à venir) : en attendant, tous les modules trouvés sont actifs. Changer l'activation doit vider `data/cache/` (routes compilées)
-- Les extensions s'installent en déposant leur dossier sur le serveur, jamais depuis l'admin : une extension est du PHP avec tous les droits
+Tout le site est fait de modules, ceux du cœur compris : `specs/modules.md`.
 
 ## Assets
 

@@ -8,6 +8,7 @@ use Yawasla\Command\CacheClearCommand;
 use Yawasla\Command\Command;
 use Yawasla\Command\DbMigrateCommand;
 use Yawasla\Command\MaintenanceCommand;
+use Yawasla\Command\ModuleCommand;
 use Yawasla\Command\ServeCommand;
 
 if (PHP_SAPI !== 'cli') {
@@ -23,6 +24,7 @@ $commands = [
     'cache:clear' => new CacheClearCommand(),
     'db:migrate' => new DbMigrateCommand($root),
     'maintenance' => new MaintenanceCommand(),
+    'module' => new ModuleCommand(),
 ];
 
 $name = $argv[1] ?? null;

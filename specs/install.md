@@ -23,7 +23,7 @@ Le site est installé si `data/installed` existe, ou si la table `user` contient
 
 ## Lancement
 
-Uniquement sur la route `/install` : rien n'y redirige. Pas de clé : le premier qui y va installe (risque accepté pour rester simple, le README dit d'installer aussitôt les fichiers déposés).
+Uniquement sur la route `/install` : rien n'y redirige. Le premier qui y va installe : le README dit d'installer aussitôt les fichiers déposés.
 
 `.env` est facultatif avec SQLite : sans lui, les valeurs par défaut s'appliquent. Il est nécessaire pour MySQL / MariaDB.
 
@@ -62,7 +62,7 @@ Rien n'est écrit avant la confirmation : les saisies restent en session, le mot
 2. Site, organisation et administrateur dans une seule transaction. Site dans `config` : `site_url`, `site_name`, `site_description`
 3. Écriture de `data/installed`
 
-En cas d'échec, un message d'erreur général avertit l'utilisateur, le détail va dans `data/logs/php.log` : c'est un développeur qui installe, il sait quoi faire.
+En cas d'échec, un message d'erreur général avertit l'utilisateur, le détail va dans `data/logs/php.log`.
 
 Base partagée en mutualisé : `DB_PREFIX` dans `.env` (`Connection::prefix()`, voir `migration.md`). Si des tables du même nom existent déjà, l'installation échoue de la même façon.
 

@@ -7,6 +7,7 @@ namespace Yawasla\Module\Core\Admin\Controller;
 use Yawasla\Controller\AbstractAdminController;
 use Yawasla\Core\Cache;
 use Yawasla\Core\Maintenance;
+use Yawasla\Core\Trash;
 use Yawasla\Form\Form;
 use Yawasla\Http\Route;
 use Yawasla\Http\Session;
@@ -20,6 +21,7 @@ final class SystemController extends AbstractAdminController
     {
         if (Form::validToken($_POST)) {
             Cache::clear();
+            Trash::clear();
             Session::getInstance()->flash('success', Translator::getInstance()->trans('Cache cleared.'));
         }
 

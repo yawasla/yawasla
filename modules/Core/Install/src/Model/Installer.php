@@ -6,7 +6,7 @@ namespace Yawasla\Module\Core\Install\Model;
 
 use Medoo\Medoo;
 use Yawasla\Database\Connection;
-use Yawasla\Database\Migrator;
+use Yawasla\Core\ModuleManager;
 
 final class Installer
 {
@@ -17,7 +17,7 @@ final class Installer
      */
     public function install(array $site, array $organization, array $admin): void
     {
-        (new Migrator())->run();
+        (new ModuleManager())->finishUpdate();
 
         $now = date('Y-m-d H:i:s');
 

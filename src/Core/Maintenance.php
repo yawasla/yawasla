@@ -11,6 +11,11 @@ final class Maintenance
         return is_file(self::file());
     }
 
+    public static function active(): bool
+    {
+        return self::enabled() || Modules::getInstance()->coreOutdated();
+    }
+
     public static function enable(): void
     {
         file_put_contents(self::file(), date('Y-m-d H:i:s') . PHP_EOL);

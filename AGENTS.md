@@ -36,9 +36,10 @@ Le détail est dans `specs/` : lire le fichier concerné avant de travailler sur
 
 | Fichier | Contenu |
 |---|---|
-| `structure.md` | arborescence, parcours d'une requête, modules, assets |
+| `structure.md` | arborescence, parcours d'une requête, assets |
 | `database.md` | tables, relations, choix et conventions |
 | `auth.md` | accès des routes, connexion en deux temps, jetons, limitation, session, reset |
+| `modules.md` | format d'un module, noms, blocs, traductions, mise à jour, activation |
 | `admin.md` | layout de l'admin, menu déclaré par les modules, barre du haut, maintenance |
 | `migration.md` | écriture des migrations, `Migrator`, traduction vers SQLite, changement de serveur SQL |
 | `roadmap.md` | ce qui est décidé, dans l'ordre, avec son statut |

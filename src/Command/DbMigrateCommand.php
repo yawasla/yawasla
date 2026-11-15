@@ -6,9 +6,9 @@ namespace Yawasla\Command;
 
 use LogicException;
 use Throwable;
+use Yawasla\Core\ModuleManager;
 use Yawasla\Core\Modules;
 use Yawasla\Database\Connection;
-use Yawasla\Database\Migrator;
 use Yawasla\Database\Transfer;
 
 final class DbMigrateCommand implements Command
@@ -42,7 +42,7 @@ final class DbMigrateCommand implements Command
 
     private function migrate(): int
     {
-        $migrated = (new Migrator())->run();
+        $migrated = (new ModuleManager())->finishUpdate();
         echo $migrated === [] ? "Nothing to migrate.\n" : 'Migrated: ' . implode(', ', $migrated) . "\n";
 
         return 0;
@@ -71,7 +71,7 @@ final class DbMigrateCommand implements Command
             throw new LogicException('Invalid module name: ' . $name);
         }
 
-        $module = Modules::getInstance()->get($m[2]) ?? throw new LogicException('Unknown module: ' . $m[2]);
+        $module = Modules::getInstance()->find($m[2]) ?? throw new LogicException('Unknown module: ' . $m[2]);
 
         if ($m[1] !== '' && ($m[1] === 'Core') !== $module['core']) {
             throw new LogicException($module['name'] . ' is not in ' . $m[1] . '/');

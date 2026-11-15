@@ -9,6 +9,7 @@ use PDO;
 use Twig\Profiler\Profile;
 use Yawasla\Auth\Auth;
 use Yawasla\Core\Config;
+use Yawasla\Core\Modules;
 use Yawasla\Http\Router;
 use Yawasla\I18n\Translator;
 use Yawasla\Trait\Singleton;
@@ -134,6 +135,7 @@ final class Debug
             'dumps' => $this->dumps,
             'errors' => $this->errors,
             'exception' => $this->exception,
+            'modules' => $this->modules(),
             'translations' => ['locale' => $translator->locale(), 'dir' => $translator->dir(), 'missing' => array_keys($this->missing)],
             'perf' => [
                 'time' => round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000),
@@ -142,6 +144,26 @@ final class Debug
                 'database' => $this->databaseVersion(),
             ],
         ];
+    }
+
+    /** @return list<array{name: string, group: string, version: string, active: bool, reason: string, detail: string}> */
+    private function modules(): array
+    {
+        $rows = [];
+
+        foreach (Modules::getInstance()->all() as $module) {
+            [$reason, $params] = Modules::reason($module);
+            $rows[] = [
+                'name' => $module['name'],
+                'group' => $module['core'] ? 'Core' : 'Extension',
+                'version' => $module['version'] . ($module['installed'] !== null && $module['installed'] !== $module['version'] ? ' (installed ' . $module['installed'] . ')' : ''),
+                'active' => $module['active'],
+                'reason' => strtr($reason, $params),
+                'detail' => $module['reason'] === 'invalid' ? $module['detail'] : '',
+            ];
+        }
+
+        return $rows;
     }
 
     /** @return array{queries: list<array{sql: string, time: float, count: int}>, time: float, duplicates: int} */

@@ -1,0 +1,9 @@
+{
+    "version": "1.0.0",
+    "locked": true,
+    "description": {
+        "en": "Installation wizard",
+        "fr": "Assistant d'installation",
+        "ar": "معالج التثبيت"
+    }
+}

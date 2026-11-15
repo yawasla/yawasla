@@ -31,7 +31,7 @@ Table `token` (`specs/database.md`), `type` = `login` ou `reset`.
 
 - Jeton aléatoire envoyé dans le lien, seul son hash est stocké (`token_hash`)
 - Valable s'il n'a pas expiré (`expired_at`) et n'a pas servi (`used_at` NULL)
-- `Token::create()` supprime d'abord les jetons expirés ou utilisés, tous types : pas de cron
+- `Token::create()` supprime d'abord les jetons expirés ou utilisés, tous types
 
 ## Limitation
 
@@ -45,7 +45,7 @@ Table `token` (`specs/database.md`), `type` = `login` ou `reset`.
 
 Session PHP native (`src/Http/Session.php`) : fichiers dans `data/sessions`, cookie `Secure` (sauf `APP_ENV=dev`), `HttpOnly`, `SameSite=Lax`, ID régénéré à la connexion. CSRF via `Form` sur tous les formulaires.
 
-Pas de déconnexion automatique (pas d'usage sur ordinateur public) : la session dure 24 h, renouvelées à chaque requête. Cookie de 24 h renvoyé à chaque requête et `gc_maxlifetime` à 24 h : sans activité pendant 24 h, PHP supprime la session, ce qui évite que les sessions abandonnées s'accumulent dans `data/sessions`.
+La session dure 24 h, renouvelées à chaque requête. Cookie de 24 h renvoyé à chaque requête et `gc_maxlifetime` à 24 h : sans activité pendant 24 h, PHP supprime la session, ce qui évite que les sessions abandonnées s'accumulent dans `data/sessions`.
 
 ## Déconnexion
 

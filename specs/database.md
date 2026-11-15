@@ -16,7 +16,6 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 | `email_subscription` | abonnés par mail, avec leurs choix (news, janaza, digest) |
 | `push_subscription` | abonnements web push, pour les janaza uniquement |
 | `config` | réglages clé / valeur |
-| `module` | modules connus et leur activation |
 | `migration` | migrations déjà jouées, par module |
 
 ## Choix
@@ -37,11 +36,13 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 
 **Booléens et dates** : `is_published` / `published_at` et `is_activated` / `deactivated_at` coexistent volontairement ; le code met toujours les deux à jour ensemble.
 
+**Modules** : activation et versions dans `data/modules.json` (`specs/modules.md`).
+
 **Migrations** : `migration` enregistre chaque migration jouée par `(module, name)`, unique.
 
 ## Migrations
 
-Écriture, `Migrator`, traduction vers SQLite et changement de serveur : `specs/migration.md`. Lancement : `php bin/console db:migrate` ; plus tard `Install` et l'activation d'un module.
+Écriture, `Migrator`, traduction vers SQLite et changement de serveur : `specs/migration.md`. Lancement : `php bin/console db:migrate`, l'Install, l'activation d'un module et la fin d'une mise à jour (`specs/modules.md`).
 
 ## Conventions
 

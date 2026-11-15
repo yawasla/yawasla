@@ -1,0 +1,13 @@
+{
+    "version": "1.0.0",
+    "locked": true,
+    "admin": [
+        {"route": "admin", "label": "Dashboard", "icon": "house"},
+        {"route": "admin_modules", "label": "Modules", "icon": "puzzle-piece"}
+    ],
+    "description": {
+        "en": "Site administration",
+        "fr": "Administration du site",
+        "ar": "إدارة الموقع"
+    }
+}

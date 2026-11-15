@@ -13,23 +13,23 @@ Module `Core/Admin`, verrouillé. Toutes les pages sous `/admin`, langue dans l'
 
 ## Menu latéral
 
-Déclaré par les modules dans `Module.php` :
+Déclaré par les modules dans `module.json` (`specs/modules.md`, partie Format) :
 
-```php
-'admin' => [
-    ['route' => 'admin_news', 'label' => 'News', 'icon' => 'newspaper'],
-],
+```json
+"admin": [
+    {"route": "admin_news", "label": "News", "icon": "newspaper"}
+]
 ```
 
 - Assemblé depuis les modules actifs : une extension ajoute sa page sans toucher au cœur, un module désactivé disparaît du menu
 - Une entrée n'apparaît que si l'utilisateur peut ouvrir sa route (`auth`) : jamais de lien vers une 403
 - Entrée active : la route en cours ou ses sous-routes (`admin_news_edit` active `admin_news`), la plus précise l'emporte ; libellé traduit par `|trans`
-- Pour l'instant : Tableau de bord. Les autres entrées arrivent avec leurs modules
+- Pour l'instant : Tableau de bord, Modules (`specs/modules.md`). Les autres entrées arrivent avec leurs modules
 - Version de Yawasla en bas du menu
 
 ## Barre du haut
 
-Écrite en dur dans `admin/layout.twig` : elle ne s'ouvre aux modules que lorsqu'un module en aura besoin.
+Écrite en dur dans `admin/layout.twig`.
 
 - Nom du site, lien « Ouvrir le site » vers `/`
 - Badge permanent « Mode dev » si `APP_ENV=dev` (l'admin ne voit pas forcément la barre de debug)
@@ -40,14 +40,15 @@ Déclaré par les modules dans `Module.php` :
 
 ## Maintenance
 
-Fichier `data/maintenance` (`Yawasla\Core\Maintenance`) : sa présence met le site en maintenance (comme `data/installed` pour l'installation). Ni en base (`db:migrate --server` le copierait d'un serveur à l'autre, et il faut pouvoir couper sans base), ni par organisation : il vaut pour toute l'installation.
+Fichier `data/maintenance` (`Yawasla\Core\Maintenance`) : sa présence met le site en maintenance (comme `data/installed` pour l'installation). Vaut pour toute l'installation, se lit sans base.
 
 - Visiteurs : page de maintenance en 503 (`Retry-After`), comme site non installé ou base injoignable
+- Aussi tant qu'une mise à jour du cœur n'est pas terminée, sans fichier `data/maintenance` : `specs/modules.md`, partie Version. `Maintenance::active()` couvre les deux cas (`bootstrap.php`, bandeau) ; `Maintenance::enabled()` ne sert qu'à l'interrupteur
 - Restent ouverts (vérifié dans `bootstrap.php`) : `LoginController` (`/login` et ses pages, `/logout`), tout contrôleur `AbstractAdminController` ; un admin connecté voit le site normalement, avec un bandeau en haut des pages publiques : « Maintenance active : site non visible pour les visiteurs »
-- Pas de barre admin sur les pages publiques (cache, conflit avec `custom.twig`, session à chaque page) : seulement ce bandeau (`maintenance_banner()`, bloc `maintenance_banner` de `main/layout.twig`, vidé par les layouts d'admin, de connexion et d'erreur)
+- Sur les pages publiques, seulement ce bandeau (`maintenance_banner()`, bloc `maintenance_banner` de `main/layout.twig`, vidé par les layouts d'admin, de connexion et d'erreur)
 - Activation : interrupteur de la barre du haut, `php bin/console maintenance on|off`, ou fichier créé / supprimé par FTP si l'admin est cassé
 - `data/` est refusé par son `.htaccess` et n'est pas vidé à la mise à jour
 
 ## Barre de debug
 
-Inchangée, en bas de toutes les pages en `APP_ENV=dev`, admin compris. La barre du haut n'affiche jamais de détail technique (erreur, requête, trace) : ce rôle reste à la barre de debug.
+En bas de toutes les pages en `APP_ENV=dev`, admin compris. La barre du haut n'affiche jamais de détail technique (erreur, requête, trace) : ce rôle reste à la barre de debug.

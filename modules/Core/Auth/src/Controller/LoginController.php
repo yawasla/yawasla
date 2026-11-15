@@ -8,6 +8,7 @@ use Yawasla\Auth\Auth;
 use Yawasla\Auth\Password;
 use Yawasla\Auth\Throttle;
 use Yawasla\Controller\AbstractController;
+use Yawasla\Core\System;
 use Yawasla\Form\Form;
 use Yawasla\Http\Route;
 use Yawasla\Http\Router;
@@ -89,6 +90,12 @@ final class LoginController extends AbstractController
 
             Auth::getInstance()->login($userId);
             (new Throttle())->clear();
+
+            if (Auth::getInstance()->allows('admin')) {
+                foreach (System::tasks() as [$type, $message]) {
+                    Session::getInstance()->flash($type, Translator::getInstance()->trans($message));
+                }
+            }
 
             $router = Router::getInstance();
 

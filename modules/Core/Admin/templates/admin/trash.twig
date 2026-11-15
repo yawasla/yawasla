@@ -1,0 +1,28 @@
+{% extends 'admin/layout.twig' %}
+
+{% block title %}{{ 'Trash'|trans }}{% endblock %}
+
+{% block actions %}
+    <a class="btn btn-sm btn-outline-secondary" href="{{ path('admin_modules') }}"><span class="icon-flip d-inline-block">{{ icon('arrow-left') }}</span> {{ 'Modules'|trans }}</a>
+{% endblock %}
+
+{% block main %}
+    <p class="text-body-secondary">{{ 'The data is not restored: enabling the module creates its tables again, empty.'|trans }}</p>
+    <ul class="list-group">
+        {% for item in entries %}
+            <li class="list-group-item d-flex flex-wrap align-items-center gap-2 py-3">
+                <div class="me-auto">
+                    <span class="fw-semibold">{{ item.name }}</span>
+                    <p class="small text-body-secondary mb-0">{{ 'Uninstalled on %date%'|trans({'%date%': item.date}) }}</p>
+                    <p class="small text-body-secondary mb-0">{{ 'Permanently deleted after %date%'|trans({'%date%': item.deleted}) }}</p>
+                </div>
+                <form method="post" action="{{ path('admin_modules_restore', {entry: item.entry}) }}">
+                    {{ csrf() }}
+                    <button type="submit" class="btn btn-sm btn-primary">{{ icon('arrow-counter-clockwise') }} {{ 'Restore'|trans }}</button>
+                </form>
+            </li>
+        {% else %}
+            <li class="list-group-item text-body-secondary">{{ 'The trash is empty.'|trans }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

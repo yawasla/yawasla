@@ -74,7 +74,7 @@ abstract class AbstractAdminController extends AbstractController
                     $active = count($menu);
                 }
 
-                $menu[] = ['route' => $entry['route'], 'label' => $entry['label'], 'icon' => $entry['icon'] ?? 'circle', 'active' => false];
+                $menu[] = ['route' => $entry['route'], 'label' => $entry['label'], 'icon' => $entry['icon'], 'active' => false];
             }
         }
 

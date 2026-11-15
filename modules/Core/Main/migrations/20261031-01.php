@@ -20,14 +20,6 @@ return new class extends AbstractMigration {
             created_at DATETIME NOT NULL,
             UNIQUE (module, name)
         )');
-        $this->sql('CREATE TABLE {module} (
-            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL UNIQUE,
-            namespace VARCHAR(255) NOT NULL,
-            created_at DATETIME NOT NULL,
-            deactivated_at DATETIME NULL,
-            is_activated BOOLEAN NOT NULL DEFAULT 1
-        )');
         $this->sql('CREATE TABLE {organization} (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL UNIQUE,
@@ -161,7 +153,7 @@ return new class extends AbstractMigration {
 
     public function down(): void
     {
-        foreach (['janaza', 'article', 'category', 'news', 'media', 'publication', 'token', 'push_subscription', 'email_subscription', 'user', 'organization', 'module', 'migration', 'config'] as $table) {
+        foreach (['janaza', 'article', 'category', 'news', 'media', 'publication', 'token', 'push_subscription', 'email_subscription', 'user', 'organization', 'migration', 'config'] as $table) {
             $this->sql('DROP TABLE {' . $table . '}');
         }
     }

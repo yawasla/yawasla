@@ -1,3 +1,6 @@
 {% for flash in flashes() %}
-    <div class="alert alert-{{ flash.type }}" role="{{ flash.type == 'danger' ? 'alert' : 'status' }}">{{ flash.message }}</div>
+    <div class="alert alert-{{ flash.type }} alert-dismissible fade show" role="{{ flash.type == 'danger' ? 'alert' : 'status' }}">
+        {{ flash.message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ 'Close'|trans }}"></button>
+    </div>
 {% endfor %}
