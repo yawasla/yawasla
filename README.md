@@ -2,7 +2,7 @@
 
 Yawasla is an online newsroom for mosques and Muslim associations: publish Janaza prayer announcements, news and donation appeals, and reach your community directly through web push notifications and mail, with no app to install: **<https://yawasla.org>**
 
-[![license](https://img.shields.io/github/license/yawasla/newsroom.svg)](https://github.com/yawasla/newsroom/blob/main/LICENSE)
+[![license](https://img.shields.io/github/license/yawasla/yawasla.svg)](https://github.com/yawasla/yawasla/blob/main/LICENSE)
 
 ## Table of contents
 
@@ -153,7 +153,7 @@ More architecture details in [CLAUDE.md](./CLAUDE.md).
 
 - Website: <https://yawasla.org>
 - Mail: [contact@yawasla.org](mailto:contact@yawasla.org)
-- GitHub: <https://github.com/yawasla/newsroom>
+- GitHub: <https://github.com/yawasla/yawasla>
 
 ## Responsibility
 
