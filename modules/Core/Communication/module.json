@@ -1,0 +1,9 @@
+{
+    "version": "1.0.0",
+    "requires": ["News"],
+    "description": {
+        "en": "Announcement feed, push and email subscriptions, sending and digest",
+        "fr": "Fil des annonces, abonnements push et mail, envois et digest",
+        "ar": "موجز الإعلانات، الاشتراك بالإشعارات والبريد الإلكتروني، الإرسال والملخص"
+    }
+}

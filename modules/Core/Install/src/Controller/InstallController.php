@@ -17,6 +17,8 @@ use Yawasla\Http\Route;
 use Yawasla\Http\Router;
 use Yawasla\Http\Session;
 use Yawasla\I18n\Translator;
+use Yawasla\Model\Organization;
+use Yawasla\Model\Setting;
 use Yawasla\Module\Core\Install\Model\Installer;
 use Yawasla\Module\Core\Install\Requirements;
 
@@ -25,6 +27,8 @@ final class InstallController extends AbstractController
     private const SESSION_KEY = 'install';
 
     private const TEMPLATES = [1 => 'site', 2 => 'organization', 3 => 'admin', 4 => 'confirm'];
+
+    private const ORGANIZATION_FIELDS = ['name', 'address', 'zip_code', 'city', 'country'];
 
     #[Route('/install', name: 'install', methods: ['GET', 'POST'])]
     public function index(): string
@@ -106,18 +110,8 @@ final class InstallController extends AbstractController
     private function form(array $state): Form
     {
         return match ($state['step']) {
-            1 => new Form([
-                'site_url' => ['required' => true, 'max' => 255, 'type' => 'url'],
-                'site_name' => ['required' => true, 'max' => 255],
-                'site_description' => ['required' => true, 'max' => 500],
-            ], $state['site'] + ['site_url' => $this->currentUrl()]),
-            2 => new Form([
-                'name' => ['required' => true, 'max' => 255],
-                'address' => ['max' => 255],
-                'zip_code' => ['max' => 20],
-                'city' => ['max' => 100],
-                'country' => ['max' => 100],
-            ], ['name' => $state['site']['site_name'] ?? ''] + array_filter($state['organization'], fn (string $value): bool => $value !== '')),
+            1 => new Form(Setting::FIELDS, $state['site'] + ['site_url' => Router::getInstance()->baseUrl()]),
+            2 => new Form(array_intersect_key(Organization::FIELDS, array_flip(self::ORGANIZATION_FIELDS)), ['name' => $state['site']['site_name'] ?? ''] + array_filter($state['organization'], fn (string $value): bool => $value !== '')),
             3 => new Form([
                 'email' => ['required' => true, 'max' => 255, 'type' => 'email'],
                 'first_name' => ['required' => true, 'max' => 100],
@@ -171,13 +165,7 @@ final class InstallController extends AbstractController
                 'site_name' => $form->value('site_name'),
                 'site_description' => $form->value('site_description'),
             ],
-            2 => $state['organization'] = [
-                'name' => $form->value('name'),
-                'address' => $form->value('address'),
-                'zip_code' => $form->value('zip_code'),
-                'city' => $form->value('city'),
-                'country' => $form->value('country'),
-            ],
+            2 => $state['organization'] = array_combine(self::ORGANIZATION_FIELDS, array_map($form->value(...), self::ORGANIZATION_FIELDS)),
             3 => $state['admin'] = [
                 'email' => $form->value('email'),
                 'first_name' => $form->value('first_name'),
@@ -237,14 +225,6 @@ final class InstallController extends AbstractController
         $session->regenerate();
 
         return $this->render('install/done.twig', ['step' => 5, 'adminUrl' => $this->adminUrl()]);
-    }
-
-    private function currentUrl(): string
-    {
-        $https = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
-            || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
-
-        return ($https ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? '') . Router::getInstance()->basePath();
     }
 
     private function adminUrl(): string

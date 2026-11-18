@@ -4,7 +4,7 @@
 
 {% block card %}
     <p>{{ 'Click the button to finish signing in.'|trans }}</p>
-    <form method="post" action="{{ path('login_confirm', {token: token}) }}">
+    <form method="post" data-shader-ui="form" action="{{ path('login_confirm', {token: token}) }}">
         {{ csrf() }}
         {% include 'auth/global-error.twig' %}
         <button type="submit" class="btn btn-primary w-100">{{ 'Sign in'|trans }}</button>

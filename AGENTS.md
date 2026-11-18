@@ -42,6 +42,7 @@ Le détail est dans `specs/` : lire le fichier concerné avant de travailler sur
 | `modules.md` | format d'un module, noms, blocs, traductions, mise à jour, activation |
 | `admin.md` | layout de l'admin, menu déclaré par les modules, barre du haut, maintenance |
 | `migration.md` | écriture des migrations, `Migrator`, traduction vers SQLite, changement de serveur SQL |
+| `subscription.md` | abonnements push et mail, confirmation, digest |
 | `roadmap.md` | ce qui est décidé, dans l'ordre, avec son statut |
 | `ideas.md` | pistes non décidées |
 

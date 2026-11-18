@@ -1,0 +1,29 @@
+{% extends 'admin/layout.twig' %}
+
+{% block title %}{{ 'Organizations'|trans }}{% endblock %}
+
+{% block actions %}
+    {% if main %}
+        <a class="btn btn-sm btn-primary" href="{{ path('admin_organizations_new') }}">{{ icon('plus') }} {{ 'Add an organization'|trans }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    {% if main %}
+        <ul class="list-group mb-4">
+            {% include 'admin/organization-item.twig' with {organization: main} only %}
+        </ul>
+    {% endif %}
+
+    <h2 class="h6">{{ 'Secondary organizations'|trans }}</h2>
+    <p class="small text-body-secondary">{{ 'Mosques and prayer rooms whose news and janaza are published on this site.'|trans }}</p>
+    {% if secondaries %}
+        <ul class="list-group">
+            {% for organization in secondaries %}
+                {% include 'admin/organization-item.twig' with {organization: organization} only %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-body-secondary">{{ 'No secondary organization.'|trans }}</p>
+    {% endif %}
+{% endblock %}

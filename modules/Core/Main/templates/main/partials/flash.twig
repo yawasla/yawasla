@@ -1,6 +1,14 @@
-{% for flash in flashes() %}
-    <div class="alert alert-{{ flash.type }} alert-dismissible fade show" role="{{ flash.type == 'danger' ? 'alert' : 'status' }}">
-        {{ flash.message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ 'Close'|trans }}"></button>
+{% set flashList = flashes() %}
+{% if flashList %}
+    <div class="flash-stack">
+        {% for flash in flashList %}
+            {% set urgent = flash.type in ['danger', 'warning'] %}
+            <div class="toast show flash-toast text-bg-{{ flash.type }}" role="{{ urgent ? 'alert' : 'status' }}" aria-live="{{ urgent ? 'assertive' : 'polite' }}" aria-atomic="true"{% if not urgent %} data-flash-autohide{% endif %}>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="flash-text">{{ flash.message }}</div>
+                    <button type="button" class="btn-close{{ flash.type in ['warning', 'light', 'info'] ? '' : ' btn-close-white' }} flex-shrink-0" data-bs-dismiss="toast" aria-label="{{ 'Close'|trans }}"></button>
+                </div>
+            </div>
+        {% endfor %}
     </div>
-{% endfor %}
+{% endif %}

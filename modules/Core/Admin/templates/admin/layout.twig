@@ -1,10 +1,12 @@
 {% extends 'main/layout.twig' %}
 
-{% block head %}{{ vite('@admin/ts/admin.ts') }}{% endblock %}
+{% block head %}{{ vite('@admin/ts/admin.ts') }}{{ vite('@main/ts/form.ts') }}{% endblock %}
 
 {% block maintenance_banner %}{% endblock %}
 
-{% block fabs %}{% endblock %}
+{% block fabs %}
+    {% include 'main/partials/theme-toggle.twig' %}
+{% endblock %}
 
 {% block content %}
 <div class="d-lg-flex min-vh-100">
@@ -26,7 +28,7 @@
             <p class="mt-auto p-3 mb-0 small text-body-secondary">Yawasla {{ admin.version }}</p>
         </div>
     </aside>
-    <div class="admin-content flex-grow-1">
+    <div class="admin-content flex-grow-1 bg-body-tertiary min-vh-100">
         <header class="admin-topbar d-flex align-items-center gap-2 px-3 border-bottom bg-body">
             <button type="button" class="btn btn-outline-secondary btn-sm d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#admin-menu" aria-controls="admin-menu">
                 {{ icon('list') }}<span class="visually-hidden">{{ 'Menu'|trans }}</span>
@@ -36,14 +38,14 @@
             </a>
             {% if admin.dev %}<span class="badge text-bg-danger">{{ 'Dev mode'|trans }}</span>{% endif %}
             <div class="ms-auto d-flex align-items-center gap-2">
-                <form method="post" action="{{ path('admin_maintenance') }}">
+                <form method="post" data-shader-ui="form" action="{{ path('admin_maintenance') }}">
                     {{ csrf() }}
                     <input type="hidden" name="back" value="{{ canonical }}">
                     <button type="submit" class="btn btn-sm {{ admin.maintenance ? 'btn-warning' : 'btn-outline-secondary' }}" aria-pressed="{{ admin.maintenance ? 'true' : 'false' }}">
                         {{ icon('wrench') }}<span class="d-none d-md-inline ms-1">{{ 'Maintenance'|trans }}</span>
                     </button>
                 </form>
-                <form method="post" action="{{ path('admin_cache') }}">
+                <form method="post" data-shader-ui="form" action="{{ path('admin_cache') }}">
                     {{ csrf() }}
                     <input type="hidden" name="back" value="{{ canonical }}">
                     <button type="submit" class="btn btn-sm btn-outline-secondary">
@@ -63,16 +65,12 @@
                         </ul>
                     </div>
                 {% endif %}
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-theme-toggle>
-                    <span class="theme-toggle-dark">{{ icon('moon') }}<span class="visually-hidden">{{ 'Dark mode'|trans }}</span></span>
-                    <span class="theme-toggle-light">{{ icon('sun') }}<span class="visually-hidden">{{ 'Light mode'|trans }}</span></span>
-                </button>
                 <div class="dropdown">
                     <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false">
                         {{ icon('user') }}<span class="d-none d-md-inline ms-1">{{ admin.user.first_name }}</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <form method="post" action="{{ path('logout') }}">
+                        <form method="post" data-shader-ui="form" action="{{ path('logout') }}">
                             {{ csrf() }}
                             <button type="submit" class="dropdown-item">{{ icon('sign-out') }} {{ 'Sign out'|trans }}</button>
                         </form>

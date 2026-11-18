@@ -1,0 +1,22 @@
+{% extends 'admin/layout.twig' %}
+
+{% block head %}{{ parent() }}{{ vite('@main/ts/seo.ts') }}{% endblock %}
+
+{% block title %}{{ 'Site'|trans }}{% endblock %}
+
+{% block main %}
+    <div class="row">
+        <div class="col-12 col-lg-9 col-xl-7">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form method="post" data-shader-ui="form" data-sui-guide action="{{ path('admin_site') }}">
+                        {{ csrf() }}
+                        {% include 'main/partials/form-error.twig' %}
+                        {% include 'main/partials/site-fields.twig' with {urlHelp: 'All email links depend on it. To change it, open the admin from the new address.'|trans} %}
+                        <button type="submit" class="btn btn-primary">{{ 'Save'|trans }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

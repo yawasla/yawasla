@@ -1,9 +1,0 @@
-{
-    "version": "1.0.0",
-    "requires": ["News"],
-    "description": {
-        "en": "Announcement feed, notification and email subscription",
-        "fr": "Fil des annonces, abonnement par notification et par mail",
-        "ar": "موجز الإعلانات والاشتراك بالإشعارات والبريد الإلكتروني"
-    }
-}

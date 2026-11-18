@@ -57,6 +57,15 @@
     --sui-color-neutral: #{$green};
 }
 
+[data-bs-theme="dark"] .list-group {
+    --bs-list-group-bg: #{$dark-list};
+}
+
+.form-control,
+.form-select {
+    background-color: var(--bs-tertiary-bg);
+}
+
 [data-bs-theme="light"] .btn-primary {
     --bs-btn-color: #fff;
     --bs-btn-hover-color: #fff;
@@ -84,6 +93,52 @@
 
 .theme-fab {
     inset-block-end: 1rem;
+}
+
+body:has(.debug-bar) .theme-fab {
+    inset-block-end: 3rem;
+}
+
+.flash-stack {
+    --flash-fab: 0rem;
+    --flash-debug: 0rem;
+    position: fixed;
+    inset-inline-start: 1rem;
+    inset-inline-end: calc(1rem + var(--flash-fab));
+    inset-block-end: calc(1rem + var(--flash-debug));
+    z-index: 1090;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    pointer-events: none;
+
+    @media (min-width: $breakpoint-sm) {
+        inset-inline-start: auto;
+        inset-inline-end: 1rem;
+        inset-block-end: calc(1rem + var(--flash-fab) + var(--flash-debug));
+        align-items: flex-end;
+        max-inline-size: 26rem;
+    }
+}
+
+body:has(.theme-fab) .flash-stack {
+    --flash-fab: 3.75rem;
+}
+
+body:has(.debug-bar) .flash-stack {
+    --flash-debug: 2rem;
+}
+
+.flash-toast {
+    --bs-toast-max-width: 100%;
+    inline-size: auto;
+    padding-block: 0.625rem;
+    padding-inline: 1.25rem 0.75rem;
+    border: 0;
+    border-radius: 1.5rem;
+    box-shadow: var(--bs-box-shadow);
+    pointer-events: auto;
 }
 
 .locale-fab {

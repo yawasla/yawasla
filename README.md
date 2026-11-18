@@ -61,6 +61,7 @@ Open <http://localhost:8000> and stop the server with `Ctrl+C`.
 - To create an empty migration file in a module, run `php bin/console db:migrate --create <Module>`.
 - To put the site in maintenance (only admins can see it), run `php bin/console maintenance on`, and `off` to open it again. Without access to the admin or the command line, create or delete the empty file `data/maintenance`.
 - To list, enable or disable the modules, run `php bin/console module list`, `module enable <Module>` or `module disable <Module>`, or use the Modules page of the admin.
+- If the site address used in emails is wrong and you can no longer sign in, run `php bin/console config site_url https://www.example.org` (the admin only accepts a new address when it is opened from that address).
 - To move the database to another SQL server, see below.
 
 #### Moving to another SQL server

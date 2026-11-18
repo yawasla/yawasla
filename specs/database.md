@@ -6,15 +6,15 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 
 | Table | Rôle |
 |---|---|
-| `organization` | l'association ou la mosquée : identité, coordonnées (la maintenance n'est pas en base : fichier `data/maintenance`) |
-| `user` | compte de l'admin, rattaché à une organisation |
+| `organization` | la mosquée principale et ses mosquées secondaires : identité, coordonnées (la maintenance n'est pas en base : fichier `data/maintenance`) |
+| `user` | compte d'un utilisateur, rattaché à une organisation |
 | `token` | jeton à usage unique : lien de connexion, reset, confirmation d'abonnement… |
 | `publication` | ce qui est publié, quel que soit son type : auteur, slug, nom, dates |
 | `news`, `janaza`, `article` | contenu propre à chaque type de publication |
 | `media` | fichier rattaché à une publication |
 | `category` | catégories des articles |
 | `email_subscription` | abonnés par mail, avec leurs choix (news, janaza, digest) |
-| `push_subscription` | abonnements web push, pour les janaza uniquement |
+| `push_subscription` | abonnements web push, pour les janaza et les news |
 | `config` | réglages clé / valeur |
 | `migration` | migrations déjà jouées, par module |
 
@@ -24,11 +24,14 @@ Schéma créé par `modules/Core/Main/migrations/20261031-01.php`, pour SQLite e
 - `publication_id` n'est volontairement pas unique dans les tables enfants : plus tard, une publication pourra regrouper plusieurs contenus (un article et plusieurs médias…)
 - Le type est dans `publication.type`
 
-**Organisations** : un utilisateur appartient à une seule organisation et n'en change jamais ; on ne peut que le désactiver. L'organisation d'une publication est celle de son auteur. Prépare le multi-organisation sans le mettre en place.
+**Organisations** : une installation = un site, celui de la mosquée principale (créée à l'install, `parent_id` NULL). Les mosquées secondaires (`parent_id` = la principale) n'ont pas leur propre site : la principale publie leurs news et janaza.
+- `news.organization_id` et `janaza.organization_id` : la mosquée concernée, choisie à la saisie (seuls contenus envoyés aux abonnés). Articles et médias sont toujours ceux de la principale
+- `janaza.location` : adresse de la prière copiée à la saisie (préremplie avec celle de la mosquée, modifiable : cimetière, salle…). Une mosquée qui déménage ne change pas l'adresse des janaza passées
+- `user.organization_id` : un utilisateur d'une secondaire ne publie que pour elle ; un admin de la principale gère tout. Un utilisateur ne change jamais d'organisation, on ne peut que le désactiver
 
 **Emails uniques sur toute l'installation** : une même adresse ne peut pas exister dans deux organisations (`user.email` et `email_subscription.email` uniques). L'email est normalisé en minuscules avant écriture : `UNIQUE` est insensible à la casse en MySQL, sensible en SQLite.
 
-**Abonnements** : le push ne sert qu'aux janaza ; pour les news et le digest, on s'abonne par mail. Les abonnements ne sont pas rattachés à une organisation.
+**Abonnements** : janaza et news partent en push et par mail (les news sont courtes : horaires de la prière de l'Aïd, début du Ramadan…) ; le digest, par mail uniquement. `news.content` et `janaza.content` en `VARCHAR(255)` : texte court, envoyé tel quel en notification. Les abonnements ne sont pas rattachés à une organisation.
 
 **Digest** : `digest_included` dit qu'un contenu doit figurer dans le prochain digest, `digest_sent_at` qu'il y est parti. Un contenu n'est jamais envoyé deux fois.
 

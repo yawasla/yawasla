@@ -1,0 +1,27 @@
+{% set full = full|default(false) %}
+{% include 'main/partials/field.twig' with {name: 'name', label: 'Organization name'|trans, placeholder: 'Ibn Umm Maktum Cultural Association'|trans, required: true, maxlength: 255, help: nameHelp|default('')} %}
+{% if full %}
+    {% include 'main/partials/field.twig' with {name: 'identifier', label: 'Identifier (SIREN, RNA, etc.)'|trans, maxlength: 50} %}
+{% endif %}
+{% include 'main/partials/field.twig' with {name: 'address', label: 'Address'|trans, placeholder: '12 Peace Street'|trans, maxlength: 255, autocomplete: 'street-address'} %}
+<div class="row">
+    <div class="col-12 col-md-4">
+        {% include 'main/partials/field.twig' with {name: 'zip_code', label: 'Zip code'|trans, placeholder: '75000', maxlength: 20, autocomplete: 'postal-code'} %}
+    </div>
+    <div class="col-12 col-md-8">
+        {% include 'main/partials/field.twig' with {name: 'city', label: 'City'|trans, placeholder: 'Paris'|trans, maxlength: 100, autocomplete: 'address-level2'} %}
+    </div>
+</div>
+{% include 'main/partials/field.twig' with {name: 'country', label: 'Country'|trans, placeholder: 'France'|trans, maxlength: 100, autocomplete: 'country-name'} %}
+{% if full %}
+    {% include 'main/partials/field.twig' with {name: 'email', label: 'Email'|trans, type: 'email', placeholder: 'contact@example.org', maxlength: 255} %}
+    <div class="row">
+        <div class="col-12 col-md-6">
+            {% include 'main/partials/field.twig' with {name: 'phone', label: 'Phone'|trans, type: 'tel', maxlength: 30} %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'main/partials/field.twig' with {name: 'fax', label: 'Fax'|trans, type: 'tel', maxlength: 30} %}
+        </div>
+    </div>
+    {% include 'main/partials/field.twig' with {name: 'website', label: 'Website'|trans, type: 'url', placeholder: 'https://www.example.org', maxlength: 255} %}
+{% endif %}

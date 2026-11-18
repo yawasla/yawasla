@@ -73,7 +73,7 @@ L'Install a besoin d'une session et d'un jeton CSRF sur chaque formulaire, avant
 - `src/Http/Session.php` : session PHP native, fichiers dans `data/sessions`, cookie `Secure`, `HttpOnly`, `SameSite=Lax`
 - `src/Form/Form.php` : vérifie le CSRF, lit uniquement les champs déclarés, valide (requis, longueur maximale, email, URL `https`, ou `http` si `APP_ENV=dev`), garde les erreurs par champ et les valeurs saisies
 - Le HTML reste écrit dans Twig : fonction `csrf()` pour le champ caché, partial pour un champ et son erreur
-- Effets de lumière : `@shader-ui/core` (npm, compilé par Vite, version figée), activé par `data-shader-ui="form"` sur les formulaires de l'Install ; l'état vient du HTML (`required`, `aria-invalid`)
+- Effets de lumière : Shader UI, comme tous les formulaires (`specs/structure.md`, partie Assets)
 
 ## Page de maintenance
 

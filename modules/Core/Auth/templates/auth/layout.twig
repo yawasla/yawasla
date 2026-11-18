@@ -1,6 +1,6 @@
 {% extends 'main/layout.twig' %}
 
-{% block head %}{{ vite('@auth/ts/form.ts') }}{% endblock %}
+{% block head %}{{ vite('@main/ts/form.ts') }}{% endblock %}
 
 {% block maintenance_banner %}{% endblock %}
 
@@ -13,7 +13,7 @@
                     <img src="{{ asset('img/logo_yawasla.webp') }}" alt="Yawasla" class="mb-2" width="88" height="88">
                     <h1 class="h4 mb-3">{{ block('title') }}</h1>
                 </header>
-                <div class="card border-0 shadow-sm">
+                <div class="card shadow-sm">
                     <div class="card-body p-4">
                         {% include 'main/partials/flash.twig' %}
                         {% block card %}{% endblock %}

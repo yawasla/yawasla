@@ -3,6 +3,8 @@
     "locked": true,
     "admin": [
         {"route": "admin", "label": "Dashboard", "icon": "house"},
+        {"route": "admin_site", "label": "Site", "icon": "globe"},
+        {"route": "admin_organizations", "label": "Organizations", "icon": "buildings"},
         {"route": "admin_modules", "label": "Modules", "icon": "puzzle-piece"}
     ],
     "description": {

@@ -23,8 +23,7 @@ return new class extends AbstractMigration {
         $this->sql('CREATE TABLE {organization} (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL UNIQUE,
-            rna VARCHAR(20) NULL,
-            siren VARCHAR(20) NULL,
+            identifier VARCHAR(50) NULL,
             email VARCHAR(255) NULL,
             phone VARCHAR(30) NULL,
             fax VARCHAR(30) NULL,
@@ -33,8 +32,10 @@ return new class extends AbstractMigration {
             zip_code VARCHAR(20) NULL,
             country VARCHAR(100) NULL,
             website VARCHAR(255) NULL,
+            parent_id INT UNSIGNED NULL,
             created_at DATETIME NOT NULL,
-            updated_at DATETIME NOT NULL
+            updated_at DATETIME NOT NULL,
+            CONSTRAINT {organization_parent_id_fk} FOREIGN KEY (parent_id) REFERENCES {organization} (id)
         )');
         $this->sql('CREATE TABLE {user} (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -107,10 +108,12 @@ return new class extends AbstractMigration {
         $this->sql('CREATE TABLE {news} (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             publication_id INT UNSIGNED NOT NULL,
-            content TEXT NOT NULL,
+            organization_id INT UNSIGNED NOT NULL,
+            content VARCHAR(255) NOT NULL,
             digest_sent_at DATETIME NULL,
             digest_included BOOLEAN NOT NULL DEFAULT 0,
-            CONSTRAINT {news_publication_id_fk} FOREIGN KEY (publication_id) REFERENCES {publication} (id)
+            CONSTRAINT {news_publication_id_fk} FOREIGN KEY (publication_id) REFERENCES {publication} (id),
+            CONSTRAINT {news_organization_id_fk} FOREIGN KEY (organization_id) REFERENCES {organization} (id)
         )');
         $this->sql('CREATE TABLE {category} (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -132,13 +135,16 @@ return new class extends AbstractMigration {
         $this->sql('CREATE TABLE {janaza} (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             publication_id INT UNSIGNED NOT NULL,
+            organization_id INT UNSIGNED NOT NULL,
             content VARCHAR(255) NOT NULL,
             location VARCHAR(255) NOT NULL,
             salat_date DATETIME NOT NULL,
             cancelled_at DATETIME NULL,
             is_archived BOOLEAN NOT NULL DEFAULT 0,
-            CONSTRAINT {janaza_publication_id_fk} FOREIGN KEY (publication_id) REFERENCES {publication} (id)
+            CONSTRAINT {janaza_publication_id_fk} FOREIGN KEY (publication_id) REFERENCES {publication} (id),
+            CONSTRAINT {janaza_organization_id_fk} FOREIGN KEY (organization_id) REFERENCES {organization} (id)
         )');
+        $this->sql('CREATE INDEX {organization_parent_id} ON {organization} (parent_id)');
         $this->sql('CREATE INDEX {user_organization_id} ON {user} (organization_id)');
         $this->sql('CREATE INDEX {token_user_id} ON {token} (user_id)');
         $this->sql('CREATE INDEX {token_email_subscription_id} ON {token} (email_subscription_id)');
@@ -146,9 +152,11 @@ return new class extends AbstractMigration {
         $this->sql('CREATE INDEX {publication_published_at} ON {publication} (published_at)');
         $this->sql('CREATE INDEX {media_publication_id} ON {media} (publication_id)');
         $this->sql('CREATE INDEX {news_publication_id} ON {news} (publication_id)');
+        $this->sql('CREATE INDEX {news_organization_id} ON {news} (organization_id)');
         $this->sql('CREATE INDEX {article_publication_id} ON {article} (publication_id)');
         $this->sql('CREATE INDEX {article_category_id} ON {article} (category_id)');
         $this->sql('CREATE INDEX {janaza_publication_id} ON {janaza} (publication_id)');
+        $this->sql('CREATE INDEX {janaza_organization_id} ON {janaza} (organization_id)');
     }
 
     public function down(): void

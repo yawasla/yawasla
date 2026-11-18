@@ -12,15 +12,16 @@ Ce qui est décidé, dans l'ordre. Une idée de `ideas.md` n'arrive ici qu'une f
 - Authentification : accès dans `#[Route(auth:)]`, paramètres de route typés, module `Core/Auth` (connexion en deux temps, jetons, limitation, session 24 h, déconnexion, reset), `/admin` → `/login` hors connexion, 403, `MAIL_DRIVER=log` : `specs/auth.md`
 - Migrations : `Migrator` (up / down, désinstallation d'une extension), `php bin/console db:migrate`
 - Admin : layout, menu, barre du haut, icônes, maintenance : `specs/admin.md`
+- Site et organisations dans l'admin : page Site (`site_url` vérifiée contre l'adresse ouverte, `config site_url`), principale et secondaires : `specs/admin.md`
+- Modules : activation depuis l'admin et en console, `data/modules.json`, modules verrouillés, dépendances, versions et fin de mise à jour, vidage du cache, désinstallation et corbeille des extensions : `specs/modules.md`
 
 ## À faire
 
-1. **Activation des modules** depuis l'admin : `data/modules.json`, modules verrouillés, dépendances, vidage du cache, désinstallation des extensions
-2. **Organisation et config** dans l'admin
-3. **Médias** : upload, liste blanche d'images
-4. **News** : saisie dans l'admin, page `/news/{slug}`, Open Graph, bloc d'accueil
-5. **Janaza** : saisie, annulation, archivage, bloc d'accueil
-6. **Article** et catégories
-7. **Abonnement mail** : inscription confirmée par jeton, désinscription, envoi via Brevo, digest
-8. **Feed** : PWA `/feed/`, web push pour les janaza, guide iOS
-9. **Release** : archive avec les assets compilés
+1. **Utilisateurs** : comptes, rôles, utilisateur limité à sa mosquée
+2. **Médias** : upload, liste blanche d'images
+3. **News** : saisie dans l'admin, page `/news/{slug}`, Open Graph, bloc d'accueil
+4. **Janaza** : saisie, annulation, archivage, bloc d'accueil
+5. **Article** et catégories
+6. **Cron** : une seule tâche chez l'hébergeur (`php bin/console cron`), tâches déclarées par les modules, rattrapage, verrou `flock`, alerte dans l'admin s'il ne tourne pas
+7. **Communication** (module `Core/Communication`, `specs/subscription.md`) : `/feed` en PWA, abonnements push et mail (confirmation par jeton, désinscription), guide iOS, envois par le cron via Brevo, digest, abonnés et réglages dans l'admin
+8. **Release** : archive avec les assets compilés

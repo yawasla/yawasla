@@ -1,0 +1,10 @@
+{% include 'main/partials/field.twig' with {name: 'site_url', label: 'Website address'|trans, type: 'url', required: true, maxlength: 255, placeholder: 'https://www.example.org', help: urlHelp|default('The address where the site opens, starting with https://. If it is in a subfolder, add it: https://www.example.org/site'|trans)} %}
+{% include 'main/partials/field.twig' with {name: 'site_name', label: 'Website name'|trans, placeholder: 'Ibn Umm Maktum Mosque'|trans, required: true, maxlength: 255, counter: 60, help: 'Shown as the title in Google: be short and clear.'|trans} %}
+{% include 'main/partials/field.twig' with {name: 'site_description', label: 'Description'|trans, placeholder: 'Ibn Umm Maktum Mosque: janaza announcements, news and donation appeals from our community.'|trans, multiline: true, required: true, maxlength: 500, counter: 160, help: 'Shown under the title in Google: say who you are and where.'|trans} %}
+
+<div class="border rounded p-3 mb-3 bg-body-tertiary">
+    <p class="small text-body-secondary mb-2">{{ 'Google preview'|trans }}</p>
+    <p class="small mb-0" data-preview="field-site_url">https://…</p>
+    <p class="h6 text-primary mb-1" data-preview="field-site_name">{{ 'Website name'|trans }}</p>
+    <p class="small mb-0" data-preview="field-site_description">{{ 'Description'|trans }}</p>
+</div>

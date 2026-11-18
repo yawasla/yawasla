@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Composer\InstalledVersions;
 use Yawasla\Command\CacheClearCommand;
 use Yawasla\Command\Command;
+use Yawasla\Command\ConfigCommand;
 use Yawasla\Command\DbMigrateCommand;
 use Yawasla\Command\MaintenanceCommand;
 use Yawasla\Command\ModuleCommand;
@@ -25,6 +26,7 @@ $commands = [
     'db:migrate' => new DbMigrateCommand($root),
     'maintenance' => new MaintenanceCommand(),
     'module' => new ModuleCommand(),
+    'config' => new ConfigCommand(),
 ];
 
 $name = $argv[1] ?? null;

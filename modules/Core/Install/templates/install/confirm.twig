@@ -2,9 +2,9 @@
 
 {% block step %}
     <h2 class="h5 mb-3">{{ 'Confirmation'|trans }}</h2>
-    <form method="post" action="{{ path('install') }}">
+    <form method="post" data-shader-ui="form" action="{{ path('install') }}">
         {{ csrf() }}
-        {% include 'install/global-error.twig' %}
+        {% include 'main/partials/form-error.twig' %}
         <dl>
             <dt>{{ 'Website address'|trans }}</dt>
             <dd>{{ state.site.site_url }}</dd>

@@ -184,6 +184,14 @@ final class Router
         return $this->basePath;
     }
 
+    public function baseUrl(): string
+    {
+        $https = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+            || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+
+        return ($https ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? '') . $this->basePath;
+    }
+
     public function locale(): string
     {
         return $this->urlLocale ?? $this->defaultLocale();

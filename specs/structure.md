@@ -5,7 +5,7 @@
 ```
 ./
 ├── bootstrap.php
-├── bin/console     CLI : serve [port], cache:clear, db:migrate, maintenance [on|off], module list|enable|disable
+├── bin/console     CLI : serve [port], cache:clear, db:migrate, maintenance [on|off], module list|enable|disable, config site_url <url>
 ├── package.json    npm run check | dev | build | watch
 ├── vite.config.ts  build des assets ; tsconfig.json pour la vérification des types
 ├── .env            config (APP_ENV, BDD, SMTP), non versionné ; modèle : .env.example
@@ -20,11 +20,11 @@
 │   ├── Http/         Router, Route (attribut), Vite (balises des assets)
 │   ├── I18n/         Translator, filtre Twig |trans
 │   ├── Mail/         Mailer (PHPMailer, mails de sécurité)
-│   ├── Model/        User, Token, Setting (table config)
+│   ├── Model/        User, Token, Setting (table config), Organization
 │   ├── Trait/        Singleton
 │   └── …             Notify/, Seo/ à venir
 ├── modules/
-│   ├── Core/         modules du cœur : Main, Auth, Install, News, Feed…
+│   ├── Core/         modules du cœur : Main, Auth, Install, News, Communication…
 │   └── Extension/    modules de l'utilisateur
 ├── templates/      index.twig (structure de l'accueil), main.twig (accueil du cœur), custom.twig.example
 ├── specs/          specs détaillées par partie
@@ -56,7 +56,7 @@
 
 **Langue** : `/admin`, `/login` et `/install` portent la langue dans l'URL (`/admin/fr/…`, `/login/ar/reset`, `/install/fr`), retirée avant le match (`Router::LOCALIZED`) ; sans préfixe : la langue de `APP_LANG` (anglais si absente ou inconnue), les autres langues ont leur préfixe (`/login/en` si `APP_LANG=fr`). `path()` et `localize()` ajoutent la langue en cours. Sur ces pages, `main/layout.twig` affiche un bouton rond flottant en haut (menu des trois langues, même page dans l'autre langue, via `locale_urls()`) ; le bouton du thème est en bas. Ailleurs, la langue vient de `APP_LANG` et le bouton n'apparaît pas.
 
-**Messages flash** : `Session::flash($type, $message)` (`success`, `info`, `warning`, `danger`, sinon exception), message déjà traduit, affiché une fois par `main/partials/flash.twig` (inclus dans les layouts de connexion et d'admin), toujours échappé, fermable (alerte Bootstrap `alert-dismissible`). `flashes()` ne démarre pas de session sans cookie.
+**Messages flash** : `Session::flash($type, $message)` (`success`, `info`, `warning`, `danger`, sinon exception), message déjà traduit, affiché une fois par `main/partials/flash.twig` (inclus dans les layouts de connexion et d'admin), toujours échappé. Notification Toast de Bootstrap en pilule, en bas à droite (à gauche en arabe), sur mobile en bas à gauche (à droite en arabe) à côté du bouton de thème ; sur écran plus large, remontée au-dessus de ce bouton ; toujours au-dessus de la barre de debug (`:has()`). Rendue visible dans le HTML (lisible sans JS) et fermable ; succès et info disparaissent après 5 s (`data-flash-autohide`, `app.ts`), `danger` et `warning` restent jusqu'à fermeture (`role="alert"`, sinon `status`). `flashes()` ne démarre pas de session sans cookie.
 
 **Paramètres** : le type vient de la signature de la méthode, sans syntaxe dans le chemin. Chaque `{param}` correspond au paramètre de la méthode du même nom, transmis par nom.
 - `string` : `[^/]+`, en 404 s'il contient `/`, `\`, `..` ou un caractère de contrôle
@@ -79,5 +79,6 @@ Tout le site est fait de modules, ceux du cœur compris : `specs/modules.md`.
 - Chaque build vide `css/`, `js/`, `media/` et `.vite/` : on n'y écrit jamais à la main
 - Icônes : Phosphor (MIT), style `regular` seul, par npm, importé par `@main/ts/app.ts` pour tout le site ; police téléchargée seulement si une icône est affichée. Plugin Vite `woff2-only` : seul le woff2 est copié (le paquet déclare aussi ttf, woff et un svg de 3 Mo). Twig `icon('moon')` → `<i class="ph ph-moon" aria-hidden="true"></i>` (nom en minuscules et tirets, sinon exception) ; `icon-flip` retourne les icônes directionnelles en RTL
 - Police : Google Sans (OFL), variable 400–700, sans italique, sur tout le site. Exception à npm : le paquet Fontsource n'a pas l'arabe, les woff2 `latin`, `latin-ext` et `arabic` de Google Fonts sont versionnés dans `Core/Main/assets/fonts/` avec `OFL.txt`, déclarés dans `_fonts.scss` (`unicode-range` : l'arabe n'est chargé que s'il est affiché). Mise à jour : retélécharger ces trois fichiers
+- Formulaires : Shader UI (`@shader-ui/core`, MIT, npm, version figée) sur **tous** les formulaires, `data-shader-ui="form"` ; `data-sui-guide` en plus sur ceux qui ont des champs à remplir. Script `@main/ts/form.ts` (`autoInit()` et styles), chargé par les layouts qui ont des formulaires (install, connexion, admin) : pas sur le front, où il pèserait ~130 Ko sans servir. L'état vient du HTML (`required`, `aria-invalid`, `aria-busy`), jamais déclaré deux fois
 - `npm run build` et `npm run dev` vérifient les types (`tsc`) avant de compiler ; `npm run watch` ne les vérifie pas
 - Fichiers compilés non versionnés : les archives de release les contiennent

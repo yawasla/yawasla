@@ -4,7 +4,7 @@
     <h2 class="h5 mb-3">{{ 'Administrator'|trans }}</h2>
     <form method="post" action="{{ path('install') }}" data-shader-ui="form" data-sui-guide>
         {{ csrf() }}
-        {% include 'install/global-error.twig' %}
+        {% include 'main/partials/form-error.twig' %}
         {% include 'main/partials/field.twig' with {name: 'email', label: 'Email'|trans, type: 'email', placeholder: 'contact@example.org', required: true, maxlength: 255, autocomplete: 'email'} %}
         {% include 'main/partials/field.twig' with {name: 'first_name', label: 'First name'|trans, placeholder: 'Ahmed'|trans, required: true, maxlength: 100, autocomplete: 'given-name'} %}
         {% include 'main/partials/field.twig' with {name: 'last_name', label: 'Last name'|trans, placeholder: 'Benali'|trans, required: true, maxlength: 100, autocomplete: 'family-name'} %}

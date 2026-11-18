@@ -4,7 +4,6 @@ Pistes non décidées. Une idée validée passe dans `roadmap.md`.
 
 ## Fonctionnalités
 
-- **Multi-organisation** : plusieurs organisations sur une même installation. Le schéma y est préparé (un utilisateur appartient à une organisation, l'organisation d'une publication est celle de son auteur). Servir plusieurs domaines imposerait de lire l'en-tête `Host`, aujourd'hui interdit pour les liens des mails : liste blanche de domaines en base
 - **Module Backup** : chaque jour par le cron, dump de la base en PHP (pas de `mysqldump` sur mutualisé) + `public/uploads/` dans une archive sous `data/backups/`, avec rotation. À trancher : format (`zip` pas toujours présent), `.env` inclus ou non (secrets), nombre gardé, téléchargement depuis l'admin
 - **API Janaza** : activer une API pour partager les prières avec le projet janaza.cloud
 - **API Corpus** : module Yawasla qui interroge l'API de corpus.yawasla.org pour récupérer un article ou une page de la bibliothèque des Compagnons (synthèse et hadiths)
@@ -19,7 +18,6 @@ Pistes non décidées. Une idée validée passe dans `roadmap.md`.
 
 ## Technique
 
-- **Cron** : une seule tâche chez l'hébergeur (`php bin/console cron`), les modules déclarent leurs tâches dans `Cron.php`. Fréquence (`hourly`, `daily`, `weekly`, heure de départ en option) plutôt qu'expression cron, dernier passage en base (`config`) : une tâche ratée est rattrapée au passage suivant. Verrou `flock`, alerte dans l'admin si le cron ne tourne pas. Premiers besoins : digest, Backup
 - **Commandes de module** (`src/Command/` d'un module) : à la première qui en a besoin ; celles du socle restent dans le noyau
 - **PostgreSQL** : un `PostgreSQLAdapter` à côté des autres. Peu demandé (mutualisé : MySQL / MariaDB), et coûteux au-delà de l'adaptateur : booléens stricts (`1` / `0` refusés dans toutes les requêtes Medoo), `LIKE` sensible à la casse, `GROUP BY` strict, backticks, `MODIFY` en `ALTER COLUMN … TYPE … USING`, `INSERT IGNORE` en `ON CONFLICT DO NOTHING`, séquences à recaler après `Transfer`, clés étrangères désactivables seulement en superutilisateur
 - **Niveau éditeur** pour les extensions, contre les collisions de noms entre devs : `modules/Extension/Acme/Gallery`, id `acme/gallery` (templates, assets `@acme/gallery/…`, `module('Acme/Gallery')`, `requires`, namespace, table `migration`). Le cœur garde ses noms courts. Une activation par module, pas par éditeur ; migrations dans chaque module, pas de `Main` par éditeur. À trancher avant la première release : l'id du module est enregistré en base

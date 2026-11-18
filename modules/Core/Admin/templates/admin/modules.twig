@@ -12,7 +12,7 @@
     {% if update %}
         <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2">
             <span class="me-auto">{{ 'An update is waiting: its migrations have not been run yet.'|trans }}</span>
-            <form method="post" action="{{ path('admin_modules_update') }}">
+            <form method="post" data-shader-ui="form" action="{{ path('admin_modules_update') }}">
                 {{ csrf() }}
                 <button type="submit" class="btn btn-sm btn-warning">{{ icon('arrows-clockwise') }} {{ 'Finish the update'|trans }}</button>
             </form>
@@ -38,7 +38,7 @@
                     <span class="text-body-secondary" title="{{ 'Locked'|trans }}">{{ icon('lock') }}<span class="visually-hidden">{{ 'Locked'|trans }}</span></span>
                 {% else %}
                     <div class="d-flex gap-2">
-                        <form method="post" action="{{ path(module.wanted ? 'admin_modules_disable' : 'admin_modules_enable', {module: module.name}) }}">
+                        <form method="post" data-shader-ui="form" action="{{ path(module.wanted ? 'admin_modules_disable' : 'admin_modules_enable', {module: module.name}) }}">
                             {{ csrf() }}
                             <button type="submit" class="btn btn-sm {{ module.wanted ? 'btn-outline-secondary' : 'btn-primary' }}">{{ (module.wanted ? 'Disable' : 'Enable')|trans }}</button>
                         </form>

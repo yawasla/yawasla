@@ -15,7 +15,7 @@
         {% endif %}
         <p class="mb-1">{{ 'If you create it yourself, use this encoding:'|trans }}</p>
         <p><code>{{ charset }}</code> / <code>{{ collation }}</code></p>
-        <form method="post" action="{{ path('install') }}">
+        <form method="post" data-shader-ui="form" action="{{ path('install') }}">
             {{ csrf() }}
             <button type="submit" name="create_database" value="1" class="btn btn-primary">{{ 'Create the database'|trans }}</button>
         </form>

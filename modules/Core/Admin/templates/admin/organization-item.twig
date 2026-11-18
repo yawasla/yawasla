@@ -1,0 +1,11 @@
+<li class="list-group-item d-flex flex-wrap align-items-center gap-2 py-3">
+    <div class="me-auto">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="fw-semibold">{{ organization.name }}</span>
+            {% if not organization.parent_id %}<span class="badge text-bg-primary">{{ 'Main'|trans }}</span>{% endif %}
+        </div>
+        {% set place = [organization.address, [organization.zip_code, organization.city]|filter(v => v)|join(' ')]|filter(v => v)|join(', ') %}
+        {% if place %}<p class="small text-body-secondary mb-0">{{ place }}</p>{% endif %}
+    </div>
+    <a class="btn btn-sm btn-outline-secondary" href="{{ path('admin_organizations_edit', {id: organization.id}) }}">{{ icon('pencil-simple') }} {{ 'Edit'|trans }}</a>
+</li>

@@ -1,4 +1,4 @@
-import 'bootstrap';
+import { Toast } from 'bootstrap';
 import '@phosphor-icons/web/regular';
 
 for (const button of document.querySelectorAll('[data-theme-toggle]')) {
@@ -12,4 +12,8 @@ for (const button of document.querySelectorAll('[data-theme-toggle]')) {
         } catch {
         }
     });
+}
+
+for (const toast of document.querySelectorAll<HTMLElement>('[data-flash-autohide]')) {
+    Toast.getOrCreateInstance(toast, { delay: 5000 }).show();
 }

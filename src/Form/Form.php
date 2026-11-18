@@ -123,12 +123,12 @@ final class Form
 
         return match ($field['type'] ?? 'text') {
             'email' => filter_var($value, FILTER_VALIDATE_EMAIL) === false ? $this->trans('Invalid email address.') : null,
-            'url' => $this->isAllowedUrl($value) ? null : $this->trans('Enter a full address starting with https://'),
+            'url' => self::allowedUrl($value) ? null : $this->trans('Enter a full address starting with https://'),
             default => null,
         };
     }
 
-    private function isAllowedUrl(string $value): bool
+    public static function allowedUrl(string $value): bool
     {
         if (filter_var($value, FILTER_VALIDATE_URL) === false) {
             return false;
