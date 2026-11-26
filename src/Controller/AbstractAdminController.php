@@ -9,6 +9,7 @@ use Yawasla\Auth\Auth;
 use Yawasla\Core\Config;
 use Yawasla\Core\Maintenance;
 use Yawasla\Core\Modules;
+use Yawasla\Http\Request;
 use Yawasla\Http\Router;
 use Yawasla\Model\Setting;
 
@@ -41,7 +42,7 @@ abstract class AbstractAdminController extends AbstractController
     protected function back(): string
     {
         $router = Router::getInstance();
-        $back = (string) ($_POST['back'] ?? '');
+        $back = Request::getInstance()->input('back') ?? '';
         $admin = $router->basePath() . '/admin';
 
         if ($back !== $admin && !str_starts_with($back, $admin . '/')) {

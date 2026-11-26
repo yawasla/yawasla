@@ -6,6 +6,7 @@ namespace Yawasla\Module\Core\Admin\Controller;
 
 use Yawasla\Controller\AbstractAdminController;
 use Yawasla\Form\Form;
+use Yawasla\Http\Request;
 use Yawasla\Http\Route;
 use Yawasla\Http\Router;
 use Yawasla\Http\Session;
@@ -27,7 +28,7 @@ final class SiteController extends AbstractAdminController
 
         $form = new Form(Setting::FIELDS, $saved);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $this->validate($form, $saved['site_url'])) {
+        if (Request::getInstance()->isPost() && $this->validate($form, $saved['site_url'])) {
             foreach (array_keys(Setting::FIELDS) as $name) {
                 $setting->set($name, $form->value($name));
             }
@@ -42,7 +43,7 @@ final class SiteController extends AbstractAdminController
 
     private function validate(Form $form, string $savedUrl): bool
     {
-        $valid = $form->validate($_POST);
+        $valid = $form->validate(Request::getInstance()->post());
         $url = $form->value('site_url');
 
         if ($form->error('site_url') === '' && $url !== $savedUrl && $url !== Router::getInstance()->baseUrl()) {

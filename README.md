@@ -126,6 +126,10 @@ Each module describes itself in `module.json` (version, required modules, admin 
 
 After uploading a new version, the update finishes when an admin signs in (or with the button of the Modules page): until then, visitors see the maintenance page if the core changed, and an updated extension stays disabled.
 
+#### External resources
+
+The Content Security Policy (`bootstrap.php`) blocks anything from another domain (CDN, YouTube, external images…) and inline scripts and styles. Install libraries with npm and put your files in a module's `assets/`.
+
 ## Deployment
 
 SSL is required.

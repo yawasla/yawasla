@@ -52,6 +52,7 @@ Le détail est dans `specs/` : lire le fichier concerné avant de travailler sur
 
 Règles :
 - Twig échappe tout : `|raw` uniquement sur du HTML de confiance
+- Requête lue par `Http\Request` (`post()`, `input()`, `ip()`, `isHttps()`…), jamais par `$_SERVER`, `$_GET` ni `$_POST` ; `input()` ne renvoie qu'une chaîne ou `null`
 - Rien de la requête HTTP en nom de colonne, clé Medoo, chemin de fichier ou `redirectExternal()`
 - Pas d'URL absolue en base ; liens des mails depuis le domaine en base, jamais l'en-tête `Host`
 - Pas de JS ni de style inline, pas de CDN : la CSP l'interdit, tout ajout externe doit y être déclaré

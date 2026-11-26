@@ -55,7 +55,7 @@ final class Router
     private function __construct()
     {
         $this->cacheFile = dirname(__DIR__, 2) . '/data/cache/routes.php';
-        $this->basePath = substr($_SERVER['SCRIPT_NAME'], 0, (int) strrpos($_SERVER['SCRIPT_NAME'], '/'));
+        $this->basePath = Request::getInstance()->basePath();
 
         if (Debug::getInstance()->enabled() || !is_file($this->cacheFile)) {
             $data = $this->compile();
@@ -83,7 +83,7 @@ final class Router
                 throw new NotFoundException();
             }
 
-            $query = $_SERVER['QUERY_STRING'] ?? '';
+            $query = Request::getInstance()->query();
 
             throw new RedirectException($target . ($query !== '' && !preg_match('/[\x00-\x20\x7f]/', $query) ? '?' . $query : ''));
         }
@@ -186,10 +186,9 @@ final class Router
 
     public function baseUrl(): string
     {
-        $https = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
-            || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+        $request = Request::getInstance();
 
-        return ($https ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? '') . $this->basePath;
+        return ($request->isHttps() ? 'https' : 'http') . '://' . $request->host() . $this->basePath;
     }
 
     public function locale(): string

@@ -15,6 +15,7 @@ use Yawasla\Core\Maintenance;
 use Yawasla\Core\Modules;
 use Yawasla\Debug\Debug;
 use Yawasla\Form\Form;
+use Yawasla\Http\Request;
 use Yawasla\Http\Router;
 use Yawasla\Http\Session;
 use Yawasla\Http\Vite;
@@ -141,7 +142,7 @@ abstract class AbstractController
             ]);
             $translator = Translator::getInstance();
             $router = Router::getInstance();
-            $public = dirname($_SERVER['SCRIPT_FILENAME']);
+            $public = Request::getInstance()->publicDir();
 
             $this->twig->addGlobal('route', $router->current());
             $this->twig->addGlobal('canonical', $router->canonical());

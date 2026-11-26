@@ -7,6 +7,7 @@ namespace Yawasla\Module\Core\Install;
 use Yawasla\Core\Config;
 use Yawasla\Database\Connection;
 use Yawasla\Database\ConnectionException;
+use Yawasla\Http\Request;
 
 final class Requirements
 {
@@ -92,7 +93,6 @@ final class Requirements
             return true;
         }
 
-        return (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
-            || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+        return Request::getInstance()->isHttps();
     }
 }

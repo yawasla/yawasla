@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yawasla\Auth;
 
+use Yawasla\Http\Request;
+
 final class Throttle
 {
     private const MAX = 5;
@@ -16,7 +18,7 @@ final class Throttle
 
     public function __construct()
     {
-        $this->file = dirname(__DIR__, 2) . '/data/cache/throttle/' . hash('sha256', self::client((string) ($_SERVER['REMOTE_ADDR'] ?? '')));
+        $this->file = dirname(__DIR__, 2) . '/data/cache/throttle/' . hash('sha256', self::client(Request::getInstance()->ip()));
     }
 
     public function blocked(): bool

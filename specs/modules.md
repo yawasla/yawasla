@@ -78,11 +78,11 @@ Sans `active`, un module garde son état par défaut : actif pour le cœur, inac
 - Erreur dans un module du cœur (notre code, vue en dev avant toute release) : `LogicException` à la compilation. Un module du cœur ne requiert pas d'extension ; un module verrouillé ne requiert que des modules verrouillés (sinon l'état incohérent le rendrait inactif, l'admin compris)
 - Erreur dans une extension (code tiers déposé par FTP) : extension inactive avec un `trigger_error(E_USER_WARNING)`, jamais de plantage du site. Cycle (A requiert B qui requiert A, ou A lui-même : cherché explicitement, le retrait en cascade ne le voit pas) ; `module.json` mal formé (voir Format)
 - Ces warnings arrivent dans le panneau d'erreurs de la barre de debug (liste recompilée à chaque requête en dev) et dans `php.log` partout (une fois par compilation hors dev)
-- Onglet « Modules » de la barre de debug : chaque module de la liste compilée avec son état (actif / inactif) et sa raison (verrouillé, désactivé par l'admin, extension non activée, requiert X, cycle, `module.json` mal formé). Même information que la future page des modules de l'admin
+- Onglet « Modules » de la barre de debug : chaque module de la liste compilée avec son état (actif / inactif) et sa raison (verrouillé, désactivé par l'admin, extension non activée, requiert X, cycle, `module.json` mal formé). Même information que la page des modules de l'admin
 
 ## Activer, désactiver
 
-Depuis la page des modules (à venir) : POST avec CSRF, admin uniquement.
+Depuis la page des modules de l'admin : POST avec CSRF, admin uniquement.
 
 - Activer : vérification des `requires`, puis migrations en attente du module (`Migrator`, verrou `flock`) **avant** d'écrire `data/modules.json`. Une migration échoue : le module reste inactif, message traduit sans détail technique (le détail dans `php.log`). Puis écriture du fichier et vidage de `data/cache/`
 - Désactiver : vérification des dépendances, écriture du fichier, vidage de `data/cache/`. Tables et données gardées

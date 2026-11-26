@@ -9,6 +9,7 @@ use Yawasla\Core\Cache;
 use Yawasla\Core\Maintenance;
 use Yawasla\Core\Trash;
 use Yawasla\Form\Form;
+use Yawasla\Http\Request;
 use Yawasla\Http\Route;
 use Yawasla\Http\Session;
 use Yawasla\I18n\Translator;
@@ -19,7 +20,7 @@ final class SystemController extends AbstractAdminController
     #[Route('/cache', name: 'admin_cache', methods: ['POST'])]
     public function cache(): string
     {
-        if (Form::validToken($_POST)) {
+        if (Form::validToken(Request::getInstance()->post())) {
             Cache::clear();
             Trash::clear();
             Session::getInstance()->flash('success', Translator::getInstance()->trans('Cache cleared.'));
@@ -31,7 +32,7 @@ final class SystemController extends AbstractAdminController
     #[Route('/maintenance', name: 'admin_maintenance', methods: ['POST'])]
     public function maintenance(): string
     {
-        if (Form::validToken($_POST)) {
+        if (Form::validToken(Request::getInstance()->post())) {
             $translator = Translator::getInstance();
 
             if (Maintenance::enabled()) {

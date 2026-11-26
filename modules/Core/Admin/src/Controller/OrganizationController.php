@@ -7,6 +7,7 @@ namespace Yawasla\Module\Core\Admin\Controller;
 use Yawasla\Controller\AbstractAdminController;
 use Yawasla\Form\Form;
 use Yawasla\Http\NotFoundException;
+use Yawasla\Http\Request;
 use Yawasla\Http\Route;
 use Yawasla\Http\Router;
 use Yawasla\Http\Session;
@@ -35,7 +36,7 @@ final class OrganizationController extends AbstractAdminController
         $main = $model->main() ?? throw new NotFoundException();
         $form = new Form(Organization::FIELDS);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $this->validate($form, $model, null)) {
+        if (Request::getInstance()->isPost() && $this->validate($form, $model, null)) {
             $model->create($this->values($form), $main['id']);
 
             return $this->done('Organization added.');
@@ -51,7 +52,7 @@ final class OrganizationController extends AbstractAdminController
         $organization = $model->find($id) ?? throw new NotFoundException();
         $form = new Form(Organization::FIELDS, $organization);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $this->validate($form, $model, $id)) {
+        if (Request::getInstance()->isPost() && $this->validate($form, $model, $id)) {
             $model->update($id, $this->values($form));
 
             return $this->done('Organization saved.');
@@ -66,7 +67,7 @@ final class OrganizationController extends AbstractAdminController
         $model = new Organization();
         $organization = $model->find($id) ?? throw new NotFoundException();
 
-        if (Form::validToken($_POST)) {
+        if (Form::validToken(Request::getInstance()->post())) {
             $session = Session::getInstance();
             $translator = Translator::getInstance();
             $params = ['%name%' => $organization['name']];
@@ -86,7 +87,7 @@ final class OrganizationController extends AbstractAdminController
 
     private function validate(Form $form, Organization $model, ?int $id): bool
     {
-        $valid = $form->validate($_POST);
+        $valid = $form->validate(Request::getInstance()->post());
 
         if ($form->error('name') === '' && $model->nameTaken($form->value('name'), $id)) {
             $form->addError('name', Translator::getInstance()->trans('This name is already used by another organization.'));

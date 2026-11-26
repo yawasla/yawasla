@@ -15,7 +15,7 @@
             "Yawasla\\": "src/"
         },
         "files": [
-            "src/Debug/functions.php"
+            "src/functions.php"
         ]
     },
     "config": {

@@ -10,6 +10,7 @@ use Twig\Profiler\Profile;
 use Yawasla\Auth\Auth;
 use Yawasla\Core\Config;
 use Yawasla\Core\Modules;
+use Yawasla\Http\Request;
 use Yawasla\Http\Router;
 use Yawasla\I18n\Translator;
 use Yawasla\Trait\Singleton;
@@ -119,14 +120,15 @@ final class Debug
     {
         $router = Router::getInstance();
         $translator = Translator::getInstance();
+        $request = Request::getInstance();
 
         return [
             'route' => ['name' => $router->current(), 'auth' => $router->auth(), 'user' => $this->user(), 'locale' => $router->locale(), 'basePath' => $router->basePath()] + ($this->route ?? []),
             'request' => [
-                'method' => $_SERVER['REQUEST_METHOD'] ?? '',
-                'uri' => (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH),
-                'get' => $this->mask($_GET),
-                'post' => $this->mask($_POST),
+                'method' => $request->method(),
+                'uri' => $request->path(),
+                'get' => $this->mask($request->queryParams()),
+                'post' => $this->mask($request->post()),
                 'headers' => $this->mask($this->headers()),
                 'cookies' => $this->mask($_COOKIE),
             ],

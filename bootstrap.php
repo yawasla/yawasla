@@ -15,6 +15,7 @@ use Yawasla\Http\ForbiddenException;
 use Yawasla\Http\MethodNotAllowedException;
 use Yawasla\Http\NotFoundException;
 use Yawasla\Http\RedirectException;
+use Yawasla\Http\Request;
 use Yawasla\Http\Router;
 use Yawasla\Module\Core\Auth\Controller\LoginController;
 use Yawasla\Module\Core\Install\Controller\InstallController;
@@ -67,11 +68,13 @@ if (Debug::getInstance()->enabled()) {
 Modules::getInstance()->autoload($loader);
 
 try {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '') === 'cross-site') {
+    $request = Request::getInstance();
+
+    if ($request->isPost() && $request->crossSite()) {
         throw new ForbiddenException();
     }
 
-    [$class, $action, $params] = Router::getInstance()->match($_SERVER['REQUEST_METHOD'], explode('?', $_SERVER['REQUEST_URI'], 2)[0] ?: '/');
+    [$class, $action, $params] = Router::getInstance()->match($request->method(), $request->path());
     Debug::getInstance()->route($class, $action, $params);
     $open = $class === InstallController::class
         || (Installation::getInstance()->installed() && (

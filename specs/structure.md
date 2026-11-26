@@ -15,13 +15,14 @@
 │   ├── Command/      commandes de bin/console
 │   ├── Core/         Config, Modules, ModuleManager, Installation, Maintenance, Cache, Trash, System
 │   ├── Database/     Connection, AbstractMigration, Migrator, AbstractAdapter, MySQLAdapter, SQLiteAdapter, Transfer
-│   ├── Debug/        barre de debug, dump()
+│   ├── Debug/        barre de debug (Debug, Dumper)
 │   ├── Form/         Form (CSRF, validation)
-│   ├── Http/         Router, Route (attribut), Vite (balises des assets)
+│   ├── Http/         Request (lecture de la requête), Router, Route (attribut), Vite (balises des assets)
 │   ├── I18n/         Translator, filtre Twig |trans
 │   ├── Mail/         Mailer (PHPMailer, mails de sécurité)
 │   ├── Model/        User, Token, Setting (table config), Organization
 │   ├── Trait/        Singleton
+│   ├── functions.php fonctions globales (dump()), chargées par autoload.files de Composer
 │   └── …             Notify/, Seo/ à venir
 ├── modules/
 │   ├── Core/         modules du cœur : Main, Auth, Install, News, Communication…

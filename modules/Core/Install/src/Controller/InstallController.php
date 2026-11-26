@@ -13,6 +13,7 @@ use Yawasla\Database\Connection;
 use Yawasla\Database\ConnectionException;
 use Yawasla\Form\Form;
 use Yawasla\Http\NotFoundException;
+use Yawasla\Http\Request;
 use Yawasla\Http\Route;
 use Yawasla\Http\Router;
 use Yawasla\Http\Session;
@@ -51,11 +52,11 @@ final class InstallController extends AbstractController
 
         $state = $this->state();
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if (!Request::getInstance()->isPost()) {
             return $this->show($state, $this->form($state));
         }
 
-        if (isset($_POST['back'])) {
+        if (Request::getInstance()->has('back')) {
             return $this->back($state);
         }
 
@@ -67,7 +68,7 @@ final class InstallController extends AbstractController
     {
         $createFailed = false;
 
-        if ($databaseMissing && isset($_POST['create_database']) && Form::validToken($_POST)) {
+        if ($databaseMissing && Request::getInstance()->has('create_database') && Form::validToken(Request::getInstance()->post())) {
             try {
                 Connection::createDatabase();
 
@@ -137,7 +138,7 @@ final class InstallController extends AbstractController
     /** @param array{step: int, site: array<string, string>, organization: array<string, string>, admin: array<string, string>} $state */
     private function back(array $state): string
     {
-        if (Form::validToken($_POST) && $state['step'] > 1) {
+        if (Form::validToken(Request::getInstance()->post()) && $state['step'] > 1) {
             $state['step']--;
             Session::getInstance()->set(self::SESSION_KEY, $state);
         }
@@ -149,7 +150,7 @@ final class InstallController extends AbstractController
     private function submit(array $state): string
     {
         $form = $this->form($state);
-        $valid = $form->validate($_POST);
+        $valid = $form->validate(Request::getInstance()->post());
 
         if ($state['step'] === 3) {
             $valid = $this->checkPassword($form) && $valid;
@@ -205,7 +206,7 @@ final class InstallController extends AbstractController
     {
         $form = new Form([]);
 
-        if (!$form->validate($_POST)) {
+        if (!$form->validate(Request::getInstance()->post())) {
             return $this->show($state, $form);
         }
 

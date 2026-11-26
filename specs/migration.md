@@ -65,7 +65,7 @@ Déroulé d'une migration en SQLite :
 6. `PRAGMA foreign_key_check` sur les tables touchées par la migration et celles qui les référencent : une violation annule tout. Une ancienne violation ailleurs dans la base ne bloque pas la migration
 7. `COMMIT`, puis `PRAGMA foreign_keys = ON`
 
-**Désinstaller** une extension (depuis la page des modules, à venir) : `Migrator::uninstall()` joue ses `down()` dans l'ordre inverse et supprime ses lignes de `migration`. Refusé pour le cœur (ses tables sont dans `Core/Main`, verrouillé). Le reste (extension inactive, dépendances, dossier) : `specs/modules.md`. **Désactiver** un module garde ses données.
+**Désinstaller** une extension (depuis la page des modules de l'admin) : `Migrator::uninstall()` joue ses `down()` dans l'ordre inverse et supprime ses lignes de `migration`. Refusé pour le cœur (ses tables sont dans `Core/Main`, verrouillé). Le reste (extension inactive, dépendances, dossier) : `specs/modules.md`. **Désactiver** un module garde ses données.
 
 ## Règles
 

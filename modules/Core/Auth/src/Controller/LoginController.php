@@ -10,6 +10,7 @@ use Yawasla\Auth\Throttle;
 use Yawasla\Controller\AbstractController;
 use Yawasla\Core\System;
 use Yawasla\Form\Form;
+use Yawasla\Http\Request;
 use Yawasla\Http\Route;
 use Yawasla\Http\Router;
 use Yawasla\Http\Session;
@@ -58,7 +59,7 @@ final class LoginController extends AbstractController
         if ($this->posted()) {
             $throttle->hit();
 
-            if ($form->validate($_POST)) {
+            if ($form->validate(Request::getInstance()->post())) {
                 $start = microtime(true);
                 $this->sendLoginLink($form->value('email'), $form->value('password'));
                 $this->pad($start);
@@ -81,7 +82,7 @@ final class LoginController extends AbstractController
 
         $form = new Form([]);
 
-        if ($this->posted() && $form->validate($_POST)) {
+        if ($this->posted() && $form->validate(Request::getInstance()->post())) {
             $userId = $tokens->use($token, 'login');
 
             if ($userId === null || (new User())->findActive($userId) === null) {
@@ -119,7 +120,7 @@ final class LoginController extends AbstractController
         if ($this->posted()) {
             $throttle->hit();
 
-            if ($form->validate($_POST)) {
+            if ($form->validate(Request::getInstance()->post())) {
                 $start = microtime(true);
                 $this->sendResetLink($form->value('email'));
                 $this->pad($start);
@@ -145,7 +146,7 @@ final class LoginController extends AbstractController
             'password_confirm' => ['required' => true, 'type' => 'password'],
         ]);
 
-        if ($this->posted() && $form->validate($_POST) && $this->checkPassword($form)) {
+        if ($this->posted() && $form->validate(Request::getInstance()->post()) && $this->checkPassword($form)) {
             $userId = $tokens->use($token, 'reset');
 
             if ($userId === null || (new User())->findActive($userId) === null) {
@@ -165,7 +166,7 @@ final class LoginController extends AbstractController
     #[Route('/logout', name: 'logout', methods: ['POST'], auth: 'user')]
     public function logout(): string
     {
-        if (Form::validToken($_POST)) {
+        if (Form::validToken(Request::getInstance()->post())) {
             Auth::getInstance()->logout();
         }
 
@@ -278,6 +279,6 @@ final class LoginController extends AbstractController
 
     private function posted(): bool
     {
-        return $_SERVER['REQUEST_METHOD'] === 'POST';
+        return Request::getInstance()->isPost();
     }
 }

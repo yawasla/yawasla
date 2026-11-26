@@ -12,6 +12,7 @@ use Yawasla\Core\Modules;
 use Yawasla\Core\Trash;
 use Yawasla\Form\Form;
 use Yawasla\Http\NotFoundException;
+use Yawasla\Http\Request;
 use Yawasla\Http\Route;
 use Yawasla\Http\Router;
 use Yawasla\Http\Session;
@@ -105,7 +106,7 @@ final class ModulesController extends AbstractAdminController
     /** @param callable(ModuleManager): mixed $action */
     private function change(callable $action, string $success, string $module): string
     {
-        if (Form::validToken($_POST)) {
+        if (Form::validToken(Request::getInstance()->post())) {
             $session = Session::getInstance();
             $translator = Translator::getInstance();
 
