@@ -1,9 +1,13 @@
+html {
+    font-size: 93.75%;
+}
+
 .admin-sidebar {
     @media (min-width: 992px) {
         position: sticky;
-        inset-block-start: 0;
+        inset-block-start: 3.5rem;
         flex: 0 0 15rem;
-        block-size: 100vh;
+        block-size: calc(100vh - 3.5rem);
         border-inline-end: 1px solid var(--bs-border-color);
     }
 }
@@ -29,6 +33,28 @@
 
 .admin-topbar {
     min-block-size: 3.5rem;
+}
+
+.admin-brand {
+    min-inline-size: 0;
+}
+
+.admin-ghost {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--bs-secondary-bg);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-active-bg: var(--bs-secondary-bg);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-active-border-color: transparent;
+}
+
+.admin-user {
+    --bs-btn-bg: var(--bs-secondary-bg);
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--bs-secondary-bg);
+    --bs-btn-hover-color: var(--bs-primary);
+    --bs-btn-active-bg: var(--bs-secondary-bg);
+    --bs-btn-active-color: var(--bs-primary);
 }
 
 .admin-topbar .btn {

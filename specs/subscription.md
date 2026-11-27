@@ -1,6 +1,6 @@
 # Abonnements
 
-Module `Core/Communication` : il diffuse ce que News et Janaza produisent, sans saisir de contenu.
+Module `Core/Communication` : il diffuse ce que News, Janaza et Article produisent (Article pour le digest), sans saisir de contenu. Il en dépend (`requires`).
 - Front : `/feed` (PWA, service worker, abonnement push et mail, guide iOS), confirmation et désinscription
 - Admin : abonnés (mail et push, nombre), réglages d'envoi (clé Brevo, expéditeur, `digest_frequency`)
 - Tâches du cron : envoi des news et janaza en push et par mail, digest

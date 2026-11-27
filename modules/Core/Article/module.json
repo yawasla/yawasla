@@ -1,0 +1,13 @@
+{
+    "version": "1.0.0",
+    "title": {
+        "en": "Articles",
+        "fr": "Articles",
+        "ar": "المقالات"
+    },
+    "description": {
+        "en": "Longer articles sorted by category",
+        "fr": "Articles de fond classés par catégorie",
+        "ar": "مقالات مفصلة مصنفة حسب الفئة"
+    }
+}

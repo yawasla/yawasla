@@ -45,6 +45,20 @@ final class OrganizationController extends AbstractAdminController
         return $this->render('admin/organization.twig', ['form' => $form, 'organization' => null]);
     }
 
+    #[Route('/check', name: 'admin_organizations_check')]
+    public function check(): string
+    {
+        $request = Request::getInstance();
+        $name = trim($request->param('name') ?? '');
+        $id = $request->param('id') ?? '';
+        $taken = $name !== '' && mb_strlen($name) <= 255
+            && (new Organization())->nameTaken($name, preg_match('/^[1-9]\d{0,17}$/', $id) ? (int) $id : null);
+
+        header('Content-Type: application/json');
+
+        return json_encode(['taken' => $taken], JSON_THROW_ON_ERROR);
+    }
+
     #[Route('/{id}', name: 'admin_organizations_edit', methods: ['GET', 'POST'])]
     public function edit(int $id): string
     {

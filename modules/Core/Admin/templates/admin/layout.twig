@@ -9,83 +9,87 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-lg-flex min-vh-100">
-    <aside class="admin-sidebar offcanvas-lg offcanvas-start bg-body" tabindex="-1" id="admin-menu" aria-labelledby="admin-menu-title">
-        <div class="offcanvas-header border-bottom">
-            <h2 class="offcanvas-title h6 mb-0" id="admin-menu-title">{{ admin.site }}</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#admin-menu" aria-label="{{ 'Close'|trans }}"></button>
-        </div>
-        <div class="offcanvas-body d-flex flex-column h-100 p-0">
-            <a class="d-none d-lg-flex align-items-center gap-2 px-3 admin-topbar border-bottom fw-semibold link-body-emphasis text-decoration-none" href="{{ path('admin') }}">
-                <img src="{{ asset('img/logo_yawasla.webp') }}" alt="" width="28" height="28">
-                <span class="text-truncate">{{ admin.site }}</span>
-            </a>
-            <nav class="nav flex-column gap-1 p-3" aria-label="{{ 'Administration'|trans }}">
-                {% for entry in admin.menu %}
-                    <a class="nav-link{{ entry.active ? ' active' : '' }}" href="{{ path(entry.route) }}"{% if entry.active %} aria-current="page"{% endif %}>{{ icon(entry.icon) }}{{ entry.label|trans }}</a>
-                {% endfor %}
-            </nav>
-            <p class="mt-auto p-3 mb-0 small text-body-secondary">Yawasla {{ admin.version }}</p>
-        </div>
-    </aside>
-    <div class="admin-content flex-grow-1 bg-body-tertiary min-vh-100">
-        <header class="admin-topbar d-flex align-items-center gap-2 px-3 border-bottom bg-body">
-            <button type="button" class="btn btn-outline-secondary btn-sm d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#admin-menu" aria-controls="admin-menu">
-                {{ icon('list') }}<span class="visually-hidden">{{ 'Menu'|trans }}</span>
-            </button>
-            <a class="btn btn-sm btn-link link-body-emphasis text-decoration-none px-1" href="{{ path('home') }}">
-                {{ icon('arrow-square-out') }}<span class="d-none d-md-inline ms-1">{{ 'Open the site'|trans }}</span>
-            </a>
-            {% if admin.dev %}<span class="badge text-bg-danger">{{ 'Dev mode'|trans }}</span>{% endif %}
-            <div class="ms-auto d-flex align-items-center gap-2">
-                <form method="post" data-shader-ui="form" action="{{ path('admin_maintenance') }}">
-                    {{ csrf() }}
-                    <input type="hidden" name="back" value="{{ canonical }}">
-                    <button type="submit" class="btn btn-sm {{ admin.maintenance ? 'btn-warning' : 'btn-outline-secondary' }}" aria-pressed="{{ admin.maintenance ? 'true' : 'false' }}">
-                        {{ icon('wrench') }}<span class="d-none d-md-inline ms-1">{{ 'Maintenance'|trans }}</span>
-                    </button>
-                </form>
-                <form method="post" data-shader-ui="form" action="{{ path('admin_cache') }}">
-                    {{ csrf() }}
-                    <input type="hidden" name="back" value="{{ canonical }}">
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">
-                        {{ icon('broom') }}<span class="d-none d-md-inline ms-1">{{ 'Clear cache'|trans }}</span>
-                    </button>
-                </form>
-                {% set localeUrls = locale_urls() %}
-                {% if localeUrls %}
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span aria-hidden="true">{{ locale|upper }}</span><span class="visually-hidden">{{ 'Language'|trans }}</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            {% for code, url in localeUrls %}
-                                <li><a class="dropdown-item{{ code == locale ? ' active' : '' }}" href="{{ url }}" hreflang="{{ code }}" lang="{{ code }}"{% if code == locale %} aria-current="true"{% endif %}>{{ constant('Yawasla\\I18n\\Translator::NAMES')[code] }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
+<div class="d-flex flex-column min-vh-100">
+    <header class="admin-topbar sticky-top d-flex align-items-center gap-2 px-3 border-bottom bg-body">
+        <button type="button" class="btn btn-outline-secondary btn-sm d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#admin-menu" aria-controls="admin-menu">
+            {{ icon('list') }}<span class="visually-hidden">{{ 'Menu'|trans }}</span>
+        </button>
+        <a class="admin-brand d-none d-md-flex align-items-center gap-2 fw-semibold link-body-emphasis text-decoration-none" href="{{ path('admin') }}">
+            <img src="{{ asset('img/logo_yawasla.webp') }}" alt="" width="28" height="28">
+            <span class="text-truncate">{{ admin.site }}</span>
+        </a>
+        <a class="btn btn-sm admin-ghost" href="{{ path('home') }}" target="_blank">
+            {{ icon('arrow-square-out') }}<span class="d-none d-md-inline ms-1">{{ 'Open the site'|trans }}</span>
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <form method="post" data-shader-ui="form" action="{{ path('admin_maintenance') }}">
+                {{ csrf() }}
+                <input type="hidden" name="back" value="{{ canonical }}">
+                <button type="submit" class="btn btn-sm {{ admin.maintenance ? 'btn-warning' : 'admin-ghost' }}" aria-pressed="{{ admin.maintenance ? 'true' : 'false' }}">
+                    {{ icon('wrench') }}<span class="d-none d-md-inline ms-1">{{ 'Maintenance'|trans }}</span>
+                </button>
+            </form>
+            <form method="post" data-shader-ui="form" action="{{ path('admin_cache') }}">
+                {{ csrf() }}
+                <input type="hidden" name="back" value="{{ canonical }}">
+                <button type="submit" class="btn btn-sm admin-ghost">
+                    {{ icon('broom') }}<span class="d-none d-md-inline ms-1">{{ 'Clear cache'|trans }}</span>
+                </button>
+            </form>
+            {% set localeUrls = locale_urls() %}
+            {% if localeUrls %}
                 <div class="dropdown">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ icon('user') }}<span class="d-none d-md-inline ms-1">{{ admin.user.first_name }}</span>
+                    <button type="button" class="btn btn-sm admin-ghost fw-semibold" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span aria-hidden="true">{{ locale|upper }}</span><span class="visually-hidden">{{ 'Language'|trans }}</span>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <form method="post" data-shader-ui="form" action="{{ path('logout') }}">
-                            {{ csrf() }}
-                            <button type="submit" class="dropdown-item">{{ icon('sign-out') }} {{ 'Sign out'|trans }}</button>
-                        </form>
-                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% for code, url in localeUrls %}
+                            <li><a class="dropdown-item{{ code == locale ? ' active' : '' }}" href="{{ url }}" hreflang="{{ code }}" lang="{{ code }}"{% if code == locale %} aria-current="true"{% endif %}>{{ constant('Yawasla\\I18n\\Translator::NAMES')[code] }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            <div class="dropdown">
+                <button type="button" class="btn btn-sm admin-user" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ icon('user') }}<span class="d-none d-md-inline ms-1">{{ admin.user.first_name }}</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <form method="post" data-shader-ui="form" action="{{ path('logout') }}">
+                        {{ csrf() }}
+                        <button type="submit" class="dropdown-item">{{ icon('sign-out') }} {{ 'Sign out'|trans }}</button>
+                    </form>
                 </div>
             </div>
-        </header>
-        <main class="container-fluid p-3 p-md-4">
-            <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
-                <h1 class="h4 mb-0 me-auto">{{ block('title') }}</h1>
-                {% block actions %}{% endblock %}
+        </div>
+    </header>
+    <div class="d-flex flex-grow-1">
+        <aside class="admin-sidebar offcanvas-lg offcanvas-start bg-body" tabindex="-1" id="admin-menu" aria-labelledby="admin-menu-title">
+            <div class="offcanvas-header border-bottom">
+                <h2 class="offcanvas-title h6 mb-0 d-flex align-items-center gap-2" id="admin-menu-title">
+                    <img src="{{ asset('img/logo_yawasla.webp') }}" alt="" width="28" height="28">
+                    <span class="text-truncate">{{ admin.site }}</span>
+                </h2>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#admin-menu" aria-label="{{ 'Close'|trans }}"></button>
             </div>
-            {% include 'main/partials/flash.twig' %}
-            {% block main %}{% endblock %}
-        </main>
+            <div class="offcanvas-body d-flex flex-column h-100 p-0">
+                <nav class="nav flex-column gap-1 p-3" aria-label="{{ 'Administration'|trans }}">
+                    {% for entry in admin.menu %}
+                        <a class="nav-link{{ entry.active ? ' active' : '' }}" href="{{ path(entry.route) }}"{% if entry.active %} aria-current="page"{% endif %}>{{ icon(entry.icon) }}{{ entry.label|trans }}</a>
+                    {% endfor %}
+                </nav>
+                <p class="mt-auto p-3 mb-0 small text-body-secondary">Yawasla {{ admin.version }}</p>
+            </div>
+        </aside>
+        <div class="admin-content flex-grow-1 bg-body-tertiary">
+            <main class="container-fluid p-3 p-md-4">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+                    <h1 class="h4 mb-0 me-auto">{{ block('title') }}</h1>
+                    {% block actions %}{% endblock %}
+                </div>
+                {% include 'main/partials/flash.twig' %}
+                {% block main %}{% endblock %}
+            </main>
+        </div>
     </div>
 </div>
 {% endblock %}

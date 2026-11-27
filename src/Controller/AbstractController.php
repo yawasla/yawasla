@@ -113,18 +113,19 @@ abstract class AbstractController
         return '<i class="ph ph-' . $name . '" aria-hidden="true"></i>';
     }
 
-    private function module(string $name): string
+    private function module(string $name, string $part = 'block'): string
     {
+        $class = ['block' => 'Block', 'dashboard' => 'Dashboard'][$part] ?? throw new \InvalidArgumentException('Invalid module part: ' . $part);
         $module = Modules::getInstance()->get($name);
 
         if ($module === null) {
             return '';
         }
 
-        $block = $module['namespace'] . 'Block';
-        $data = class_exists($block) ? (new $block())() : [];
+        $class = $module['namespace'] . $class;
+        $data = class_exists($class) ? (new $class())() : [];
 
-        return $this->twig()->render($module['id'] . '/block.twig', $data);
+        return $this->twig()->render($module['id'] . '/' . $part . '.twig', $data);
     }
 
     private function twig(): Environment

@@ -6,7 +6,6 @@ namespace Yawasla\Controller;
 
 use Composer\InstalledVersions;
 use Yawasla\Auth\Auth;
-use Yawasla\Core\Config;
 use Yawasla\Core\Maintenance;
 use Yawasla\Core\Modules;
 use Yawasla\Http\Request;
@@ -34,7 +33,6 @@ abstract class AbstractAdminController extends AbstractController
             'site' => (new Setting())->get('site_name'),
             'user' => Auth::getInstance()->user(),
             'version' => InstalledVersions::getRootPackage()['pretty_version'],
-            'dev' => Config::getInstance()->get('APP_ENV') === 'dev',
             'maintenance' => Maintenance::enabled(),
         ]]);
     }

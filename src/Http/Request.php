@@ -65,6 +65,13 @@ final class Request
         return is_string($value) ? $value : null;
     }
 
+    public function param(string $key): ?string
+    {
+        $value = $this->query[$key] ?? null;
+
+        return is_string($value) ? $value : null;
+    }
+
     public function has(string $key): bool
     {
         return isset($this->post[$key]);

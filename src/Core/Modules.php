@@ -13,7 +13,7 @@ use Yawasla\I18n\Translator;
 use Yawasla\Trait\Singleton;
 
 /**
- * @phpstan-type Module array{name: string, id: string, dir: string, namespace: string, core: bool, version: string, locked: bool, requires: list<string>, admin: list<array{route: string, label: string, icon: string}>, description: array<string, string>, installed: ?string, wanted: bool, active: bool, pending: ?string, reason: string, detail: string}
+ * @phpstan-type Module array{name: string, id: string, dir: string, namespace: string, core: bool, version: string, locked: bool, requires: list<string>, admin: list<array{route: string, label: string, icon: string}>, title: array<string, string>, description: array<string, string>, installed: ?string, wanted: bool, active: bool, pending: ?string, reason: string, detail: string}
  */
 final class Modules
 {
@@ -23,7 +23,7 @@ final class Modules
 
     private const VERSION = '/^\d{1,5}\.\d{1,5}\.\d{1,5}$/';
 
-    private const KEYS = ['version', 'requires', 'locked', 'admin', 'description'];
+    private const KEYS = ['version', 'requires', 'locked', 'admin', 'title', 'description'];
 
     private const ICON = '/^[a-z0-9]+(-[a-z0-9]+)*$/';
 
@@ -275,6 +275,7 @@ final class Modules
                     'locked' => $locked,
                     'requires' => $config['requires'] ?? [],
                     'admin' => $config['admin'] ?? [],
+                    'title' => $config['title'] ?? [],
                     'description' => $config['description'] ?? [],
                     'installed' => $installed,
                     'wanted' => $locked || ($state[$name]['active'] ?? $core),
@@ -449,17 +450,20 @@ final class Modules
             }
         }
 
-        if (array_key_exists('description', $data)) {
-            $description = $data['description'];
-
-            if (!is_array($description) || array_is_list($description) || !isset($description['en'])
-                || array_diff(array_keys($description), Translator::LOCALES) !== []
-                || array_filter($description, fn (mixed $text): bool => !is_string($text) || $text === '' || mb_strlen($text) > 255) !== []) {
-                return [[], '"description" must be an object of texts by language (en required, 255 characters at most)'];
+        foreach (['title' => 60, 'description' => 255] as $key => $max) {
+            if (array_key_exists($key, $data) && !self::texts($data[$key], $max)) {
+                return [[], '"' . $key . '" must be an object of texts by language (en required, ' . $max . ' characters at most)'];
             }
         }
 
         return [$data, null];
+    }
+
+    private static function texts(mixed $texts, int $max): bool
+    {
+        return is_array($texts) && !array_is_list($texts) && isset($texts['en'])
+            && array_diff(array_keys($texts), Translator::LOCALES) === []
+            && array_filter($texts, fn (mixed $text): bool => !is_string($text) || $text === '' || mb_strlen($text) > $max) === [];
     }
 
     private function stamp(): string

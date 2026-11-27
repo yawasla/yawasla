@@ -7,6 +7,11 @@
         {"route": "admin_organizations", "label": "Organizations", "icon": "buildings"},
         {"route": "admin_modules", "label": "Modules", "icon": "puzzle-piece"}
     ],
+    "title": {
+        "en": "Administration",
+        "fr": "Administration",
+        "ar": "الإدارة"
+    },
     "description": {
         "en": "Site administration",
         "fr": "Administration du site",

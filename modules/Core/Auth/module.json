@@ -1,6 +1,11 @@
 {
     "version": "1.0.0",
     "locked": true,
+    "title": {
+        "en": "Sign-in",
+        "fr": "Connexion",
+        "ar": "تسجيل الدخول"
+    },
     "description": {
         "en": "Two-step sign-in, sign-out and forgotten password",
         "fr": "Connexion en deux temps, déconnexion et mot de passe oublié",

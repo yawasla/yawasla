@@ -4,6 +4,10 @@ const panel = document.getElementById('debug-panels')!;
 const handle = panel.querySelector<HTMLElement>('.debug-resize');
 const key = 'yawasla.debug.height';
 
+document.querySelector('.debug-close')?.addEventListener('click', () => {
+    document.querySelectorAll('.debug-bar, .debug-spacer').forEach((element) => element.remove());
+});
+
 const resize = (ratio: number) => {
     panel.style.setProperty('--bs-offcanvas-height', `${ratio * 100}dvh`);
 };

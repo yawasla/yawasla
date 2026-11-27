@@ -4,7 +4,7 @@ Module `Core/Admin`, verrouillé. Toutes les pages sous `/admin`, langue dans l'
 
 ## Layout
 
-`admin/layout.twig` étend `main/layout.twig` ; chaque page admin l'étend et remplit `title` (titre de la page et `<title>`), `actions` (boutons à côté du titre : « Nouvelle annonce »…) et `main`. Le contexte `admin` (menu, nom du site, utilisateur, version, `dev`, `maintenance`) est ajouté par `AbstractAdminController::render()`.
+`admin/layout.twig` étend `main/layout.twig` ; chaque page admin l'étend et remplit `title` (titre de la page et `<title>`), `actions` (boutons à côté du titre : « Nouvelle actualité »…) et `main`. Le contexte `admin` (menu, nom du site, utilisateur, version, `maintenance`) est ajouté par `AbstractAdminController::render()`.
 
 - Ordinateur : menu latéral fixe, contenu à côté. Côté inversé en arabe par les propriétés CSS logiques et rtlcss
 - Mobile : menu dans un offcanvas Bootstrap (`offcanvas-lg`), ouvert par un bouton de la barre du haut
@@ -33,7 +33,6 @@ Déclaré par les modules dans `module.json` (`specs/modules.md`, partie Format)
 Écrite en dur dans `admin/layout.twig`.
 
 - Nom du site, lien « Ouvrir le site » vers `/`
-- Badge permanent « Mode dev » si `APP_ENV=dev` (l'admin ne voit pas forcément la barre de debug)
 - Interrupteur « Maintenance », toujours visible, allumé quand le site l'est, et « Vider le cache » (`Yawasla\Core\Cache::clear()`, partagé avec `cache:clear`) : `SystemController`, `POST /admin/maintenance` et `/admin/cache`, admin uniquement, CSRF, flash
 - Retour sur la page d'origine par le champ `back` : accepté seulement s'il commence par `/admin` (après le préfixe d'installation), sinon accueil de l'admin, et toujours via `redirect()`
 - Langue (même page dans l'autre langue, via `locale_urls()`)
@@ -59,6 +58,7 @@ Deux pages de `Core/Admin`, `auth: 'admin'`, au menu (`globe`, `buildings`) :
 | GET, POST | `/admin/site` | `admin_site` |
 | GET | `/admin/organizations` | `admin_organizations` |
 | GET, POST | `/admin/organizations/new` | `admin_organizations_new` |
+| GET | `/admin/organizations/check` | `admin_organizations_check` |
 | GET, POST | `/admin/organizations/{id}` | `admin_organizations_edit` |
 | POST | `/admin/organizations/{id}/delete` | `admin_organizations_delete` |
 
@@ -74,7 +74,14 @@ Deux pages de `Core/Admin`, `auth: 'admin'`, au menu (`globe`, `buildings`) :
 - Supprimer une secondaire : bouton sur sa page, refusé (flash) si des news, janaza ou utilisateurs y sont rattachés ; la principale n'a pas le bouton et la suppression est aussi refusée côté serveur
 - Champs : nom (requis, unique sans tenir compte de la casse : erreur sur le champ), identifiant libre « (SIREN, RNA, etc.) », email, téléphone, fax, adresse, code postal, ville, pays, site web. Champ vidé : `NULL`
 - Pas d'affichage public pour l'instant
+- Nom vérifié en temps réel dans l'admin (`admin_organizations_check`, Shader UI) ; l'enregistrement reste la protection
+
+## Tableau de bord
+
+`/admin` (`admin`) : grille de cadres (1 colonne, 2 sur tablette, 3 sur grand écran). `admin/index.twig` appelle chaque module par son nom, comme l'accueil public : `{{ module('Asma', 'dashboard') }}`, rien si le module est absent ou désactivé. Le module fournit `templates/<module>/dashboard.twig` (sa colonne et sa carte, `col` puis `card shadow-sm h-100`) et, s'il a des données, `src/Dashboard.php` (classe invocable, comme `Block`) : `specs/modules.md`.
+
+**Asma** (`modules/Extension/Asma`, extension d'exemple, activée par l'install) : nom d'Allah du jour, en arabe (texte verbatim de at-Tirmidhī 3507, hadith-api, domaine public) et en transcription simple écrite par nous. « Allah » puis les 98 noms du hadith. Jour = jours écoulés depuis le 1er Muharram 1 (19 juillet 622 grégorien proleptique) modulo 99, fuseau par défaut de PHP. En bas du cadre, sur une ligne : « Liste rapportée par at-Tirmidhī (n° 3507) », formule qui ne cite pas le hadith comme preuve (classé daʿīf par la source) ; le hadith lui-même n'est jamais affiché. Détail dans le README du module.
 
 ## Barre de debug
 
-En bas de toutes les pages en `APP_ENV=dev`, admin compris. Lien « Admin » tout à droite (`path('admin')`, vers `/login` hors connexion). La barre du haut n'affiche jamais de détail technique (erreur, requête, trace) : ce rôle reste à la barre de debug.
+En bas de toutes les pages en `APP_ENV=dev`, admin compris. Lien « Admin » (icône `gear`, absent sur les pages admin) à la suite des compteurs (`path('admin')`, vers `/login` hors connexion) ; tout à droite, un bouton fermer retire la barre de la page, elle revient au rechargement. La barre du haut n'affiche jamais de détail technique (erreur, requête, trace) : ce rôle reste à la barre de debug.

@@ -18,6 +18,8 @@ modules/Core/News/
 - Authentification en deux parties : le noyau (`src/Auth/`) porte ce dont le Router et les autres modules ont besoin (accès, mot de passe, jetons, session) et ne dépend d'aucun module ; `Core/Auth` porte les pages (connexion sous `/login`, lien, déconnexion, reset), leurs templates, traductions et mails. Détail : `specs/auth.md`
 - Traductions : celles de chaque module sont fusionnées, celles du cœur priment
 - Bloc : `{{ module('Banner') }}` rend `banner/block.twig` avec les données de `Block` (classe invocable qui renvoie un tableau), ou rien si le module est absent ou désactivé
+- Cadre du tableau de bord : `{{ module('Asma', 'dashboard') }}` rend `asma/dashboard.twig` avec les données de `Dashboard`, même règle. Partie en liste blanche (`block`, `dashboard`), sinon exception
+- Module d'exemple à copier : `modules/Extension/Asma` (cadre du tableau de bord, `title`, traductions), activé par l'install
 - Accueil : `custom.twig` s'il existe, sinon `main.twig` ; tous deux étendent `index.twig`. `custom.twig` appartient à l'utilisateur, non versionné et jamais remplacé à la mise à jour
 - Mise à jour : on remplace tout sauf `modules/Extension/`, `templates/custom.twig`, `data/`, `.env` et `public/uploads/`
 - Les extensions s'installent en déposant leur dossier sur le serveur, jamais depuis l'admin : une extension est du PHP avec tous les droits
@@ -34,6 +36,7 @@ modules/Core/News/
   "admin": [
     {"route": "admin_gallery", "label": "Gallery", "icon": "images"}
   ],
+  "title": {"en": "Gallery", "fr": "Galerie", "ar": "المعرض"},
   "description": {"en": "Photo galleries", "fr": "Galeries photo", "ar": "معارض الصور"}
 }
 ```
@@ -44,6 +47,7 @@ modules/Core/News/
 | `requires` | non | liste de noms de modules |
 | `locked` | non | booléen, pris en compte pour le cœur seulement |
 | `admin` | non | entrées du menu (`specs/admin.md`) : `route`, `label` (traduit), `icon` (même contrôle que `icon()`), toutes en chaînes |
+| `title` | non | nom affiché, objet par langue comme `description`, 60 caractères au plus. Page des modules : « Titre (Dossier) », sinon le nom du dossier seul |
 | `description` | non | objet par langue (`Translator::LOCALES`), `en` obligatoire, chaînes de 255 caractères au plus. Page des modules : langue de l'interface, sinon `en`. Dans `module.json` et pas dans les traductions : celles d'une extension inactive (du PHP) ne sont pas chargées |
 
 - Vérifié à la lecture par `Modules` : JSON invalide, objet attendu, type de chaque clé, clé inconnue (une faute de frappe comme `require` serait sinon ignorée) → mal formé. Cœur : `LogicException` ; extension : inactive avec un warning (Dépendances)
@@ -122,8 +126,8 @@ Console, même déroulé et mêmes vérifications que l'admin :
 - `{module}` cherché parmi les modules connus, 404 sinon, jamais utilisé comme chemin
 - Chaque POST : `Form::validToken()`, puis 303 vers la liste avec un flash (succès, ou refus listant les modules en cause : « Activez d'abord : News »)
 - Désinstallation confirmée sur une page à part : ce qui sera supprimé (données et dossier)
-- Liste : cœur puis extensions, triés par nom, en `list-group` (lisible sur mobile). Par module : nom, badge Yawasla (cœur, non traduit) / Extension, état, version (et version installée si différente), description, « Dépend de : … » et « Requis par : … » (modules présents, actifs ou non), chacune si non vide, et la raison seulement si c'est un problème à régler (mise à jour, version plus ancienne, `module.json` invalide, cycle)
-- Actions : module verrouillé → cadenas, aucune action ; sinon Activer / Désactiver ; extension inactive → Désinstaller en plus
+- Liste : cœur puis extensions, triés par nom affiché dans la langue de l'interface, en `list-group` (lisible sur mobile). Par module : nom affiché (`title`) suivi du nom du dossier entre parenthèses, badge Yawasla (cœur, non traduit) / Extension, état, version (et version installée si différente), description, dépendances en petits badges, par leur nom affiché, contour vert si le module requis est actif, gris sinon (libellé « Dépend de » pour les lecteurs d'écran seulement) si non vide, et la raison seulement si c'est un problème à régler (mise à jour, version plus ancienne, `module.json` invalide, cycle)
+- Actions : module verrouillé → cadenas, aucune action ; sinon Activer / Désactiver, Désactiver grisé (`disabled`) tant qu'un module actif en dépend (le refus côté serveur reste) ; extension inactive → Désinstaller en plus
 - La liste recompile (`Modules::discover()`) : une extension tout juste déposée y apparaît sans vider le cache
 - Bouton « Corbeille » en haut à droite (bloc `actions`), avec le nombre de dossiers, affiché si elle n'est pas vide. Page de la corbeille : par dossier, nom du module, date de désinstallation, jours avant suppression, bouton Restaurer ; mention « Les données ne sont pas restaurées ». Plusieurs dossiers du même module : chacun avec sa date
 - « Terminer la mise à jour » affiché seulement si une mise à jour est en attente : même déroulé qu'à la connexion (un admin déjà connecté ne se reconnecte pas)

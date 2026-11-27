@@ -1,0 +1,13 @@
+{
+    "version": "1.0.0",
+    "title": {
+        "en": "Janaza",
+        "fr": "Janaza",
+        "ar": "الجنائز"
+    },
+    "description": {
+        "en": "Funeral prayer notices of the organization and its mosques",
+        "fr": "Avis de prière funéraire de l'organisation et de ses mosquées",
+        "ar": "إعلانات صلاة الجنازة للمؤسسة ومساجدها"
+    }
+}

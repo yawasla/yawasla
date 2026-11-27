@@ -1,0 +1,13 @@
+{
+    "version": "1.0.0",
+    "title": {
+        "en": "Names of Allah",
+        "fr": "Noms d'Allah",
+        "ar": "أسماء الله الحسنى"
+    },
+    "description": {
+        "en": "One of the names of Allah each day on the dashboard",
+        "fr": "Un des noms d'Allah chaque jour sur le tableau de bord",
+        "ar": "اسم من أسماء الله الحسنى كل يوم في لوحة التحكم"
+    }
+}

@@ -40,7 +40,7 @@ return [
     'Zip code' => 'Code postal',
     'The address where the site opens, starting with https://. If it is in a subfolder, add it: https://www.example.org/site' => 'L\'adresse où le site est ouvert, commençant par https://. S\'il est dans un sous-dossier, ajoutez-le : https://www.example.org/site',
     'Ibn Umm Maktum Mosque' => 'Mosquée Ibn Oumm Maktoum',
-    'Ibn Umm Maktum Mosque: janaza announcements, news and donation appeals from our community.' => 'Mosquée Ibn Oumm Maktoum : annonces janaza, actualités et appels aux dons de notre communauté.',
+    'Ibn Umm Maktum Mosque: janaza, news and donation appeals from our community.' => 'Mosquée Ibn Oumm Maktoum : janaza, actualités et appels aux dons de notre communauté.',
     'Ibn Umm Maktum Cultural Association' => 'Association culturelle Ibn Oumm Maktoum',
     '12 Peace Street' => '12 rue de la Paix',
     'Paris' => 'Paris',

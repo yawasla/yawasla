@@ -1,6 +1,11 @@
 {
     "version": "1.0.0",
     "locked": true,
+    "title": {
+        "en": "Core",
+        "fr": "Socle",
+        "ar": "الأساس"
+    },
     "description": {
         "en": "Site foundation: layout, errors, theme",
         "fr": "Socle du site : mise en page, erreurs, thème",

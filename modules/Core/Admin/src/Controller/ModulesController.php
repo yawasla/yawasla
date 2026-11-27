@@ -27,18 +27,24 @@ final class ModulesController extends AbstractAdminController
         $modules = Modules::getInstance();
         $modules->discover();
         $list = array_values($modules->all());
-        usort($list, fn (array $a, array $b): int => [!$a['core'], $a['name']] <=> [!$b['core'], $b['name']]);
         $locale = Translator::getInstance()->locale();
-        $dependents = [];
+        $titles = [];
+        $needed = [];
 
         foreach ($list as $module) {
-            foreach ($module['requires'] as $required) {
-                $dependents[strtolower($required)][] = $module['name'];
+            $titles[$module['id']] = $module['title'][$locale] ?? $module['title']['en'] ?? $module['name'];
+
+            if ($module['active']) {
+                foreach ($module['requires'] as $required) {
+                    $needed[$required] = true;
+                }
             }
         }
 
+        usort($list, fn (array $a, array $b): int => [!$a['core'], mb_strtolower($titles[$a['id']])] <=> [!$b['core'], mb_strtolower($titles[$b['id']])]);
+
         return $this->render('admin/modules.twig', [
-            'modules' => array_map(fn (array $module): array => $module + ['message' => Modules::reason($module), 'text' => $module['description'][$locale] ?? $module['description']['en'] ?? '', 'dependents' => $dependents[$module['id']] ?? []], $list),
+            'modules' => array_map(fn (array $module): array => ['message' => Modules::reason($module), 'title' => $titles[$module['id']], 'text' => $module['description'][$locale] ?? $module['description']['en'] ?? '', 'requires' => array_map(fn (string $name): array => ['title' => $titles[strtolower($name)] ?? $name, 'active' => $modules->find($name)['active'] ?? false], $module['requires']), 'needed' => isset($needed[$module['name']])] + $module, $list),
             'update' => $modules->updatePending(),
             'trash' => count(Trash::list()),
         ]);

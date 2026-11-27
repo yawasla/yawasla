@@ -25,7 +25,7 @@
 │   ├── functions.php fonctions globales (dump()), chargées par autoload.files de Composer
 │   └── …             Notify/, Seo/ à venir
 ├── modules/
-│   ├── Core/         modules du cœur : Main, Auth, Install, News, Communication…
+│   ├── Core/         modules du cœur : Main, Admin, Auth, Install, News, Janaza, Article, Communication
 │   └── Extension/    modules de l'utilisateur
 ├── templates/      index.twig (structure de l'accueil), main.twig (accueil du cœur), custom.twig.example
 ├── specs/          specs détaillées par partie
@@ -80,6 +80,6 @@ Tout le site est fait de modules, ceux du cœur compris : `specs/modules.md`.
 - Chaque build vide `css/`, `js/`, `media/` et `.vite/` : on n'y écrit jamais à la main
 - Icônes : Phosphor (MIT), style `regular` seul, par npm, importé par `@main/ts/app.ts` pour tout le site ; police téléchargée seulement si une icône est affichée. Plugin Vite `woff2-only` : seul le woff2 est copié (le paquet déclare aussi ttf, woff et un svg de 3 Mo). Twig `icon('moon')` → `<i class="ph ph-moon" aria-hidden="true"></i>` (nom en minuscules et tirets, sinon exception) ; `icon-flip` retourne les icônes directionnelles en RTL
 - Police : Google Sans (OFL), variable 400–700, sans italique, sur tout le site. Exception à npm : le paquet Fontsource n'a pas l'arabe, les woff2 `latin`, `latin-ext` et `arabic` de Google Fonts sont versionnés dans `Core/Main/assets/fonts/` avec `OFL.txt`, déclarés dans `_fonts.scss` (`unicode-range` : l'arabe n'est chargé que s'il est affiché). Mise à jour : retélécharger ces trois fichiers
-- Formulaires : Shader UI (`@shader-ui/core`, MIT, npm, version figée) sur **tous** les formulaires, `data-shader-ui="form"` ; `data-sui-guide` en plus sur ceux qui ont des champs à remplir. Script `@main/ts/form.ts` (`autoInit()` et styles), chargé par les layouts qui ont des formulaires (install, connexion, admin) : pas sur le front, où il pèserait ~130 Ko sans servir. L'état vient du HTML (`required`, `aria-invalid`, `aria-busy`), jamais déclaré deux fois
+- Formulaires : Shader UI (`@shader-ui/core`, MIT, npm, `^0.3` : en 0.x, correctifs seulement) sur **tous** les formulaires, `data-shader-ui="form"` ; `data-sui-guide` en plus sur ceux qui ont des champs à remplir. Script `@main/ts/form.ts` (`autoInit()` et styles), chargé par les layouts qui ont des formulaires (install, connexion, admin) : pas sur le front, où il pèserait ~130 Ko sans servir. L'état vient du HTML (`required`, `aria-invalid`, `aria-busy`), jamais déclaré deux fois
 - `npm run build` et `npm run dev` vérifient les types (`tsc`) avant de compiler ; `npm run watch` ne les vérifie pas
 - Fichiers compilés non versionnés : les archives de release les contiennent

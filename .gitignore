@@ -11,3 +11,4 @@
 /templates/custom.twig
 /modules/Extension/*
 !/modules/Extension/.gitkeep
+!/modules/Extension/Asma/

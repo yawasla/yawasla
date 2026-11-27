@@ -28,4 +28,4 @@ Pistes non décidées. Une idée validée passe dans `roadmap.md`.
 - Extensions distribuées déjà compilées : aujourd'hui un seul build et un seul manifest pour tous les modules
 - `module()` sans `block.twig` : ne rien afficher au lieu d'une erreur (`custom.twig.example` appelle `module('News')`, qui n'a pas encore de bloc)
 - Cache d'un an pour les CSS et JS dans `public/.htaccess`, possible grâce aux noms hashés
-- Textes en dur à passer en anglais avec `|trans` (« Fil des annonces »…)
+- Textes en dur à passer en anglais avec `|trans` (« Fil des publications »…)

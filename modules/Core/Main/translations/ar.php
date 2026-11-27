@@ -40,7 +40,7 @@ return [
     'Zip code' => 'الرمز البريدي',
     'The address where the site opens, starting with https://. If it is in a subfolder, add it: https://www.example.org/site' => 'العنوان الذي يُفتح عليه الموقع، ويبدأ بـ https://. إذا كان في مجلد فرعي فأضفه: https://www.example.org/site',
     'Ibn Umm Maktum Mosque' => 'مسجد ابن أم مكتوم',
-    'Ibn Umm Maktum Mosque: janaza announcements, news and donation appeals from our community.' => 'مسجد ابن أم مكتوم: إعلانات الجنائز والأخبار ونداءات التبرع لجاليتنا.',
+    'Ibn Umm Maktum Mosque: janaza, news and donation appeals from our community.' => 'مسجد ابن أم مكتوم: الجنائز والأخبار ونداءات التبرع لجاليتنا.',
     'Ibn Umm Maktum Cultural Association' => 'جمعية ابن أم مكتوم الثقافية',
     '12 Peace Street' => '12 شارع السلام',
     'Paris' => 'باريس',

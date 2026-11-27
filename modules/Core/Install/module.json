@@ -1,6 +1,11 @@
 {
     "version": "1.0.0",
     "locked": true,
+    "title": {
+        "en": "Installation",
+        "fr": "Installation",
+        "ar": "التثبيت"
+    },
     "description": {
         "en": "Installation wizard",
         "fr": "Assistant d'installation",

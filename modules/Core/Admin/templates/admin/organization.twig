@@ -10,7 +10,7 @@
                     <form method="post" data-shader-ui="form" data-sui-guide action="{{ organization ? path('admin_organizations_edit', {id: organization.id}) : path('admin_organizations_new') }}">
                         {{ csrf() }}
                         {% include 'main/partials/form-error.twig' %}
-                        {% include 'main/partials/organization-fields.twig' with {full: true} %}
+                        {% include 'main/partials/organization-fields.twig' with {full: true, nameCheck: path('admin_organizations_check') ~ (organization ? '?id=' ~ organization.id : ''), nameCheckMessage: 'This name is already used by another organization.'|trans} %}
                         <div class="d-flex flex-wrap gap-2">
                             <button type="submit" class="btn btn-primary">{{ 'Save'|trans }}</button>
                             <a class="btn btn-outline-secondary" href="{{ path('admin_organizations') }}">{{ 'Cancel'|trans }}</a>

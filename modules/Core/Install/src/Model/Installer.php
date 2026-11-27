@@ -6,10 +6,14 @@ namespace Yawasla\Module\Core\Install\Model;
 
 use Medoo\Medoo;
 use Yawasla\Database\Connection;
+use Yawasla\Core\ModuleException;
 use Yawasla\Core\ModuleManager;
+use Yawasla\Core\Modules;
 
 final class Installer
 {
+    private const EXTENSIONS = ['Asma'];
+
     /**
      * @param array<string, string> $site
      * @param array<string, string> $organization
@@ -17,7 +21,20 @@ final class Installer
      */
     public function install(array $site, array $organization, array $admin): void
     {
-        (new ModuleManager())->finishUpdate();
+        $manager = new ModuleManager();
+        $manager->finishUpdate();
+
+        foreach (self::EXTENSIONS as $name) {
+            if (Modules::getInstance()->find($name) === null) {
+                continue;
+            }
+
+            try {
+                $manager->enable($name);
+            } catch (ModuleException $e) {
+                trigger_error('Extension ' . $name . ' not enabled at install: ' . $e->getMessage(), E_USER_WARNING);
+            }
+        }
 
         $now = date('Y-m-d H:i:s');
 

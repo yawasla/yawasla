@@ -8,6 +8,7 @@ use Medoo\Medoo;
 use PDO;
 use Twig\Profiler\Profile;
 use Yawasla\Auth\Auth;
+use Yawasla\Controller\AbstractAdminController;
 use Yawasla\Core\Config;
 use Yawasla\Core\Modules;
 use Yawasla\Http\Request;
@@ -124,6 +125,7 @@ final class Debug
 
         return [
             'route' => ['name' => $router->current(), 'auth' => $router->auth(), 'user' => $this->user(), 'locale' => $router->locale(), 'basePath' => $router->basePath()] + ($this->route ?? []),
+            'in_admin' => is_a($this->route['class'] ?? '', AbstractAdminController::class, true),
             'request' => [
                 'method' => $request->method(),
                 'uri' => $request->path(),

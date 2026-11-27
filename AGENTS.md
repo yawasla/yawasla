@@ -1,6 +1,6 @@
 # Yawasla — Contexte projet
 
-Newsroom en ligne pour les mosquées et associations musulmanes (annonces Janaza, actualités, appels au don…), diffusée par web push et mail, sans appli à installer. Open source (Apache 2.0), auto-hébergé.
+Newsroom en ligne pour les mosquées et associations musulmanes (Janaza, actualités, appels au don…), diffusée par web push et mail, sans appli à installer. Open source (Apache 2.0), auto-hébergé.
 
 **Deux critères arbitrent tout : facilité et sécurité.** Facile à installer et à maintenir par un débutant ; sécurisé par défaut, car un site compromis qui publie au nom d'une mosquée nuit durablement à son image. Moins de code = moins de surface d'attaque : en cas de doute, la solution la plus simple.
 
@@ -76,8 +76,8 @@ En place :
 
 | Chemin | Rôle |
 |---|---|
-| `/` | Newsroom publique : infos de l'organisme, annonces |
-| `/news/{slug}` | Page d'une annonce, balises Open Graph (aperçu WhatsApp/Facebook) |
+| `/` | Newsroom publique : infos de l'organisme, publications |
+| `/news/{slug}` | Page d'une actualité, balises Open Graph (aperçu WhatsApp/Facebook) |
 | `/feed` | **Seule partie PWA** (manifest et service worker limités à `/feed`) : fil, abonnement push et mail |
 | `/admin` | Back-office, hors portée du service worker |
 
@@ -90,6 +90,6 @@ En place :
 - Connexion en deux temps : identifiants, puis lien à usage unique de 5 min par mail. Le lien ouvre une page avec un bouton qui valide (jamais à l'ouverture : scanners de liens)
 - Réponse d'échec uniforme quelle que soit la raison ; limitation par IP
 
-**Mail** : deux voies. Sécurité (connexion, reset) via PHPMailer (SMTP ou `mail()`), indépendante du fournisseur de diffusion. Diffusion des annonces via Brevo, interchangeable.
+**Mail** : deux voies. Sécurité (connexion, reset) via PHPMailer (SMTP ou `mail()`), indépendante du fournisseur de diffusion. Diffusion des publications via Brevo, interchangeable.
 
 **i18n** : interface du système en fr, en, ar ; langue de l'admin, de la connexion et de l'install dans l'URL (`/admin/fr/…`, `/login/fr/…`, `/install/fr`), celle du front dans `.env` (`APP_LANG`, qui est aussi la langue de ces pages sans préfixe). RTL : propriétés CSS logiques dans nos styles, Bootstrap compilé en `app.rtl.scss` via rtlcss. Langue d'interface ≠ langue du contenu.

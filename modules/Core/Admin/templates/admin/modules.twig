@@ -22,15 +22,21 @@
         {% for module in modules %}
             <li class="list-group-item d-flex flex-wrap align-items-center gap-2 py-3">
                 <div class="me-auto">
-                    <div class="d-flex flex-wrap align-items-center gap-2">
-                        <span class="fw-semibold">{{ module.name }}</span>
+                    <div class="d-flex flex-wrap align-items-center column-gap-2 row-gap-1">
+                        <span class="fw-semibold">{{ module.title }}</span>
+                        <span class="small text-body-secondary">({{ module.name }})</span>
+                        <span class="w-100 d-md-none"></span>
                         <span class="badge {{ module.core ? 'text-bg-primary' : 'text-bg-success' }}">{{ module.core ? 'Yawasla' : 'Extension'|trans }}</span>
                         <span class="badge {{ module.active ? 'text-bg-warning' : 'text-bg-light border' }}">{{ (module.active ? 'Enabled' : 'Disabled')|trans }}</span>
                         <span class="small text-body-secondary">{{ module.version }}</span>
                     </div>
-                    {% if module.text %}<p class="small mb-0">{{ module.text }}</p>{% endif %}
-                    {% if module.requires %}<p class="small text-body-secondary mb-0"><small><span class="icon-flip d-inline-block">{{ icon('caret-right') }}</span> {{ 'Depends on: %modules%'|trans({'%modules%': module.requires|join(', ')}) }}</small></p>{% endif %}
-                    {% if module.dependents %}<p class="small text-body-secondary mb-0"><small><span class="icon-flip d-inline-block">{{ icon('caret-right') }}</span> {{ 'Required by: %modules%'|trans({'%modules%': module.dependents|join(', ')}) }}</small></p>{% endif %}
+                    {% if module.text %}<p class="small mt-2 mt-md-0 mb-0">{{ module.text }}</p>{% endif %}
+                    {% if module.requires %}
+                        <p class="d-flex flex-wrap gap-1 mt-1 mb-0">
+                            <span class="visually-hidden">{{ 'Depends on'|trans }}</span>
+                            {% for required in module.requires %}<span class="badge rounded-pill border fw-normal {{ required.active ? 'border-success text-success-emphasis' : 'text-body-secondary' }}">{{ required.title }}</span>{% endfor %}
+                        </p>
+                    {% endif %}
                     {% if module.message[0] and module.reason not in ['locked', 'requires', 'disabled', 'not_enabled'] %}<p class="small text-body-secondary mb-0">{{ module.message[0]|trans(module.message[1]) }}</p>{% endif %}
                     {% if module.installed and module.installed != module.version %}<p class="small text-body-secondary mb-0">{{ 'Installed version: %version%'|trans({'%version%': module.installed}) }}</p>{% endif %}
                 </div>
@@ -40,7 +46,7 @@
                     <div class="d-flex gap-2">
                         <form method="post" data-shader-ui="form" action="{{ path(module.wanted ? 'admin_modules_disable' : 'admin_modules_enable', {module: module.name}) }}">
                             {{ csrf() }}
-                            <button type="submit" class="btn btn-sm {{ module.wanted ? 'btn-outline-secondary' : 'btn-primary' }}">{{ (module.wanted ? 'Disable' : 'Enable')|trans }}</button>
+                            <button type="submit" class="btn btn-sm {{ module.wanted ? 'btn-outline-secondary' : 'btn-primary' }}"{% if module.wanted and module.needed %} disabled{% endif %}>{{ (module.wanted ? 'Disable' : 'Enable')|trans }}</button>
                         </form>
                         {% if not module.core and not module.wanted %}
                             <a class="btn btn-sm btn-outline-danger" href="{{ path('admin_modules_uninstall', {module: module.name}) }}">{{ 'Uninstall'|trans }}</a>

@@ -1,8 +1,13 @@
 {
     "version": "1.0.0",
+    "title": {
+        "en": "News",
+        "fr": "Actualités",
+        "ar": "الأخبار"
+    },
     "description": {
-        "en": "Announcements published by the organization",
-        "fr": "Annonces publiées par l'organisation",
-        "ar": "الإعلانات التي تنشرها المؤسسة"
+        "en": "News published by the organization",
+        "fr": "Actualités publiées par l'organisation",
+        "ar": "الأخبار التي تنشرها المؤسسة"
     }
 }

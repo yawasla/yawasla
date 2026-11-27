@@ -3,6 +3,7 @@
 ## Module
 
 - Module du cœur `modules/Core/Install`, verrouillé comme `Main` : on ne peut pas le désactiver
+- Active les extensions livrées par défaut si elles sont présentes (`Installer::EXTENSIONS` : `Asma`) ; un échec n'empêche pas l'install (warning)
 - Route `/install`, hors de `/admin`. Langue dans l'URL comme `/login` (`/install/fr`, `/install/ar`, langue de `APP_LANG` sans préfixe), bouton de langue flottant ; les saisies restent en session au changement de langue
 
 ## État de l'installation
